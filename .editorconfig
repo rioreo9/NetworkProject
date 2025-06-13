@@ -1,0 +1,55 @@
+root = true
+
+# 全ファイル共通設定
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# C#ファイル用設定
+[*.cs]
+
+# ローカル変数、メソッドパラメータはcamelCase
+dotnet_naming_rule.local_variables_should_be_camel_case.severity = suggestion
+dotnet_naming_rule.local_variables_should_be_camel_case.symbols = local_variables
+dotnet_naming_rule.local_variables_should_be_camel_case.style = camel_case_style
+
+dotnet_naming_symbols.local_variables.applicable_kinds = local
+dotnet_naming_symbols.local_variables.applicable_accessibilities = *
+dotnet_naming_symbols.local_variables.required_modifiers = *
+
+dotnet_naming_style.camel_case_style.capitalization = camel_case
+dotnet_naming_style.camel_case_style.required_prefix =
+dotnet_naming_style.camel_case_style.required_suffix =
+dotnet_naming_style.camel_case_style.word_separator =
+
+# メソッド、プロパティ、パブリックフィールドはPascalCase
+dotnet_naming_rule.methods_properties_fields_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.methods_properties_fields_should_be_pascal_case.symbols = methods_properties_fields
+dotnet_naming_rule.methods_properties_fields_should_be_pascal_case.style = pascal_case_style
+
+dotnet_naming_symbols.methods_properties_fields.applicable_kinds = method, property, field
+dotnet_naming_symbols.methods_properties_fields.applicable_accessibilities = *
+dotnet_naming_symbols.methods_properties_fields.required_modifiers = *
+
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+dotnet_naming_style.pascal_case_style.required_prefix =
+dotnet_naming_style.pascal_case_style.required_suffix =
+dotnet_naming_style.pascal_case_style.word_separator =
+
+# Privateフィールドは _camelCase 形式
+dotnet_naming_rule.private_fields_should_have_underscore_prefix.severity = suggestion
+dotnet_naming_rule.private_fields_should_have_underscore_prefix.symbols = private_fields
+dotnet_naming_rule.private_fields_should_have_underscore_prefix.style = underscore_prefix_style
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_fields.required_modifiers =
+
+dotnet_naming_style.underscore_prefix_style.capitalization = camel_case
+dotnet_naming_style.underscore_prefix_style.required_prefix = _
+dotnet_naming_style.underscore_prefix_style.required_suffix =
+dotnet_naming_style.underscore_prefix_style.word_separator =
