@@ -4,30 +4,39 @@ using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using System;
 using System.IO;
-using System.Linq;
 
-// エディター拡張のクラス
+// 設定クラス
 public class AutoSaveConfig : ScriptableObject
 {
-    public bool isEnabled = true;
-    public float saveInterval = 300f; // デフォルトを5分に変更（短すぎると頻繁な保存でパフォーマンスに影響）
-    public float minSaveInterval = 60f; // 最小保存間隔を1分に設定
+    [SerializeField] private bool isEnabled = true;
+    [SerializeField] private float saveInterval = 300f;
+    [SerializeField] private float minSaveInterval = 60f;
 
-    // 設定アセットのパス
+    public bool IsEnabled
+    {
+        get => isEnabled;
+        set => isEnabled = value;
+    }
+
+    public float SaveInterval
+    {
+        get => saveInterval;
+        set => saveInterval = Mathf.Max(value, minSaveInterval);
+    }
+
+    public float MinSaveInterval => minSaveInterval;
+
     private const string ASSET_PATH = "Assets/Editor/AutoSaveConfig.asset";
 
-    // 設定の読み込み
     public static AutoSaveConfig GetOrCreateSettings()
     {
         AutoSaveConfig settings = AssetDatabase.LoadAssetAtPath<AutoSaveConfig>(ASSET_PATH);
         if (settings == null)
         {
-            // 設定ファイルが存在しない場合は新規作成
             settings = ScriptableObject.CreateInstance<AutoSaveConfig>();
 
             try
             {
-                // ディレクトリが存在しない場合は作成
                 string directoryPath = Path.GetDirectoryName(ASSET_PATH);
                 if (!Directory.Exists(directoryPath))
                 {
@@ -39,14 +48,12 @@ public class AutoSaveConfig : ScriptableObject
             }
             catch (Exception e)
             {
-                Debug.LogError($"[AutoSave] 設定ファイルの作成に失敗しました: {e.Message}");
-                return settings; // 失敗してもインスタンスは返す
+                Debug.LogError($"[AutoSave] 設定ファイルの作成に失敗: {e.Message}");
             }
         }
         return settings;
     }
 
-    // 設定の保存
     public void Save()
     {
         EditorUtility.SetDirty(this);
@@ -60,30 +67,37 @@ public class AutoSave
     private static AutoSaveConfig config;
     private static DateTime lastSaveTime;
     private static bool isSubscribed = false;
+    private static bool hasUnsavedChanges = false;
 
-    // コンストラクタ（エディター起動時に実行）
+    public static DateTime LastSaveTime => lastSaveTime;
+
     static AutoSave()
     {
-        // 設定の読み込み
         config = AutoSaveConfig.GetOrCreateSettings();
         lastSaveTime = DateTime.Now;
 
-        // イベント登録
         SubscribeToEvents();
-
-        // プレイモードの監視
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        EditorApplication.quitting += OnEditorQuitting;
+
+        // 変更検知用のイベント登録
+        EditorApplication.hierarchyChanged += OnHierarchyChanged;
+        EditorApplication.projectChanged += OnProjectChanged;
+        Undo.undoRedoPerformed += OnUndoRedoPerformed;
+
+        // ドメインリロード対策
+        AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
     }
 
     private static void SubscribeToEvents()
     {
-        if (config.isEnabled && !isSubscribed)
+        if (config.IsEnabled && !isSubscribed)
         {
             EditorApplication.update += Update;
             isSubscribed = true;
             Debug.Log("[AutoSave] 自動保存機能が有効になりました");
         }
-        else if (!config.isEnabled && isSubscribed)
+        else if (!config.IsEnabled && isSubscribed)
         {
             EditorApplication.update -= Update;
             isSubscribed = false;
@@ -91,94 +105,147 @@ public class AutoSave
         }
     }
 
-    private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    // 変更検知用のイベントハンドラー
+    private static void OnHierarchyChanged()
     {
-        if (state == PlayModeStateChange.ExitingPlayMode)
-        {
-            // プレイモード終了時に保存
-            if (config.isEnabled)
-            {
-                SaveAll();
-                lastSaveTime = DateTime.Now;
-            }
-        }
+        hasUnsavedChanges = true;
     }
 
-    static void Update()
+    private static void OnProjectChanged()
     {
-        if (!config.isEnabled)
-            return;
+        hasUnsavedChanges = true;
+    }
 
-        // 設定された間隔で保存を実行
-        if ((DateTime.Now - lastSaveTime).TotalSeconds >= config.saveInterval)
+    private static void OnUndoRedoPerformed()
+    {
+        hasUnsavedChanges = true;
+    }
+
+    private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingPlayMode && config.IsEnabled)
         {
             SaveAll();
             lastSaveTime = DateTime.Now;
         }
     }
 
-    // シーンとアセットの保存を実行
+    private static void OnEditorQuitting()
+    {
+        if (config.IsEnabled)
+        {
+            SaveAll();
+            Debug.Log("[AutoSave] エディター終了時に保存しました");
+        }
+    }
+
+    private static void OnBeforeAssemblyReload()
+    {
+        if (isSubscribed)
+        {
+            EditorApplication.update -= Update;
+            isSubscribed = false;
+        }
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        EditorApplication.quitting -= OnEditorQuitting;
+        EditorApplication.hierarchyChanged -= OnHierarchyChanged;
+        EditorApplication.projectChanged -= OnProjectChanged;
+        Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+    }
+
+    static void Update()
+    {
+        if (!config.IsEnabled || EditorApplication.isPlaying)
+            return;
+
+        // 設定された間隔で保存を実行
+        if ((DateTime.Now - lastSaveTime).TotalSeconds >= config.SaveInterval)
+        {
+            // 変更がある場合のみ保存処理を実行
+            if (hasUnsavedChanges || HasDirtyScenes())
+            {
+                SaveAll();
+                lastSaveTime = DateTime.Now;
+                hasUnsavedChanges = false;
+            }
+            else
+            {
+                // 変更がない場合も時間をリセット
+                lastSaveTime = DateTime.Now;
+            }
+        }
+    }
+
+    // シーンの変更確認（軽量）
+    private static bool HasDirtyScenes()
+    {
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            if (SceneManager.GetSceneAt(i).isDirty)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 軽量化された保存処理
     static void SaveAll()
     {
         if (EditorApplication.isPlaying)
             return;
 
-        bool anySceneDirty = false;
-        bool anyAssetDirty = false;
+        bool sceneSaved = false;
 
-        // シーンの変更を確認
-        for (int i = 0; i < SceneManager.sceneCount; i++)
-        {
-            if (SceneManager.GetSceneAt(i).isDirty)
-            {
-                anySceneDirty = true;
-                break;
-            }
-        }
-
-        // アセットの変更を確認
-        string[] dirtyAssets = AssetDatabase.GetAllAssetPaths()
-            .Where(path => EditorUtility.IsDirty(AssetDatabase.LoadMainAssetAtPath(path)))
-            .ToArray();
-        anyAssetDirty = dirtyAssets.Length > 0;
-
-        // 変更があるシーンのみ保存
-        if (anySceneDirty)
+        // シーンの保存
+        if (HasDirtyScenes())
         {
             EditorSceneManager.SaveOpenScenes();
-            Debug.Log($"[AutoSave] シーンを自動保存しました: {DateTime.Now}");
+            Debug.Log($"[AutoSave] シーン保存: {DateTime.Now:HH:mm:ss}");
+            sceneSaved = true;
         }
 
-        // 変更があるアセットのみ保存
-        if (anyAssetDirty)
+        // アセットの保存（常に実行して安全に）
+        // AssetDatabase.SaveAssetsは内部で変更チェックを行うため軽量
+        AssetDatabase.SaveAssets();
+
+        if (!sceneSaved) // シーンが保存されていない場合のみログ出力
         {
-            AssetDatabase.SaveAssets();
-            Debug.Log($"[AutoSave] アセットを自動保存しました: {DateTime.Now}");
+            Debug.Log($"[AutoSave] アセット保存: {DateTime.Now:HH:mm:ss}");
         }
     }
 
-    // 設定更新時に呼び出すメソッド
     public static void RefreshSettings()
     {
         config = AutoSaveConfig.GetOrCreateSettings();
         SubscribeToEvents();
     }
+
+    public static void ForceSave()
+    {
+        EditorSceneManager.SaveOpenScenes();
+        AssetDatabase.SaveAssets();
+        lastSaveTime = DateTime.Now;
+        hasUnsavedChanges = false;
+        Debug.Log($"[AutoSave] 手動保存完了: {DateTime.Now:HH:mm:ss}");
+    }
 }
 
-// 設定用のエディターウィンドウ
+// 設定ウィンドウ
 public class AutoSaveSettingsWindow : EditorWindow
 {
     private AutoSaveConfig config;
+    private double nextRepaintTime = 0;
 
     [MenuItem("Tools/Auto Save/Settings")]
     public static void ShowWindow()
     {
-        GetWindow<AutoSaveSettingsWindow>("Auto Save Settings");
+        var window = GetWindow<AutoSaveSettingsWindow>("Auto Save Settings");
+        window.minSize = new Vector2(300, 250);
     }
 
     void OnEnable()
     {
-        // ウィンドウが開かれた時に設定を読み込む
         config = AutoSaveConfig.GetOrCreateSettings();
     }
 
@@ -186,48 +253,76 @@ public class AutoSaveSettingsWindow : EditorWindow
     {
         if (config == null)
         {
-            config = AutoSaveConfig.GetOrCreateSettings();
+            EditorGUILayout.HelpBox("設定の読み込みに失敗しました", MessageType.Error);
+            return;
         }
 
         EditorGUI.BeginChangeCheck();
 
-        config.isEnabled = EditorGUILayout.Toggle("自動保存を有効化", config.isEnabled);
+        EditorGUILayout.LabelField("自動保存設定", EditorStyles.boldLabel);
+        EditorGUILayout.Space(5);
 
-        // 最小値を制限したスライダーで保存間隔を設定
-        float newInterval = EditorGUILayout.Slider("保存間隔 (秒)", config.saveInterval,
-                                                 config.minSaveInterval, 1800f);
+        config.IsEnabled = EditorGUILayout.Toggle("自動保存を有効化", config.IsEnabled);
 
-        // 値が変わっていたら更新
-        if (newInterval != config.saveInterval)
-        {
-            config.saveInterval = newInterval;
-        }
+        EditorGUI.BeginDisabledGroup(!config.IsEnabled);
+
+        float minutes = config.SaveInterval / 60f;
+        float newMinutes = EditorGUILayout.Slider("保存間隔 (分)", minutes, 1f, 30f);
+        config.SaveInterval = newMinutes * 60f;
+
+        EditorGUI.EndDisabledGroup();
 
         if (EditorGUI.EndChangeCheck())
         {
-            // 値が変更された場合は設定を保存
-            config.Save();
+            EditorUtility.SetDirty(config);
             AutoSave.RefreshSettings();
         }
 
-        // 情報表示
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-        EditorGUILayout.HelpBox($"現在の設定:\n・自動保存: {(config.isEnabled ? "有効" : "無効")}\n・保存間隔: {config.saveInterval:0.0}秒 ({config.saveInterval / 60:0.0}分)",
-                              MessageType.Info);
 
-        EditorGUILayout.Space(10);
-        if (GUILayout.Button("今すぐ保存"))
+        // ステータス表示
+        string statusText = $"状態: {(config.IsEnabled ? "有効" : "無効")}\n" +
+                           $"保存間隔: {config.SaveInterval:0}秒 ({config.SaveInterval / 60:0.0}分)";
+
+        EditorGUILayout.HelpBox(statusText, MessageType.Info);
+
+        // カウントダウン表示
+        if (config.IsEnabled && !EditorApplication.isPlaying)
         {
-            EditorSceneManager.SaveOpenScenes();
-            AssetDatabase.SaveAssets();
-            Debug.Log($"[AutoSave] プロジェクトを手動で保存しました: {DateTime.Now}");
+            var timeSinceLastSave = DateTime.Now - AutoSave.LastSaveTime;
+            var timeUntilNextSave = TimeSpan.FromSeconds(config.SaveInterval) - timeSinceLastSave;
+
+            if (timeUntilNextSave.TotalSeconds > 0)
+            {
+                EditorGUILayout.LabelField($"次回保存まで: {timeUntilNextSave:mm\\:ss}");
+
+                // 1秒に1回だけRepaint
+                if (EditorApplication.timeSinceStartup > nextRepaintTime)
+                {
+                    nextRepaintTime = EditorApplication.timeSinceStartup + 1.0;
+                    Repaint();
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("次回保存まで: まもなく");
+            }
         }
+
+        EditorGUILayout.Space(15);
+
+        if (GUILayout.Button("今すぐ保存", GUILayout.Height(30)))
+        {
+            AutoSave.ForceSave();
+        }
+
+        EditorGUILayout.Space(5);
+        EditorGUILayout.LabelField("※ 変更がある場合のみ自動保存されます", EditorStyles.miniLabel);
     }
 
     void OnDestroy()
     {
-        // ウィンドウが閉じられた時に設定が変更されていればマークして保存
         if (config != null && EditorUtility.IsDirty(config))
         {
             config.Save();
