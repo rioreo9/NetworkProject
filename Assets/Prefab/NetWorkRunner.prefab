@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7880181303805449723}
   - component: {fileID: -62276876764842548}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: NetWorkRunner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -2,34 +2,47 @@ using Fusion;
 using Fusion.Sockets;
 using System.Collections.Generic;
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 {
-    [SerializeField]
+    [SerializeField, Required]
     private NetworkRunner networkRunnerPrefab;
-    [SerializeField]
+    [SerializeField, Required]
     private NetworkPrefabRef _player;
 
     private async void Start()
+    {
+        await DoConnectNet();
+    }
+
+    private async Task DoConnectNet()
     {
         // NetworkRunnerを生成する
         var networkRunner = Instantiate(networkRunnerPrefab);
         // 共有モードのセッションに参加する
         networkRunner.AddCallbacks(this);
+
         var result = await networkRunner.StartGame(new StartGameArgs
         {
             GameMode = GameMode.Shared
         });
-        // 結果をコンソールに出力する
-        Debug.Log(result);
+
+        if (result.Ok)
+        {
+            Debug.Log("サーバー起動");
+        }
+        else
+        {
+            Debug.LogError($"サーバー起動失敗: {result.ShutdownReason}");
+        }
     }
 
     void INetworkRunnerCallbacks.OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     void INetworkRunnerCallbacks.OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        print($"Player {player.PlayerId} joined the session.");
         // セッションへ参加したプレイヤーが自分自身かどうかを判定する
         if (player == runner.LocalPlayer)
         {
