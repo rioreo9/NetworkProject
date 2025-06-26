@@ -36,8 +36,6 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         else
         {
             Debug.LogError($"サーバー起動失敗: {result.ShutdownReason}");
-
-            await DoConnectNet();
         }
     }
 
