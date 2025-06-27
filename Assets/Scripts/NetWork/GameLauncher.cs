@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Collections;
 
 public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 {
@@ -12,30 +13,66 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField, Required]
     private NetworkPrefabRef _player;
 
+    private NetworkRunner _runner;
+
     private async void Start()
     {
+        // インターネット接続状態を確認
+        StartCoroutine(CheckInternetConnection());
+        
         await DoConnectNet();
+    }
+
+    /// <summary>
+    /// インターネット接続状態を確認する
+    /// </summary>
+    private IEnumerator CheckInternetConnection()
+    {
+        // Photonのマスターサーバーへの接続テスト
+        using (var www = UnityEngine.Networking.UnityWebRequest.Get("https://www.google.com"))
+        {
+            yield return www.SendWebRequest();
+            
+            if (www.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"インターネット接続エラー: {www.error}");
+                Debug.LogError("インターネット接続を確認してください");
+            }
+            else
+            {
+                Debug.Log("インターネット接続: OK");
+            }
+        }
     }
 
     private async Task DoConnectNet()
     {
         // NetworkRunnerを生成する
-        var networkRunner = Instantiate(networkRunnerPrefab);
+        _runner = Instantiate(networkRunnerPrefab);
         // 共有モードのセッションに参加する
-        networkRunner.AddCallbacks(this);
+        _runner.AddCallbacks(this);
 
-        var result = await networkRunner.StartGame(new StartGameArgs
+        var result = await _runner.StartGame(new StartGameArgs
         {
-            GameMode = GameMode.Shared
+            GameMode = GameMode.Shared,
+            // セッション名を明示的に指定（ランダムな部屋に参加）
+            SessionName = "1",
+            // プレイヤー数を指定
+            PlayerCount = 4,
+            // カスタムロビー名（オプション）
+            CustomLobbyName = "DefaultLobby",
+         
         });
 
         if (result.Ok)
         {
-            Debug.Log("サーバー起動");
+            Debug.Log($"サーバー起動成功: セッション名 = {_runner.SessionInfo?.Name}");
         }
         else
         {
             Debug.LogError($"サーバー起動失敗: {result.ShutdownReason}");
+            // エラーの詳細情報を出力
+            Debug.LogError($"エラーメッセージ: {result.ErrorMessage}");
         }
     }
 
@@ -56,11 +93,32 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     void INetworkRunnerCallbacks.OnInput(NetworkRunner runner, NetworkInput input) { }
     void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
-    void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-    void INetworkRunnerCallbacks.OnConnectedToServer(NetworkRunner runner) { }
-    void INetworkRunnerCallbacks.OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
+    void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) 
+    {
+        // シャットダウン時の詳細情報をログ出力
+        Debug.LogWarning($"NetworkRunner シャットダウン: {shutdownReason}");
+    }
+    
+    void INetworkRunnerCallbacks.OnConnectedToServer(NetworkRunner runner) 
+    {
+        // サーバー接続成功時のログ
+        Debug.Log("サーバーへの接続に成功しました");
+    }
+    
+    void INetworkRunnerCallbacks.OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) 
+    {
+        // サーバーから切断された時の詳細情報をログ出力
+        Debug.LogError($"サーバーから切断されました: {reason}");
+    }
+    
     void INetworkRunnerCallbacks.OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
-    void INetworkRunnerCallbacks.OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
+    
+    void INetworkRunnerCallbacks.OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) 
+    {
+        // 接続失敗時の詳細情報をログ出力
+        Debug.LogError($"接続に失敗しました: {reason}");
+        Debug.LogError($"リモートアドレス: {remoteAddress}");
+    }
     void INetworkRunnerCallbacks.OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
     void INetworkRunnerCallbacks.OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
     void INetworkRunnerCallbacks.OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
