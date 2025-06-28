@@ -58,12 +58,11 @@ public class PlayerAvatar : NetworkBehaviour
     /// </summary>
     public override void FixedUpdateNetwork()
     {
-        // 入力権限を持つプレイヤーのみ処理
-        if (!Object.HasInputAuthority) return;
-        
+
         // ネットワーク入力を取得
         if (GetInput<PlayerNetworkInput>(out PlayerNetworkInput input))
         {
+            Debug.Log($"ネットワーク入力取得: {input.MovementInput}, ジャンプ: {input.JumpPressed}, インタラクト: {input.InteractPressed}");
             ProcessMovement(input); // 移動処理
             ProcessInteraction(input); // インタラクト処理
         }
@@ -98,7 +97,9 @@ public class PlayerAvatar : NetworkBehaviour
     {
         // カメラ方向を基準とした移動方向計算
         Vector3 moveDirection = Vector3.zero;
-        
+
+        Debug.Log($"移動方向: {moveDirection}, 入力: {input.MovementInput}");
+
         if (_playerCamera != null)
         {
             // カメラの前方向を基準に移動方向を計算
@@ -113,6 +114,8 @@ public class PlayerAvatar : NetworkBehaviour
             
             // 入力に基づいて移動方向を決定
             moveDirection = (forward * input.MovementInput.y + right * input.MovementInput.x).normalized;
+
+            
         }
         else
         {
@@ -156,20 +159,5 @@ public class PlayerAvatar : NetworkBehaviour
         
         // パーティクルエフェクト等をここで再生
         // PlayInteractionEffect();
-    }
-
-    /// <summary>
-    /// デバッグ用：ネットワーク状態の表示
-    /// </summary>
-    private void OnGUI()
-    {
-        if (!_isLocalPlayer) return;
-        
-        GUILayout.BeginVertical("box");
-        GUILayout.Label($"Local Player: {Object.InputAuthority}");
-        GUILayout.Label($"Position: {transform.position}");
-        GUILayout.Label($"Network Position: {NetworkPosition}");
-        GUILayout.Label($"Has Input Authority: {Object.HasInputAuthority}");
-        GUILayout.EndVertical();
     }
 }

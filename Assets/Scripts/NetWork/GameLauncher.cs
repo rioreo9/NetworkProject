@@ -55,7 +55,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         // 共有モードのセッションに参加する
         _runner.AddCallbacks(this);
 
-        var result = await _runner.StartGame(new StartGameArgs
+        StartGameResult result = await _runner.StartGame(new StartGameArgs
         {
             GameMode = GameMode.Shared,
             // セッション名を明示的に指定（ランダムな部屋に参加）
@@ -87,10 +87,10 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         if (player == runner.LocalPlayer)
         {
             // アバターの初期位置を計算する（半径5の円の内部のランダムな点）
-            var rand = UnityEngine.Random.insideUnitCircle * 5f;
-            var spawnPosition = new Vector3(rand.x, 2f, rand.y);
+            Vector2 rand = UnityEngine.Random.insideUnitCircle * 5f;
+            Vector3 spawnPosition = new Vector3(rand.x, 2f, rand.y);
             // 自分自身のアバターをスポーンする
-            runner.Spawn(_player, spawnPosition, Quaternion.identity);
+            var spawnedObject =  runner.Spawn(_player, spawnPosition, Quaternion.identity, player);
         }
     }
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
@@ -98,6 +98,8 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (_inputManager != null)
         {
+            Debug.Log("ネットワーク入力を取得します");
+
             PlayerNetworkInput networkInput = _inputManager.NetworkInput;
             // ネットワーク入力として設定
             input.Set(networkInput);
