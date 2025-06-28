@@ -12,11 +12,14 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     private NetworkRunner networkRunnerPrefab;
     [SerializeField, Required]
     private NetworkPrefabRef _player;
+    [SerializeField, Required]
+    private InputManager _inputManager;
 
     private NetworkRunner _runner;
+    
 
     private async void Start()
-    {
+    { 
         // インターネット接続状態を確認
         StartCoroutine(CheckInternetConnection());
         
@@ -91,8 +94,19 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
-    void INetworkRunnerCallbacks.OnInput(NetworkRunner runner, NetworkInput input) { }
-    void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
+    void INetworkRunnerCallbacks.OnInput(NetworkRunner runner, NetworkInput input)
+    {
+        if (_inputManager != null)
+        {
+            PlayerNetworkInput networkInput = _inputManager.NetworkInput;
+            // ネットワーク入力として設定
+            input.Set(networkInput);
+        }
+    }
+    void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
+    {
+        Debug.LogWarning($"プレイヤー {player} の入力が不足しています");
+    }
     void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) 
     {
         // シャットダウン時の詳細情報をログ出力

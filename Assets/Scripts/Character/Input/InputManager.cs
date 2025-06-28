@@ -13,6 +13,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     private bool _interactPressed = false;
 
     private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
+    public PlayerNetworkInput NetworkInput => _networkInput;
 
     private readonly Subject<PlayerNetworkInput> _networkInputSubject = new Subject<PlayerNetworkInput>();
 
