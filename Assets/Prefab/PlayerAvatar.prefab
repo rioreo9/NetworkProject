@@ -10,10 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7150567719595844505}
   - component: {fileID: 5220767257026893778}
-  - component: {fileID: -2572852015854225722}
-  - component: {fileID: -334650368621460472}
   - component: {fileID: -6682744637866649649}
   - component: {fileID: 1905585706929546862}
+  - component: {fileID: 3840646925139622460}
   m_Layer: 0
   m_Name: PlayerAvatar
   m_TagString: Untagged
@@ -55,53 +54,9 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: -334650368621460472}
   - {fileID: -6682744637866649649}
+  - {fileID: 3840646925139622460}
   ForceRemoteRenderTimeframe: 0
---- !u!143 &-2572852015854225722
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2398648951080652643}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-334650368621460472
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2398648951080652643}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 378411a89480da345945c2f888327a2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _stateAuthorityChangeErrorCorrectionDelta: 0
-  gravity: -20
-  jumpImpulse: 8
-  acceleration: 10
-  braking: 10
-  maxSpeed: 2
-  rotationSpeed: 15
 --- !u!114 &-6682744637866649649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,6 +82,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cinemachineCamera: {fileID: 4289284145512250443}
+--- !u!114 &3840646925139622460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2398648951080652643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 691b69556e1da304c84201b64bfbd442, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _moveSpeed: 5
+  _runSpeedMultiplier: 1.5
+  _jumpHeight: 2
+  _gravity: -9.81
+  _groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  _groundCheckDistance: 0.1
+  _groundCheckOffset: {x: 0, y: 0.1, z: 0}
+  _NetworkPosition: {x: 0, y: 0, z: 0}
+  _NetworkVelocity: {x: 0, y: 0, z: 0}
+  _IsGrounded: 0
+  _IsRunning: 0
 --- !u!1 &2496203239743706833
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,6 +316,8 @@ MonoBehaviour:
       Owner: {fileID: 3960311548822250506}
       Enabled: 1
       Input:
+        InputAction: {fileID: 0}
+        Gain: 1
         LegacyInput: Mouse X
         LegacyGain: 100
         CancelDeltaTime: 0
@@ -347,6 +329,8 @@ MonoBehaviour:
       Owner: {fileID: 3960311548822250506}
       Enabled: 1
       Input:
+        InputAction: {fileID: 0}
+        Gain: 1
         LegacyInput: Mouse Y
         LegacyGain: -100
         CancelDeltaTime: 0
@@ -358,6 +342,8 @@ MonoBehaviour:
       Owner: {fileID: 3960311548822250506}
       Enabled: 1
       Input:
+        InputAction: {fileID: 0}
+        Gain: 1
         LegacyInput: Mouse ScrollWheel
         LegacyGain: -100
         CancelDeltaTime: 0
@@ -365,6 +351,8 @@ MonoBehaviour:
       Driver:
         AccelTime: 0
         DecelTime: 0
+  PlayerIndex: -1
+  AutoEnableInputs: 1
 --- !u!1 &7982672876325551748
 GameObject:
   m_ObjectHideFlags: 0

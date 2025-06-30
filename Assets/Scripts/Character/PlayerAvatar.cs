@@ -1,32 +1,39 @@
 using Fusion;
 using Unity.Mathematics;
 using UnityEngine;
+
+/// <summary>
+/// ネットワーク対応プレイヤーアバター
+/// オンライン環境でのマルチプレイヤー移動を実現
+/// </summary>
 public class PlayerAvatar : NetworkBehaviour
 {
-    private NetworkCharacterController characterController;
+    private PlayerAvatarView _view; // ビューコンポーネント
+    private PlayerMovement _movement; // 移動コンポーネント
+
+    // ローカルプレイヤーのみが使用する変数
+    private Camera _playerCamera;
+    private bool _isLocalPlayer;
 
     public override void Spawned()
     {
-        characterController = GetComponent<NetworkCharacterController>();
+        // コンポーネント取得
+        _view = GetComponent<PlayerAvatarView>();
+        _movement = GetComponent<PlayerMovement>();
 
-        PlayerAvatarView view = GetComponent<PlayerAvatarView>();
-        // 自身がアバターの権限を持っているなら、カメラの追従対象にする
-        if (HasStateAuthority)
+        // ローカルプレイヤーかどうかを判定
+        _isLocalPlayer = Object.HasInputAuthority;
+        
+        // ローカルプレイヤーの場合のみカメラ設定
+        if (_isLocalPlayer)
         {
-            view.MakeCameraTarget();
+            _view.MakeCameraTarget(); // カメラターゲットに設定
+            Debug.Log("ローカルプレイヤーとしてスポーンされました");
         }
-    }
-
-    public override void FixedUpdateNetwork()
-    {
-        var cameraRotation = Quaternion.Euler(0f, Camera.main.transform.rotation.eulerAngles.y, 0f);
-        // 移動
-        var inputDirection = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
-        characterController.Move(cameraRotation * inputDirection);
-        // ジャンプ
-        if (Input.GetKey(KeyCode.Space))
+        else
         {
-            characterController.Jump();
+            Debug.Log("リモートプレイヤーとしてスポーンされました");
         }
+ 
     }
 }
