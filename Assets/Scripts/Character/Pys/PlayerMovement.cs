@@ -1,18 +1,19 @@
 using Fusion;
 using System;
+using Unity.Cinemachine;
 using UnityEngine;
 
-public class PlayerMovement : NetworkBehaviour
+public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 {
     [Header("移動設定")]
     [SerializeField] private float _moveSpeed = 5.0f; // 移動速度
-    [SerializeField] private float _runSpeedMultiplier = 1.5f; // 走行時の速度倍率
-    [SerializeField] private float _jumpHeight = 2.0f; // ジャンプ高度
-    [SerializeField] private float _gravity = -9.81f; // 重力加速度
+    //[SerializeField] private float _runSpeedMultiplier = 1.5f; // 走行時の速度倍率
+    //[SerializeField] private float _jumpHeight = 2.0f; // ジャンプ高度
+    //[SerializeField] private float _gravity = -9.81f; // 重力加速度
 
     [Header("物理判定")]
     [SerializeField] private LayerMask _groundLayerMask = 1; // 地面レイヤー
-    [SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
+    //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
     // ネットワーク同期される状態
@@ -29,10 +30,7 @@ public class PlayerMovement : NetworkBehaviour
         NetworkPosition = transform.position;
         NetworkVelocity = Vector3.zero;
         IsGrounded = false;
-        IsRunning = false;
-
-        //ここでキャラクターの状態を購読させる
-        _playerMove = new PlayerMove(transform); // プレイヤー移動コンポーネントの初期化
+        IsRunning = false;     
     }
 
     public override void FixedUpdateNetwork()
@@ -43,12 +41,18 @@ public class PlayerMovement : NetworkBehaviour
         // 入力取得
         if (GetInput<PlayerNetworkInput>(out PlayerNetworkInput input))
         {
-            _playerMove.Move(input.MovementInput, _moveSpeed);
+            _playerMove?.Move(input.MovementInput, _moveSpeed, Time.deltaTime);
         }
         // 物理更新
         //ApplyGravity();
         //CheckGroundStatus();
         // ネットワーク位置更新
         NetworkPosition = transform.position;
+    }
+
+    public void SetCamera(CinemachineCamera camera)
+    {
+        //ここでキャラクターの状態を購読させる
+        _playerMove = new PlayerMove(transform, camera); // プレイヤー移動コンポーネントの初期化
     }
 }

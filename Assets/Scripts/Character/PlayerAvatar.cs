@@ -1,4 +1,5 @@
 using Fusion;
+using Unity.Cinemachine;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -8,11 +9,13 @@ using UnityEngine;
 /// </summary>
 public class PlayerAvatar : NetworkBehaviour
 {
-    private PlayerAvatarView _view; // ビューコンポーネント
-    private PlayerMovement _movement; // 移動コンポーネント
+    [SerializeField,Required]
+    private CinemachineCamera _cinemachineCamera; // カメラコンポーネント
+
+    private ISetPlayerInformation _view; // ビューコンポーネント
+    private ISetPlayerInformation _movement; // 移動コンポーネント
 
     // ローカルプレイヤーのみが使用する変数
-    private Camera _playerCamera;
     private bool _isLocalPlayer;
 
     public override void Spawned()
@@ -27,7 +30,8 @@ public class PlayerAvatar : NetworkBehaviour
         // ローカルプレイヤーの場合のみカメラ設定
         if (_isLocalPlayer)
         {
-            _view.MakeCameraTarget(); // カメラターゲットに設定
+            _view?.SetCamera(_cinemachineCamera); // カメラターゲットに設定
+            _movement?.SetCamera(_cinemachineCamera); // 移動コンポーネントにカメラを設定
             Debug.Log("ローカルプレイヤーとしてスポーンされました");
         }
         else
