@@ -98,7 +98,6 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (_inputManager != null)
         {
-            Debug.Log("ネットワーク入力を取得します");
 
             PlayerNetworkInput networkInput = _inputManager.NetworkInput;
             // ネットワーク入力として設定

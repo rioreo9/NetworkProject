@@ -9,7 +9,7 @@ alwaysApply: true
 ■ このゲームの概要
 ゲーム概要
 
-ジャンル: FPS視点のオンライン協力防衛ゲーム
+ジャンル: FPS視点の3Dオンライン協力防衛ゲーム
 プレイ人数: 1～4人（マルチプレイヤー対応）
 プラットフォーム: Unity + C#で開発
 ゲームシステム
@@ -34,6 +34,7 @@ alwaysApply: true
 - VContainer
 - MVP
 - UniTask
+- HDRP
 -Photon Fusion2
 
 ■ 実装時の注意点
