@@ -2,7 +2,6 @@ using Fusion;
 using System;
 using Unity.Cinemachine;
 using UnityEngine;
-using static Unity.Cinemachine.CinemachineSplineDolly;
 
 public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 {
@@ -25,6 +24,9 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     private PlayerMove _playerMove; // プレイヤー移動コンポーネント
     private RotationMove _rotationMove; // プレイヤー回転コンポーネント
+    private PlayerJump _playerJump; // プレイヤージャンプコンポーネント
+
+    private Rigidbody _rigidbody; // Rigidbodyコンポーネント
 
     public override void Spawned()
     {
@@ -43,7 +45,8 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
         // 入力取得
         if (GetInput<PlayerNetworkInput>(out PlayerNetworkInput input))
         {
-            _playerMove?.DoMove(input.MovementInput, _moveSpeed, Time.deltaTime);
+            _playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime);
+            _playerJump?.DoJump(input);
         }
         // キャラクターの回転処理
         _rotationMove?.DoRotation(); 
@@ -59,5 +62,6 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
         //ここでキャラクターの状態を購読させる
         _playerMove = new PlayerMove(transform, camera); // プレイヤー移動コンポーネントの初期化
         _rotationMove = new RotationMove(transform, camera); // プレイヤー回転コンポーネントの初期化
+        _playerJump = new();
     }
 }

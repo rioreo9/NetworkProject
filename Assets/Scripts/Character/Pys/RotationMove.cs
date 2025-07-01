@@ -20,6 +20,8 @@ public class RotationMove
     /// </summary>
     public void DoRotation()
     {
+        if (_cameraTransform == null || _transform == null) return;
+    
         // カメラのフォワード方向を取得
         Vector3 cameraDirection = _cameraTransform.forward;
         

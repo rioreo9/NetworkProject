@@ -1,5 +1,6 @@
 using System;
 using Fusion;
+using R3;
 using UnityEngine;
 
 public struct PlayerNetworkInput : INetworkInput
@@ -22,5 +23,5 @@ public struct PlayerNetworkInput : INetworkInput
     /// <summary>走る入力（Shift, 左スティッククリック）</summary>
     public bool RunPressed;
 
-   
+    public event Action push;
 }
