@@ -21,7 +21,7 @@ public class PlayerMove
     /// </summary>
     /// <param name="direction"></param>
     /// <param name="speed"></param>
-    public void Move(Vector2 direction, float speed, float deltaTime)
+    public void DoMove(Vector2 direction, float speed, float deltaTime)
     {
         if (direction == Vector2.zero) return;
         
