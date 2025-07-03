@@ -413,7 +413,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3791390a014a54abb87c212c413588, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkRunnerPrefab: {fileID: -62276876764842548, guid: ab155a8ec789dc641ad4a66c72cc4a1f, type: 3}
+  _networkRunnerPrefab: {fileID: -62276876764842548, guid: ab155a8ec789dc641ad4a66c72cc4a1f, type: 3}
   _player:
     RawGuidValue: ed95b16f4395ed044b1d6ffad0a0d641
   _inputManager: {fileID: 1235374489}
