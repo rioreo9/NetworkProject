@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections;
+using R3;
 
 public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 {
@@ -16,14 +17,25 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     private InputManager _inputManager;
 
     private NetworkRunner _runner;
-    
+
+    private bool _isRunning;
+
+    private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
+
 
     private async void Start()
-    { 
+    {
         // インターネット接続状態を確認
         StartCoroutine(CheckInternetConnection());
-        
+
         await DoConnectNet();
+    }
+
+    private void Update()
+    {
+        _networkInput = _inputManager.NetworkInput; // InputManagerからネットワーク入力を取得
+
+        _isRunning = _isRunning | Input.GetKeyDown(KeyCode.LeftShift);
     }
 
     /// <summary>
@@ -98,10 +110,10 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (_inputManager != null)
         {
-
-            PlayerNetworkInput networkInput = _inputManager.NetworkInput;
+            _networkInput.RunPressed.Set(MyButtons.Run, _isRunning); // 走行入力を設定
+            _isRunning = false;
             // ネットワーク入力として設定
-            input.Set(networkInput);
+            input.Set(_networkInput);
         }
     }
     void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
@@ -142,4 +154,5 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
     void INetworkRunnerCallbacks.OnSceneLoadDone(NetworkRunner runner) { }
     void INetworkRunnerCallbacks.OnSceneLoadStart(NetworkRunner runner) { }
+
 }

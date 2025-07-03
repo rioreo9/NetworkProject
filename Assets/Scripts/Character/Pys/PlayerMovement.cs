@@ -46,8 +46,13 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
         if (GetInput<PlayerNetworkInput>(out PlayerNetworkInput input))
         {
             _playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime);
-            _playerJump?.DoJump(input);
+            //_playerJump?.DoJump(input);
+
+            Debug.Log(input.JumpPressed.IsSet(MyButtons.Jump));
+            Debug.Log(input.InteractPressed);
+            Debug.Log(input.RunPressed.IsSet(MyButtons.Run));
         }
+
         // キャラクターの回転処理
         _rotationMove?.DoRotation(); 
         // 物理更新
