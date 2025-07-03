@@ -42,11 +42,6 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         _gameInput?.Dispose();
     }
 
-    private void Update()
-    {
-        UpdateNetWorkInput();
-    }
-
     /// <summary>
     /// ネットワーク入力構造体を更新し、変更を通知
     /// </summary>
@@ -55,15 +50,13 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         // 既存の構造体のフィールドを直接更新
         _networkInput.MovementInput = _currentMovementInput; // 移動方向（正規化済み）
         _networkInput.JumpPressed.Set(MyButtons.Jump, _jumpPressed); // ジャンプボタンが押されたか
-        _networkInput.InteractPressed = _interactPressed; // インタラクトボタンが押されたか
-
-        ResetButtonInputs();
+        _networkInput.InteractPressed.Set(MyButtons.Interact, _interactPressed); // インタラクトボタンが押されたか
     }
 
     /// <summary>
     /// ボタン系入力をリセット（1フレームのみ有効にするため）
     /// </summary>
-    private void ResetButtonInputs()
+    public void ResetButtonInputs()
     {
         _jumpPressed = false;
         _interactPressed = false;
