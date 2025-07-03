@@ -19,10 +19,10 @@ public struct PlayerNetworkInput : INetworkInput
     public Vector2 LookInput;
 
     /// <summary>攻撃入力（左クリック, RTトリガー）</summary>
-    public bool AttackPressed;
+    public NetworkButtons AttackPressed;
 
     /// <summary>インタラクト入力（E, Xボタン）</summary>
-    public bool InteractPressed;
+    public NetworkButtons InteractPressed;
 
     /// <summary>走る入力（Shift, 左スティッククリック）</summary>
     public NetworkButtons RunPressed;
@@ -32,4 +32,9 @@ public struct PlayerNetworkInput : INetworkInput
     /// </summary>
     public NetworkButtons JumpPressed;
 
+    public void Clear()
+    {
+        JumpPressed.Set(MyButtons.Jump, false);
+        RunPressed.Set(MyButtons.Run, false);
+    }
 }

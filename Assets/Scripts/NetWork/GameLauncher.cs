@@ -32,13 +32,6 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         StartCoroutine(CheckInternetConnection());
     }
 
-    private void Update()
-    {
-        _networkInput = _inputManager.NetworkInput; // InputManagerからネットワーク入力を取得
-
-        _isRunning = _isRunning | Input.GetKeyDown(KeyCode.LeftShift);
-    }
-
     /// <summary>
     /// インターネット接続状態を確認する
     /// </summary>
@@ -132,10 +125,13 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (_inputManager != null)
         {
-            _networkInput.RunPressed.Set(MyButtons.Run, _isRunning); // 走行入力を設定
-            _isRunning = false;
+            _networkInput = _inputManager.NetworkInput; // InputManagerからネットワーク入力を取得
+
+            _inputManager.UpdateNetWorkInput(); // InputManagerからネットワーク入力を更新
+            _inputManager.ResetButtonInputs();
+
             // ネットワーク入力として設定
-            input.Set(_networkInput);
+            input.Set(_networkInput);      
         }
     }
     void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
@@ -181,11 +177,11 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (_runner == null)
         {
-            if (GUI.Button(new Rect(0, 0, 200, 40), "Host"))
+            if (GUI.Button(new Rect(0, 0, 1000, 200), "Host"))
             {
                 StartGame(GameMode.Host);
             }
-            if (GUI.Button(new Rect(0, 40, 200, 40), "Join"))
+            if (GUI.Button(new Rect(0, 200, 1000, 200), "Join"))
             {
                 StartGame(GameMode.Client);
             }
