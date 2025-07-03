@@ -26,7 +26,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
 
 
-    private async void Start()
+    private void Start()
     {
         // インターネット接続状態を確認
         StartCoroutine(CheckInternetConnection());
@@ -83,7 +83,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         {
             GameMode = mode,
             SessionName = "TestRoom",
-            Scene = scene,
+            Scene = sceneInfo,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
 
