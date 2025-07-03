@@ -4,7 +4,7 @@ using Fusion;
 /// 峯廻制作
 /// 操縦・操作できるオブジェクトの基底クラス(主に船についているタレットなど)
 /// </summary>
-public abstract class BaseInteractObject : NetworkBehaviour, IInteractableControllable
+public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractableControllable
 {
     // インタラクトできるかどうかのフラグ
     protected bool _isInteractable = false;
@@ -20,3 +20,4 @@ public abstract class BaseInteractObject : NetworkBehaviour, IInteractableContro
     /// <param name="networkInput">Networkに対応したInput</param>
     public abstract void ControlObject(NetworkInput networkInput);
 }
+
