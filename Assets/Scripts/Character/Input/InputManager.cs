@@ -16,8 +16,6 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
     public PlayerNetworkInput NetworkInput => _networkInput;
 
-    public readonly Subject<PlayerNetworkInput> NetworkInputSubject = new Subject<PlayerNetworkInput>();
-
     private void Awake()
     {
         _gameInput = new GameInput();
@@ -60,8 +58,6 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         _networkInput.InteractPressed = _interactPressed; // インタラクトボタンが押されたか
 
         ResetButtonInputs();
-
-        NetworkInputSubject.OnNext(_networkInput); // 変更を通知
     }
 
     /// <summary>
