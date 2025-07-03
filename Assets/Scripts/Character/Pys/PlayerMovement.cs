@@ -16,31 +16,23 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
-    // ネットワーク同期される状態
-    [Networked] public Vector3 NetworkPosition { get; set; }
-    [Networked] public Vector3 NetworkVelocity { get; set; }
-    [Networked] public bool IsGrounded { get; set; }
-    [Networked] public bool IsRunning { get; set; }
-
     private PlayerMove _playerMove; // プレイヤー移動コンポーネント
     private RotationMove _rotationMove; // プレイヤー回転コンポーネント
     private PlayerJump _playerJump; // プレイヤージャンプコンポーネント
 
-    private Rigidbody _rigidbody; // Rigidbodyコンポーネント
-
     public override void Spawned()
     {
-        // 初期位置をネットワーク同期
-        NetworkPosition = transform.position;
-        NetworkVelocity = Vector3.zero;
-        IsGrounded = false;
-        IsRunning = false;     
+        
     }
 
     public override void FixedUpdateNetwork()
     {
+        
+
         // ローカルプレイヤーのみ処理を実行
         if (!Object.HasInputAuthority) return;
+
+        Debug.Log(Id + "move");
 
         // 入力取得
         if (GetInput<PlayerNetworkInput>(out PlayerNetworkInput input))
@@ -51,11 +43,7 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
         // キャラクターの回転処理
         _rotationMove?.DoRotation(); 
-        // 物理更新
-        //ApplyGravity();
-        //CheckGroundStatus();
-        // ネットワーク位置更新
-        NetworkPosition = transform.position;
+     
     }
 
     public void SetCamera(CinemachineCamera camera)

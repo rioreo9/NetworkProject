@@ -131,7 +131,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
             _inputManager.ResetButtonInputs();
 
             // ネットワーク入力として設定
-            input.Set(_networkInput);      
+            input.Set(_networkInput);
         }
     }
     void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)

@@ -31,10 +31,4 @@ public struct PlayerNetworkInput : INetworkInput
     /// ジャンプ入力（スペース, Aボタン）
     /// </summary>
     public NetworkButtons JumpPressed;
-
-    public void Clear()
-    {
-        JumpPressed.Set(MyButtons.Jump, false);
-        RunPressed.Set(MyButtons.Run, false);
-    }
 }
