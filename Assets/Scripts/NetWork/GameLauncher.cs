@@ -6,17 +6,20 @@ using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections;
 using R3;
+using UnityEngine.SceneManagement;
 
 public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField, Required]
-    private NetworkRunner networkRunnerPrefab;
+    private NetworkRunner _networkRunnerPrefab;
     [SerializeField, Required]
     private NetworkPrefabRef _player;
     [SerializeField, Required]
     private InputManager _inputManager;
 
     private NetworkRunner _runner;
+
+    private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
 
     private bool _isRunning;
 
@@ -27,8 +30,6 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         // インターネット接続状態を確認
         StartCoroutine(CheckInternetConnection());
-
-        await DoConnectNet();
     }
 
     private void Update()
@@ -47,7 +48,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         using (var www = UnityEngine.Networking.UnityWebRequest.Get("https://www.google.com"))
         {
             yield return www.SendWebRequest();
-            
+
             if (www.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
             {
                 Debug.LogError($"インターネット接続エラー: {www.error}");
@@ -60,23 +61,30 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-    private async Task DoConnectNet()
+    async void StartGame(GameMode mode)
     {
-        // NetworkRunnerを生成する
-        _runner = Instantiate(networkRunnerPrefab);
-        // 共有モードのセッションに参加する
+        //NetworkRunnerを生成する
+        _runner = Instantiate(_networkRunnerPrefab);
+
         _runner.AddCallbacks(this);
 
-        StartGameResult result = await _runner.StartGame(new StartGameArgs
+        _runner.ProvideInput = true;
+
+        // ネットワーク用のシーンの設定
+        var scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex);
+        var sceneInfo = new NetworkSceneInfo();
+        if (scene.IsValid)
         {
-            GameMode = GameMode.Shared,
-            // セッション名を明示的に指定（ランダムな部屋に参加）
-            SessionName = "1",
-            // プレイヤー数を指定
-            PlayerCount = 4,
-            // カスタムロビー名（オプション）
-            CustomLobbyName = "DefaultLobby",
-         
+            sceneInfo.AddSceneRef(scene, LoadSceneMode.Additive);
+        }
+
+        // セッションの参加
+        StartGameResult result = await _runner.StartGame(new StartGameArgs()
+        {
+            GameMode = mode,
+            SessionName = "TestRoom",
+            Scene = scene,
+            SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
 
         if (result.Ok)
@@ -95,17 +103,31 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        // セッションへ参加したプレイヤーが自分自身かどうかを判定する
-        if (player == runner.LocalPlayer)
+        
+        if (runner.IsServer)
         {
             // アバターの初期位置を計算する（半径5の円の内部のランダムな点）
             Vector2 rand = UnityEngine.Random.insideUnitCircle * 5f;
             Vector3 spawnPosition = new Vector3(rand.x, 2f, rand.y);
             // 自分自身のアバターをスポーンする
-            var spawnedObject =  runner.Spawn(_player, spawnPosition, Quaternion.identity, player);
+            var spawnedObject = runner.Spawn(_player, spawnPosition, Quaternion.identity, player);
+
+            // プレイヤー（PlayerRef）とアバター（spawnedObject）を関連付ける
+            runner.SetPlayerObject(player, spawnedObject);
+
+            Debug.Log($"プレイヤー {player} が参加しました。アバターをスポーンしました: {spawnedObject}");
         }
     }
-    void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
+    void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player)
+    {
+        if (!runner.IsServer) { return; }
+        // 退出したプレイヤーのアバターを破棄する
+        if (runner.TryGetPlayerObject(player, out var avatar))
+        {
+            runner.Despawn(avatar);
+        }
+    }
+
     void INetworkRunnerCallbacks.OnInput(NetworkRunner runner, NetworkInput input)
     {
         if (_inputManager != null)
@@ -120,27 +142,27 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         Debug.LogWarning($"プレイヤー {player} の入力が不足しています");
     }
-    void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) 
+    void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
         // シャットダウン時の詳細情報をログ出力
         Debug.LogWarning($"NetworkRunner シャットダウン: {shutdownReason}");
     }
-    
-    void INetworkRunnerCallbacks.OnConnectedToServer(NetworkRunner runner) 
+
+    void INetworkRunnerCallbacks.OnConnectedToServer(NetworkRunner runner)
     {
         // サーバー接続成功時のログ
         Debug.Log("サーバーへの接続に成功しました");
     }
-    
-    void INetworkRunnerCallbacks.OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) 
+
+    void INetworkRunnerCallbacks.OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
     {
         // サーバーから切断された時の詳細情報をログ出力
         Debug.LogError($"サーバーから切断されました: {reason}");
     }
-    
+
     void INetworkRunnerCallbacks.OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
-    
-    void INetworkRunnerCallbacks.OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) 
+
+    void INetworkRunnerCallbacks.OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
     {
         // 接続失敗時の詳細情報をログ出力
         Debug.LogError($"接続に失敗しました: {reason}");
@@ -154,5 +176,20 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
     void INetworkRunnerCallbacks.OnSceneLoadDone(NetworkRunner runner) { }
     void INetworkRunnerCallbacks.OnSceneLoadStart(NetworkRunner runner) { }
+
+    private void OnGUI()
+    {
+        if (_runner == null)
+        {
+            if (GUI.Button(new Rect(0, 0, 200, 40), "Host"))
+            {
+                StartGame(GameMode.Host);
+            }
+            if (GUI.Button(new Rect(0, 40, 200, 40), "Join"))
+            {
+                StartGame(GameMode.Client);
+            }
+        }
+    }
 
 }
