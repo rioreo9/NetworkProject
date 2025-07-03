@@ -18,6 +18,8 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 
     private NetworkRunner _runner;
 
+    private bool _isRunning;
+
     private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
 
 
@@ -33,7 +35,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         _networkInput = _inputManager.NetworkInput; // InputManagerからネットワーク入力を取得
 
-        _networkInput.RunPressed = Input.GetKeyDown(KeyCode.LeftShift); // 走行ボタンの入力を取得
+        _isRunning = _isRunning | Input.GetKeyDown(KeyCode.LeftShift);
     }
 
     /// <summary>
@@ -108,6 +110,8 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (_inputManager != null)
         {
+            _networkInput.RunPressed.Set(MyButtons.Run, _isRunning); // 走行入力を設定
+            _isRunning = false;
             // ネットワーク入力として設定
             input.Set(_networkInput);
         }

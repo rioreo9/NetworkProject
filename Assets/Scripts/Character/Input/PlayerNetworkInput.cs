@@ -7,6 +7,7 @@ public enum MyButtons
 {
     Jump = 0,
     Interact = 1,
+    Run = 2
 }
 
 public struct PlayerNetworkInput : INetworkInput
@@ -24,7 +25,7 @@ public struct PlayerNetworkInput : INetworkInput
     public bool InteractPressed;
 
     /// <summary>走る入力（Shift, 左スティッククリック）</summary>
-    public bool RunPressed;
+    public NetworkButtons RunPressed;
 
     /// <summary>
     /// ジャンプ入力（スペース, Aボタン）
