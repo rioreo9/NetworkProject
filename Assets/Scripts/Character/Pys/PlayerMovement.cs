@@ -50,7 +50,7 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
             Debug.Log(input.JumpPressed.IsSet(MyButtons.Jump));
             Debug.Log(input.InteractPressed);
-            Debug.Log(input.RunPressed);
+            Debug.Log(input.RunPressed.IsSet(MyButtons.Run));
         }
 
         // キャラクターの回転処理
