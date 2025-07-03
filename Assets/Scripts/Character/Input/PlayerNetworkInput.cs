@@ -3,6 +3,12 @@ using Fusion;
 using R3;
 using UnityEngine;
 
+public enum MyButtons
+{
+    Jump = 0,
+    Interact = 1,
+}
+
 public struct PlayerNetworkInput : INetworkInput
 {
     /// <summary>移動入力（WASD, 左スティック）</summary>
@@ -10,9 +16,6 @@ public struct PlayerNetworkInput : INetworkInput
 
     /// <summary>カメラ回転入力（マウス, 右スティック）</summary>
     public Vector2 LookInput;
-
-    /// <summary>ジャンプ入力（スペース, Aボタン）</summary>
-    public bool JumpPressed;
 
     /// <summary>攻撃入力（左クリック, RTトリガー）</summary>
     public bool AttackPressed;
@@ -23,5 +26,9 @@ public struct PlayerNetworkInput : INetworkInput
     /// <summary>走る入力（Shift, 左スティッククリック）</summary>
     public bool RunPressed;
 
-    public event Action push;
+    /// <summary>
+    /// ジャンプ入力（スペース, Aボタン）
+    /// </summary>
+    public NetworkButtons JumpPressed;
+
 }
