@@ -48,8 +48,8 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
             _playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime);
             //_playerJump?.DoJump(input);
 
-            Debug.Log(input.JumpPressed.IsSet(MyButtons.Jump));
-            Debug.Log(input.InteractPressed);
+            Debug.Log(input.JumpPressed.IsSet(MyButtons.Jump)+ "jump");
+            ////Debug.Log(input.InteractPressed);
             Debug.Log(input.RunPressed.IsSet(MyButtons.Run));
         }
 
