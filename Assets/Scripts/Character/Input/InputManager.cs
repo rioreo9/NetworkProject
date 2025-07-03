@@ -5,6 +5,7 @@ using R3;
 
 public class InputManager : MonoBehaviour, GameInput.IPlayerActions
 {
+
     private GameInput _gameInput;
     private GameInput.PlayerActions _playerActions;
 
@@ -15,7 +16,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
     public PlayerNetworkInput NetworkInput => _networkInput;
 
-    private readonly Subject<PlayerNetworkInput> _networkInputSubject = new Subject<PlayerNetworkInput>();
+    public readonly Subject<PlayerNetworkInput> NetworkInputSubject = new Subject<PlayerNetworkInput>();
 
     private void Awake()
     {
@@ -55,13 +56,12 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     {
         // 既存の構造体のフィールドを直接更新
         _networkInput.MovementInput = _currentMovementInput; // 移動方向（正規化済み）
-        _networkInput.JumpPressed = _jumpPressed; // ジャンプボタンが押されたか
+        _networkInput.JumpPressed.Set(MyButtons.Jump, _jumpPressed); // ジャンプボタンが押されたか
         _networkInput.InteractPressed = _interactPressed; // インタラクトボタンが押されたか
 
-        _networkInputSubject.OnNext(_networkInput); // 変更を通知
-
-        //ボタン入力をリセット
         ResetButtonInputs();
+
+        NetworkInputSubject.OnNext(_networkInput); // 変更を通知
     }
 
     /// <summary>
