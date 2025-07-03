@@ -29,6 +29,6 @@ public struct PlayerNetworkInput : INetworkInput
     /// <summary>
     /// ジャンプ入力（スペース, Aボタン）
     /// </summary>
-    public NetworkButtons JumpPressed;
+    public bool JumpPressed;
 
 }
