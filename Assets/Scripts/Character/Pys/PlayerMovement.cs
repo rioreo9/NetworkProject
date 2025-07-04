@@ -22,17 +22,14 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     public override void Spawned()
     {
-        
+      
     }
 
     public override void FixedUpdateNetwork()
     {
         
-
         // ローカルプレイヤーのみ処理を実行
         if (!Object.HasInputAuthority) return;
-
-        Debug.Log(Id + "move");
 
         // 入力取得
         if (GetInput<PlayerNetworkInput>(out PlayerNetworkInput input))
