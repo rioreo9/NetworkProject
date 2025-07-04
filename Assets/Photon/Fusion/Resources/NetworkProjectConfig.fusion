@@ -15,9 +15,9 @@
     "AllowClientServerModesInWebGL": false,
     "ClientsRecordFrameAndPacketTimingTraces": false,
     "Simulation": {
-        "InputDataWordCount": 0,
+        "InputDataWordCount": 8,
         "ReplicationFeatures": 1,
-        "InputTransferMode": 0,
+        "InputTransferMode": 2,
         "SimulationUpdateTimeMode": 0,
         "PlayerCount": 4,
         "TickRateSelection": {

@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Collections;
 using R3;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 {
@@ -16,6 +17,8 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     private NetworkPrefabRef _player;
     [SerializeField, Required]
     private InputManager _inputManager;
+    [SerializeField, Required]
+    private string _sesionName = "Test";
 
     private NetworkRunner _runner;
 
@@ -75,7 +78,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         StartGameResult result = await _runner.StartGame(new StartGameArgs()
         {
             GameMode = mode,
-            SessionName = "TestRoom",
+            SessionName = _sesionName,
             Scene = sceneInfo,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
@@ -131,12 +134,14 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
             _inputManager.ResetButtonInputs();
 
             // ネットワーク入力として設定
-            input.Set(_networkInput);      
+            input.Set(_networkInput);
         }
     }
     void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
     {
-        Debug.LogWarning($"プレイヤー {player} の入力が不足しています");
+        //Debug.LogError($"Input Missing - Player: {player}, LocalPlayer: {runner.LocalPlayer}, " +
+        //              $"ProvideInput: {runner.ProvideInput}, IsClient: {runner.IsClient}, " +
+        //              $"IsServer: {runner.IsServer}");
     }
     void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
@@ -185,6 +190,17 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
             {
                 StartGame(GameMode.Client);
             }
+        }
+        else
+        {
+            // NetworkRunner状態の詳細表示
+            GUI.Label(new Rect(10, 10, 400, 30), $"IsClient: {_runner.IsClient}");
+            GUI.Label(new Rect(10, 40, 400, 30), $"IsServer: {_runner.IsServer}");
+            GUI.Label(new Rect(10, 70, 400, 30), $"LocalPlayer: {_runner.LocalPlayer}");
+            GUI.Label(new Rect(10, 100, 400, 30), $"ProvideInput: {_runner.ProvideInput}");
+            GUI.Label(new Rect(10, 130, 400, 30), $"IsRunning: {_runner.IsRunning}");
+            GUI.Label(new Rect(10, 160, 400, 30), $"Tick: {_runner.Tick}");
+            GUI.Label(new Rect(10, 190, 400, 30), $"ActivePlayers: {_runner.ActivePlayers.Count()}");
         }
     }
 
