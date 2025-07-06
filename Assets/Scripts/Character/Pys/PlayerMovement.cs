@@ -29,18 +29,20 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     {
         
         // ローカルプレイヤーのみ処理を実行
-        if (!Object.HasInputAuthority) return;
+        //if (!Object.HasInputAuthority) return;
 
         // 入力取得
         if (GetInput<PlayerNetworkInput>(out PlayerNetworkInput input))
         {
-            _playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime);
-            _playerJump?.DoJump(input);
+            //_playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime);
+            //_playerJump?.DoJump(input);
+
+            transform.position += new Vector3(input.MovementInput.x, 0, input.MovementInput.y) * 5f * Runner.DeltaTime;
         }
 
         // キャラクターの回転処理
-        _rotationMove?.DoRotation(); 
-     
+        _rotationMove?.DoRotation();
+
     }
 
     public void SetCamera(CinemachineCamera camera)

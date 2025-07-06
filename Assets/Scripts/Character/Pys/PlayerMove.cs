@@ -27,8 +27,6 @@ public class PlayerMove
         
         Vector3 moveDirection = TransformCalculation.GetMoveDirection(_cameraTransform, direction);
 
-        Vector3 newPosition = _transform.position + moveDirection * speed * deltaTime;
-
-        _transform.position = newPosition;
+        _transform.position += moveDirection * speed * deltaTime;
     }
 }
