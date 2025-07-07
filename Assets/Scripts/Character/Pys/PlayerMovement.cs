@@ -1,6 +1,7 @@
 using Fusion;
 using System;
 using Unity.Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
@@ -10,6 +11,8 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     //[SerializeField] private float _runSpeedMultiplier = 1.5f; // 走行時の速度倍率
     //[SerializeField] private float _jumpHeight = 2.0f; // ジャンプ高度
     //[SerializeField] private float _gravity = -9.81f; // 重力加速度
+
+    public float MoveSpeed => _moveSpeed; // 移動速度プロパティ
 
     [Header("物理判定")]
     [SerializeField] private LayerMask _groundLayerMask = 1; // 地面レイヤー
@@ -27,19 +30,6 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     public override void FixedUpdateNetwork()
     {
-        
-        // ローカルプレイヤーのみ処理を実行
-        //if (!Object.HasInputAuthority) return;
-
-        // 入力取得
-        if (GetInput<PlayerNetworkInput>(out PlayerNetworkInput input))
-        {
-            //_playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime);
-            //_playerJump?.DoJump(input);
-
-            transform.position += new Vector3(input.MovementInput.x, 0, input.MovementInput.y) * 5f * Runner.DeltaTime;
-        }
-
         // キャラクターの回転処理
         _rotationMove?.DoRotation();
 
@@ -47,8 +37,6 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     public void SetCamera(CinemachineCamera camera)
     {
-        //ここでキャラクターの状態を購読させる
-        _playerMove = new PlayerMove(transform, camera); // プレイヤー移動コンポーネントの初期化
         _rotationMove = new RotationMove(transform, camera); // プレイヤー回転コンポーネントの初期化
         _playerJump = new();
     }

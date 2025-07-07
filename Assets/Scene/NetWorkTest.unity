@@ -417,6 +417,7 @@ MonoBehaviour:
   _player:
     RawGuidValue: ed95b16f4395ed044b1d6ffad0a0d641
   _inputManager: {fileID: 1235374489}
+  _sesionName: Testsddddd
 --- !u!4 &748591730
 Transform:
   m_ObjectHideFlags: 0
