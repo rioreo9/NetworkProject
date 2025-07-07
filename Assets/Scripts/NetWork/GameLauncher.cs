@@ -66,6 +66,8 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
 
         _runner.ProvideInput = true;
 
+        Debug.Log($"サーバー起動: セッション名 = {_sesionName}, モード = {mode}");
+
         // ネットワーク用のシーンの設定
         var scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex);
         var sceneInfo = new NetworkSceneInfo();
@@ -139,9 +141,9 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     }
     void INetworkRunnerCallbacks.OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
     {
-        //Debug.LogError($"Input Missing - Player: {player}, LocalPlayer: {runner.LocalPlayer}, " +
-        //              $"ProvideInput: {runner.ProvideInput}, IsClient: {runner.IsClient}, " +
-        //              $"IsServer: {runner.IsServer}");
+        Debug.LogError($"Input Missing - Player: {player}, LocalPlayer: {runner.LocalPlayer}, " +
+                      $"ProvideInput: {runner.ProvideInput}, IsClient: {runner.IsClient}, " +
+                      $"IsServer: {runner.IsServer}");
     }
     void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {

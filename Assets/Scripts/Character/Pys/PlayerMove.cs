@@ -1,19 +1,27 @@
+using Fusion;
 using System;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class PlayerMove
+public class PlayerMove : NetworkBehaviour
 {
-    private Transform _transform;
-
     private Transform _cameraTransform;
 
     //キャラクターの状態を購読し、移動できるかの判定
 
-    public PlayerMove(Transform transform, CinemachineCamera camera)
+    public override void Spawned()
     {
-        _transform = transform;
-        _cameraTransform = camera.transform;
+        
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if (GetInput(out PlayerNetworkInput input))
+        {
+            Debug.Log($"PlayerMove: {input.MovementInput}");
+
+            transform.position += new Vector3(input.MovementInput.x, 0, input.MovementInput.y) * 5f * Runner.DeltaTime;
+        }
     }
 
     /// <summary>
@@ -27,8 +35,6 @@ public class PlayerMove
         
         Vector3 moveDirection = TransformCalculation.GetMoveDirection(_cameraTransform, direction);
 
-        Vector3 newPosition = _transform.position + moveDirection * speed * deltaTime;
-
-        _transform.position = newPosition;
+        transform.position += moveDirection * speed * deltaTime;
     }
 }

@@ -121,7 +121,7 @@ GameObject:
   - component: {fileID: 3985850630270979451}
   - component: {fileID: -6682744637866649649}
   - component: {fileID: 1905585706929546862}
-  - component: {fileID: 3840646925139622460}
+  - component: {fileID: 8420781248040981654}
   m_Layer: 0
   m_Name: PlayerAvatar
   m_TagString: Untagged
@@ -165,7 +165,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 3985850630270979451}
   - {fileID: -6682744637866649649}
-  - {fileID: 3840646925139622460}
+  - {fileID: 8420781248040981654}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &3985850630270979451
 MonoBehaviour:
@@ -209,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee12b940af90f1e45a81a09ba5aae375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3840646925139622460
+--- !u!114 &8420781248040981654
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -218,14 +218,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2398648951080652643}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 691b69556e1da304c84201b64bfbd442, type: 3}
+  m_Script: {fileID: 11500000, guid: 4deb23cf629d7fc47a77b26e3b1c5b59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 5
-  _groundLayerMask:
-    serializedVersion: 2
-    m_Bits: 1
-  _groundCheckOffset: {x: 0, y: 0.1, z: 0}
 --- !u!1 &2496203239743706833
 GameObject:
   m_ObjectHideFlags: 0
@@ -255,8 +250,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2496203239743706833}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08870645, y: 0.56665313, z: -0.061535913, w: 0.8168529}
-  m_LocalPosition: {x: -3.1716287, y: 0.74420553, z: -1.1859305}
+  m_LocalRotation: {x: 0.022792494, y: 0.88494086, z: -0.04355417, w: 0.46310177}
+  m_LocalPosition: {x: -2.2921903, y: 0.2752821, z: 1.5903053}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -339,7 +334,7 @@ MonoBehaviour:
     SplineCurvature: 0.5
   RecenteringTarget: 2
   HorizontalAxis:
-    Value: 69.49831
+    Value: 124.75263
     Center: 0
     Range: {x: -180, y: 180}
     Wrap: 1
@@ -349,7 +344,7 @@ MonoBehaviour:
       Time: 2
     Restrictions: 0
   VerticalAxis:
-    Value: 1.3796452
+    Value: -6.283118
     Center: 17.5
     Range: {x: -10, y: 45}
     Wrap: 0
