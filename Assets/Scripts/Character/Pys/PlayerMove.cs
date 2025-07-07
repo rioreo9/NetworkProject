@@ -3,25 +3,13 @@ using System;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class PlayerMove : NetworkBehaviour
+public class PlayerMove
 {
     private Transform _cameraTransform;
 
-    //キャラクターの状態を購読し、移動できるかの判定
-
-    public override void Spawned()
+    public PlayerMove(Transform cameraTransform)
     {
-        
-    }
-
-    public override void FixedUpdateNetwork()
-    {
-        if (GetInput(out PlayerNetworkInput input))
-        {
-            Debug.Log($"PlayerMove: {input.MovementInput}");
-
-            transform.position += new Vector3(input.MovementInput.x, 0, input.MovementInput.y) * 5f * Runner.DeltaTime;
-        }
+        _cameraTransform = cameraTransform;
     }
 
     /// <summary>
@@ -29,12 +17,12 @@ public class PlayerMove : NetworkBehaviour
     /// </summary>
     /// <param name="direction"></param>
     /// <param name="speed"></param>
-    public void DoMove(Vector2 direction, float speed, float deltaTime)
+    public Vector3 DoMove(Vector2 direction, float speed, float deltaTime)
     {
-        if (direction == Vector2.zero) return;
+        if (direction == Vector2.zero) return Vector3.zero;
         
         Vector3 moveDirection = TransformCalculation.GetMoveDirection(_cameraTransform, direction);
 
-        transform.position += moveDirection * speed * deltaTime;
+        return moveDirection * speed * deltaTime;
     }
 }

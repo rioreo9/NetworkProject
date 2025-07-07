@@ -12,8 +12,6 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     //[SerializeField] private float _jumpHeight = 2.0f; // ジャンプ高度
     //[SerializeField] private float _gravity = -9.81f; // 重力加速度
 
-    public float MoveSpeed => _moveSpeed; // 移動速度プロパティ
-
     [Header("物理判定")]
     [SerializeField] private LayerMask _groundLayerMask = 1; // 地面レイヤー
     //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
@@ -30,13 +28,17 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     public override void FixedUpdateNetwork()
     {
+        if (GetInput(out PlayerNetworkInput input))
+        {
+            transform.position += (Vector3)(_playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime));
+        }
         // キャラクターの回転処理
-        _rotationMove?.DoRotation();
-
+        transform.rotation = (Quaternion)(_rotationMove?.DoRotation());
     }
 
     public void SetCamera(CinemachineCamera camera)
     {
+        _playerMove = new PlayerMove(camera.transform); // プレイヤー移動コンポーネントの初期化
         _rotationMove = new RotationMove(transform, camera); // プレイヤー回転コンポーネントの初期化
         _playerJump = new();
     }

@@ -24,20 +24,9 @@ public class PlayerAvatar : NetworkBehaviour
         _view = GetComponent<PlayerAvatarView>();
         _movement = GetComponent<PlayerMovement>();
 
-        // ローカルプレイヤーかどうかを判定
-        _isLocalPlayer = Object.HasInputAuthority;
-        
-        // ローカルプレイヤーの場合のみカメラ設定
-        if (_isLocalPlayer)
-        {
-            _view?.SetCamera(_cinemachineCamera); // カメラターゲットに設定
-            _movement?.SetCamera(_cinemachineCamera); // 移動コンポーネントにカメラを設定
-            Debug.Log("ローカルプレイヤーとしてスポーンされました");
-        }
-        else
-        {
-            Debug.Log("リモートプレイヤーとしてスポーンされました");
-        }
- 
+
+        _view?.SetCamera(_cinemachineCamera); // カメラターゲットに設定
+        _movement?.SetCamera(_cinemachineCamera); // 移動コンポーネントにカメラを設定
+        Debug.Log("ローカルプレイヤーとしてスポーンされました");
     }
 }
