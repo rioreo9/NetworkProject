@@ -1,8 +1,9 @@
 
+using Fusion;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class PlayerAvatarView : MonoBehaviour, ISetPlayerInformation
+public class PlayerAvatarView : NetworkBehaviour, ISetPlayerInformation
 {
     public void SetCamera(CinemachineCamera camera)
     {

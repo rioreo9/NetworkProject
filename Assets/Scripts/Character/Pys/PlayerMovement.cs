@@ -31,9 +31,10 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
         if (GetInput(out PlayerNetworkInput input))
         {
             transform.position += (Vector3)(_playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime));
+            Debug.Log($"移動入力: {input.MovementInput}, ID: {Id}");
         }
         // キャラクターの回転処理
-        transform.rotation = (Quaternion)(_rotationMove?.DoRotation());
+        //transform.rotation = (Quaternion)(_rotationMove?.DoRotation());
     }
 
     public void SetCamera(CinemachineCamera camera)

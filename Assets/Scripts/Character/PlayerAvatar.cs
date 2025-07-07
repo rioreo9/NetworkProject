@@ -20,12 +20,14 @@ public class PlayerAvatar : NetworkBehaviour
 
     public override void Spawned()
     {
-        // コンポーネント取得
         _view = GetComponent<PlayerAvatarView>();
         _movement = GetComponent<PlayerMovement>();
 
+        if (Object.HasInputAuthority)
+        {
+            _view?.SetCamera(_cinemachineCamera); // カメラターゲットに設定
+        }
 
-        _view?.SetCamera(_cinemachineCamera); // カメラターゲットに設定
         _movement?.SetCamera(_cinemachineCamera); // 移動コンポーネントにカメラを設定
         Debug.Log("ローカルプレイヤーとしてスポーンされました");
     }
