@@ -17,30 +17,53 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
+    private CinemachineCamera _camera; // カメラの参照
+
     private PlayerMove _playerMove; // プレイヤー移動コンポーネント
     private RotationMove _rotationMove; // プレイヤー回転コンポーネント
     private PlayerJump _playerJump; // プレイヤージャンプコンポーネント
 
     public override void Spawned()
     {
-      
+        if (Object.HasInputAuthority)
+        {
+            _camera = FindFirstObjectByType<CinemachineCamera>();
+        }
     }
 
     public override void FixedUpdateNetwork()
     {
         if (GetInput(out PlayerNetworkInput input))
         {
-            transform.position += (Vector3)(_playerMove?.DoMove(input.MovementInput, _moveSpeed, Runner.DeltaTime));
-            Debug.Log($"移動入力: {input.MovementInput}, ID: {Id}");
+            DoMove(input);
+            DoRotation(input);
         }
-        // キャラクターの回転処理
-        //transform.rotation = (Quaternion)(_rotationMove?.DoRotation());
+
+    }
+
+    private void DoMove(PlayerNetworkInput input)
+    {
+        if (input.MoveDirection == Vector3.zero) return;
+
+        transform.position += input.MoveDirection * _moveSpeed * Runner.DeltaTime;
+    }
+
+    private void DoRotation(PlayerNetworkInput input)
+    {
+        // カメラのフォワード方向を取得
+        Vector3 cameraDirection = input.CameraForwordDirection;
+
+        // Y成分を0にしてY軸回転のみにする
+        cameraDirection.y = 0f;
+
+        // 正規化してからキャラクターの回転を設定
+        cameraDirection.Normalize();
+
+        transform.rotation = Quaternion.LookRotation(cameraDirection);
     }
 
     public void SetCamera(CinemachineCamera camera)
     {
-        _playerMove = new PlayerMove(camera.transform); // プレイヤー移動コンポーネントの初期化
-        _rotationMove = new RotationMove(transform, camera); // プレイヤー回転コンポーネントの初期化
-        _playerJump = new();
+        //_camera = camera;
     }
 }

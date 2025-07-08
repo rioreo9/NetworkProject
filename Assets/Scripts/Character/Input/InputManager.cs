@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using R3;
+using UnityEngine.EventSystems;
+using UnityEngine.Windows;
 
 public class InputManager : MonoBehaviour, GameInput.IPlayerActions
 {
@@ -9,7 +11,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     private GameInput _gameInput;
     private GameInput.PlayerActions _playerActions;
 
-    private Vector2 _currentMovementInput = Vector2.zero;
+    private Vector2 _currentMovementDirection = Vector2.zero;
     private bool _jumpPressed = false;
     private bool _interactPressed = false;
 
@@ -48,7 +50,9 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     public void UpdateNetWorkInput()
     {
         // 既存の構造体のフィールドを直接更新
-        _networkInput.MovementInput = _currentMovementInput; // 移動方向（正規化済み）
+        Vector3 moveDirecton = TransformCalculation.GetMoveDirection(Camera.main.transform, _currentMovementDirection);
+        _networkInput.MoveDirection = moveDirecton; // 移動方向（正規化済み）
+        _networkInput.CameraForwordDirection = Camera.main.transform.forward; // カメラの方向（Y軸回転のみを考慮）
         _networkInput.JumpPressed.Set(MyButtons.Jump, _jumpPressed); // ジャンプボタンが押されたか
         _networkInput.InteractPressed.Set(MyButtons.Interact, _interactPressed); // インタラクトボタンが押されたか
     }
@@ -67,7 +71,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     /// <summary>移動入力コールバック（WASD、左スティック）</summary>
     public void OnMove(InputAction.CallbackContext context)
     {
-        _currentMovementInput = context.ReadValue<Vector2>();
+        _currentMovementDirection = context.ReadValue<Vector2>();
     }
 
     /// <summary>ジャンプ入力コールバック（スペース、Aボタン）</summary>

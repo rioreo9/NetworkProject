@@ -13,7 +13,9 @@ public enum MyButtons
 public struct PlayerNetworkInput : INetworkInput
 {
     /// <summary>移動入力（WASD, 左スティック）</summary>
-    public Vector2 MovementInput;
+    public Vector3 MoveDirection;
+
+    public Vector3 CameraForwordDirection;
 
     ///// <summary>カメラ回転入力（マウス, 右スティック）</summary>
     public Vector2 LookInput;
