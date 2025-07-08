@@ -51,7 +51,7 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     private void DoRotation(PlayerNetworkInput input)
     {
         // カメラのフォワード方向を取得
-        Vector3 cameraDirection = input.CameraForwordDirection;
+        Vector3 cameraDirection = input.CameraForwardDirection;
 
         // Y成分を0にしてY軸回転のみにする
         cameraDirection.y = 0f;
