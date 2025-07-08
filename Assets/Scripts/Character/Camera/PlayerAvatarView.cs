@@ -2,24 +2,15 @@
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class PlayerAvatarView : MonoBehaviour, ISetPlayerInformation
+public class PlayerAvatarView : MonoBehaviour
 {
-    public void SetCamera(CinemachineCamera camera)
+    public void SetCamera()
     {
-        // カメラの設定を行う
-        if (camera != null)
-        {
-            MakeCameraTarget(camera);
-        }
-        else
-        {
-            Debug.LogWarning("CinemachineCamera is null. Cannot set camera target.");
-        }
+        CinemachineCamera freeLookCamera = FindFirstObjectByType<CinemachineCamera>();
+
+        freeLookCamera.LookAt = transform;
+        freeLookCamera.Follow = transform;
     }
 
-    private void MakeCameraTarget(CinemachineCamera camera)
-    {
-        // CinemachineCameraの優先度を上げて、カメラの追従対象にする
-        camera.Priority.Value = 100;
-    }
+   
 }

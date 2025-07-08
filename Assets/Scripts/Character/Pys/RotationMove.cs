@@ -1,5 +1,6 @@
 using System;
 using Unity.Cinemachine;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class RotationMove
@@ -18,9 +19,9 @@ public class RotationMove
     /// キャラクターの回転処理を行うメソッド
     /// Y軸回転のみでカメラのフォワード方向に向ける
     /// </summary>
-    public void DoRotation()
+    public quaternion DoRotation()
     {
-        if (_cameraTransform == null || _transform == null) return;
+        if (_cameraTransform == null || _transform == null) return quaternion.identity;
     
         // カメラのフォワード方向を取得
         Vector3 cameraDirection = _cameraTransform.forward;
@@ -30,6 +31,6 @@ public class RotationMove
         
         // 正規化してからキャラクターの回転を設定
         cameraDirection.Normalize();
-        _transform.rotation = Quaternion.LookRotation(cameraDirection);
+       return Quaternion.LookRotation(cameraDirection);
     }
 }
