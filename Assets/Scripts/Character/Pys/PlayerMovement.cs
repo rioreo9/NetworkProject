@@ -52,10 +52,16 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     private void DoRotation(PlayerNetworkInput input)
     {
-        // 水平回転（Y軸）- プレイヤー本体を回転
-        //マジックナンバーはやめましょう！！！！！
-        float mouseX = input.LookInput.x *50* Runner.DeltaTime;
-        transform.Rotate(Vector3.up * mouseX);
+        // カメラのフォワード方向を取得
+        Vector3 cameraDirection = input.CameraForwardDirection;
+
+        // Y成分を0にしてY軸回転のみにする
+        cameraDirection.y = 0f;
+
+        // 正規化してからキャラクターの回転を設定
+        cameraDirection.Normalize();
+
+        transform.rotation = Quaternion.LookRotation(cameraDirection);
     }
 
     public void SetCamera(CinemachineCamera camera)
