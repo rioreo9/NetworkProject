@@ -17,6 +17,8 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
+    [SerializeField] private Transform _cameraHandle; // 回転速度
+
     private CinemachineCamera _camera; // カメラの参照
 
     private PlayerMove _playerMove; // プレイヤー移動コンポーネント
@@ -50,16 +52,10 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     private void DoRotation(PlayerNetworkInput input)
     {
-        // カメラのフォワード方向を取得
-        Vector3 cameraDirection = input.CameraForwardDirection;
-
-        // Y成分を0にしてY軸回転のみにする
-        cameraDirection.y = 0f;
-
-        // 正規化してからキャラクターの回転を設定
-        cameraDirection.Normalize();
-
-        transform.rotation = Quaternion.LookRotation(cameraDirection);
+        // 水平回転（Y軸）- プレイヤー本体を回転
+        //マジックナンバーはやめましょう！！！！！
+        float mouseX = input.LookInput.x *50* Runner.DeltaTime;
+        transform.Rotate(Vector3.up * mouseX);
     }
 
     public void SetCamera(CinemachineCamera camera)
