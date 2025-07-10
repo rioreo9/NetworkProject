@@ -10,12 +10,10 @@ using UnityEngine;
 /// </summary>
 public class PlayerAvatarView : NetworkBehaviour
 {
-    [Header("カメラ参照")]
-    [SerializeField, Required]
     private CinemachineCamera _cinemachineCamera; // Cinemachineカメラの参照
 
     [SerializeField, Required]
-    private Transform _bodyTransform; // Cinemachineカメラの参照
+    private Transform _followTarget; // Cinemachineカメラの参照
 
     [Header("カメラ設定")]
   
@@ -32,7 +30,9 @@ public class PlayerAvatarView : NetworkBehaviour
     /// </summary>
     public void SetCamera()
     {
-        _cinemachineCamera.Priority.Value = 100; // 優先度を最高に設定
+        _cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
+
+        _cinemachineCamera.Target.TrackingTarget = _followTarget; // カメラの追跡ターゲットを設定
         Debug.Log("FPSカメラがアクティブ化されました");
     }
 
@@ -53,8 +53,6 @@ public class PlayerAvatarView : NetworkBehaviour
 
         // カメラの上下左右回転を処理
         ProcessCameraRotation(input.LookInput);
-
-        // すべてのクライアントでカメラ回転を適用
     }
 
     /// <summary>
@@ -63,7 +61,8 @@ public class PlayerAvatarView : NetworkBehaviour
     /// </summary>
     public override void Render()
     {
-        ApplyCameraRotation();
+        // すべてのクライアントでカメラ回転を適用
+        //ApplyCameraRotation();
     }
 
     /// <summary>
@@ -118,8 +117,6 @@ public class PlayerAvatarView : NetworkBehaviour
 
         // 累積回転角度を更新（Y軸回転）
         _networkedYRotation += rotationDelta;
-
-        Debug.Log($"Y軸回転: {_networkedYRotation}度");
     }
 
     /// <summary>
@@ -131,11 +128,8 @@ public class PlayerAvatarView : NetworkBehaviour
         if (_cinemachineCamera == null) return;
 
         // カメラの回転を設定（X軸=上下, Y軸=左右）
-        Quaternion targetRotation = Quaternion.Euler(_networkedXRotation, 0f, 0f);
+        Quaternion targetRotation = Quaternion.Euler(_networkedXRotation, _networkedYRotation, 0f);
         _cinemachineCamera.transform.localRotation = targetRotation;
-
-        //Quaternion bodyRotation = Quaternion.Euler(0f, _networkedYRotation, 0f);
-        //transform.rotation = bodyRotation;
     }
 
     /// <summary>

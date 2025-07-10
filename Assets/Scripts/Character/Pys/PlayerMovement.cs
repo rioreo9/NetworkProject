@@ -4,7 +4,7 @@ using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
+public class PlayerMovement : NetworkBehaviour
 {
     [Header("移動設定")]
     [SerializeField] private float _moveSpeed = 5.0f; // 移動速度
@@ -17,21 +17,9 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
-    [SerializeField] private Transform _cameraHandle; // 回転速度
-
-    private CinemachineCamera _camera; // カメラの参照
-    private float _networkedYRotation; // ネットワーク同期されるX軸回転角度
-
-    private PlayerMove _playerMove; // プレイヤー移動コンポーネント
-    private RotationMove _rotationMove; // プレイヤー回転コンポーネント
-    private PlayerJump _playerJump; // プレイヤージャンプコンポーネント
-
     public override void Spawned()
     {
-        if (Object.HasInputAuthority)
-        {
-            _camera = FindFirstObjectByType<CinemachineCamera>();
-        }
+       
     }
 
     public override void FixedUpdateNetwork()
@@ -53,20 +41,14 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     private void DoRotation(PlayerNetworkInput input)
     {
-        // マウス入力に感度と時間を適用
-        float rotationDelta = input.LookInput.x * Runner.DeltaTime;
+        Vector3 cameraDirection = input.CameraForwardDirection;
 
-        // 累積回転角度を更新（Y軸回転）
-        _networkedYRotation += rotationDelta;
+        // Y成分を0にしてY軸回転のみにする
+        cameraDirection.y = 0f;
 
-        Quaternion bodyRotation = Quaternion.Euler(0f, _networkedYRotation, 0f);
-        transform.rotation = bodyRotation;
+        // 正規化してからキャラクターの回転を設定
+        cameraDirection.Normalize();
 
-        Debug.Log($"Y軸回転: {_networkedYRotation}度");
-    }
-
-    public void SetCamera(CinemachineCamera camera)
-    {
-        //_camera = camera;
+        transform.rotation = Quaternion.LookRotation(cameraDirection);
     }
 }
