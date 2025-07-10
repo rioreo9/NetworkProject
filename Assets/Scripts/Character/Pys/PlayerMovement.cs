@@ -20,6 +20,7 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     [SerializeField] private Transform _cameraHandle; // 回転速度
 
     private CinemachineCamera _camera; // カメラの参照
+    private float _networkedYRotation; // ネットワーク同期されるX軸回転角度
 
     private PlayerMove _playerMove; // プレイヤー移動コンポーネント
     private RotationMove _rotationMove; // プレイヤー回転コンポーネント
@@ -52,16 +53,16 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     private void DoRotation(PlayerNetworkInput input)
     {
-        // カメラのフォワード方向を取得
-        Vector3 cameraDirection = input.CameraForwardDirection;
+        // マウス入力に感度と時間を適用
+        float rotationDelta = input.LookInput.x * Runner.DeltaTime;
 
-        // Y成分を0にしてY軸回転のみにする
-        cameraDirection.y = 0f;
+        // 累積回転角度を更新（Y軸回転）
+        _networkedYRotation += rotationDelta;
 
-        // 正規化してからキャラクターの回転を設定
-        cameraDirection.Normalize();
+        Quaternion bodyRotation = Quaternion.Euler(0f, _networkedYRotation, 0f);
+        transform.rotation = bodyRotation;
 
-        transform.rotation = Quaternion.LookRotation(cameraDirection);
+        Debug.Log($"Y軸回転: {_networkedYRotation}度");
     }
 
     public void SetCamera(CinemachineCamera camera)

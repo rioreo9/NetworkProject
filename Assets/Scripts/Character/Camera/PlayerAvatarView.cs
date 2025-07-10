@@ -14,9 +14,11 @@ public class PlayerAvatarView : NetworkBehaviour
     [SerializeField, Required]
     private CinemachineCamera _cinemachineCamera; // Cinemachineカメラの参照
 
+    [SerializeField, Required]
+    private Transform _bodyTransform; // Cinemachineカメラの参照
+
     [Header("カメラ設定")]
-    [SerializeField] private float _mouseSensitivity = 100f; // マウス感度
-    [SerializeField] private float _gamepadSensitivity = 50f; // ゲームパッド感度（将来対応用）
+  
     [SerializeField] private float _maxLookAngle = 80f; // 上下視点制限角度
     [SerializeField] private bool _invertYAxis = false; // Y軸反転オプション
 
@@ -43,11 +45,16 @@ public class PlayerAvatarView : NetworkBehaviour
         // 入力権限がない場合は処理をスキップ
         if (!Object.HasInputAuthority) return;
 
+        //Cursor.lockState = CursorLockMode.Locked; // カーソルを画面中央にロック
+        //Cursor.visible = false; // カーソルを非表示にする
+
         // ネットワーク入力を取得
         if (!GetInput(out PlayerNetworkInput input)) return;
 
         // カメラの上下左右回転を処理
         ProcessCameraRotation(input.LookInput);
+
+        // すべてのクライアントでカメラ回転を適用
     }
 
     /// <summary>
@@ -56,7 +63,6 @@ public class PlayerAvatarView : NetworkBehaviour
     /// </summary>
     public override void Render()
     {
-        // すべてのクライアントでカメラ回転を適用
         ApplyCameraRotation();
     }
 
@@ -85,7 +91,7 @@ public class PlayerAvatarView : NetworkBehaviour
     private void ProcessVerticalRotation(float mouseYInput)
     {
         // マウス入力に感度と時間を適用
-        float rotationDelta = mouseYInput * _mouseSensitivity * Runner.DeltaTime;
+        float rotationDelta = mouseYInput * Runner.DeltaTime;
 
         // Y軸反転設定を適用
         if (!_invertYAxis)
@@ -108,14 +114,12 @@ public class PlayerAvatarView : NetworkBehaviour
     private void ProcessHorizontalRotation(float mouseXInput)
     {
         // マウス入力に感度と時間を適用
-        float rotationDelta = mouseXInput * _mouseSensitivity * Runner.DeltaTime;
+        float rotationDelta = mouseXInput * Runner.DeltaTime;
 
         // 累積回転角度を更新（Y軸回転）
         _networkedYRotation += rotationDelta;
 
-        // Y軸回転は360度循環するため制限なし
-        // 必要に応じて0-360度の範囲に正規化
-        _networkedYRotation = NormalizeAngle(_networkedYRotation);
+        Debug.Log($"Y軸回転: {_networkedYRotation}度");
     }
 
     /// <summary>
@@ -127,8 +131,11 @@ public class PlayerAvatarView : NetworkBehaviour
         if (_cinemachineCamera == null) return;
 
         // カメラの回転を設定（X軸=上下, Y軸=左右）
-        Quaternion targetRotation = Quaternion.Euler(_networkedXRotation, _networkedYRotation, 0f);
+        Quaternion targetRotation = Quaternion.Euler(_networkedXRotation, 0f, 0f);
         _cinemachineCamera.transform.localRotation = targetRotation;
+
+        //Quaternion bodyRotation = Quaternion.Euler(0f, _networkedYRotation, 0f);
+        //transform.rotation = bodyRotation;
     }
 
     /// <summary>
@@ -142,27 +149,5 @@ public class PlayerAvatarView : NetworkBehaviour
         while (angle > 360f) angle -= 360f;
         while (angle < 0f) angle += 360f;
         return angle;
-    }
-
-    /// <summary>
-    /// マウス感度を動的に変更
-    /// 設定画面などから呼び出される
-    /// </summary>
-    /// <param name="sensitivity">新しい感度値</param>
-    public void SetMouseSensitivity(float sensitivity)
-    {
-        _mouseSensitivity = Mathf.Max(0.1f, sensitivity); // 最小値を設定
-        Debug.Log($"マウス感度が{_mouseSensitivity}に設定されました");
-    }
-
-    /// <summary>
-    /// Y軸反転設定を変更
-    /// プレイヤーの好みに応じて上下操作を反転
-    /// </summary>
-    /// <param name="invert">反転するかどうか</param>
-    public void SetInvertYAxis(bool invert)
-    {
-        _invertYAxis = invert;
-        Debug.Log($"Y軸反転設定: {(_invertYAxis ? "ON" : "OFF")}");
     }
 }

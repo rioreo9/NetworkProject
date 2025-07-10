@@ -159,12 +159,12 @@ MonoBehaviour:
   SortKey: 2737999209
   ObjectInterest: 1
   Flags: 131073
-  NestedObjects: []
+  NestedObjects:
+  - {fileID: 1856979718856229657}
   NetworkedBehaviours:
   - {fileID: 3985850630270979451}
   - {fileID: -6682744637866649649}
   - {fileID: 7082574869073609468}
-  - {fileID: 1318006214730379422}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &3985850630270979451
 MonoBehaviour:
@@ -365,6 +365,8 @@ GameObject:
   - component: {fileID: 6163408117999150252}
   - component: {fileID: 3287254050869877165}
   - component: {fileID: 1662939679404689625}
+  - component: {fileID: 9075717325447728445}
+  - component: {fileID: 1856979718856229657}
   - component: {fileID: 1318006214730379422}
   m_Layer: 0
   m_Name: Capsule
@@ -466,6 +468,43 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &9075717325447728445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7982672876325551748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
+--- !u!114 &1856979718856229657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7982672876325551748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 1903885495
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 9075717325447728445}
+  - {fileID: 1318006214730379422}
+  ForceRemoteRenderTimeframe: 0
 --- !u!114 &1318006214730379422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -479,6 +518,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cinemachineCamera: {fileID: 5681754661660970181}
+  _bodyTransform: {fileID: 613144828093034429}
   _mouseSensitivity: 100
   _gamepadSensitivity: 50
   _maxLookAngle: 80
+  _invertYAxis: 0
