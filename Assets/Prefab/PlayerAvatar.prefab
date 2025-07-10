@@ -402,6 +402,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _followTarget: {fileID: 6823839256273516172}
-  _targetPoint: {fileID: 5454516100347065205}
   _maxLookAngle: 80
   _invertYAxis: 0
+  _interactableLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
