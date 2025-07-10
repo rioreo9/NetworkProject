@@ -4,7 +4,7 @@ using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
+public class PlayerMovement : NetworkBehaviour
 {
     [Header("移動設定")]
     [SerializeField] private float _moveSpeed = 5.0f; // 移動速度
@@ -17,18 +17,9 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
     //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
-    private CinemachineCamera _camera; // カメラの参照
-
-    private PlayerMove _playerMove; // プレイヤー移動コンポーネント
-    private RotationMove _rotationMove; // プレイヤー回転コンポーネント
-    private PlayerJump _playerJump; // プレイヤージャンプコンポーネント
-
     public override void Spawned()
     {
-        if (Object.HasInputAuthority)
-        {
-            _camera = FindFirstObjectByType<CinemachineCamera>();
-        }
+       
     }
 
     public override void FixedUpdateNetwork()
@@ -50,7 +41,6 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
 
     private void DoRotation(PlayerNetworkInput input)
     {
-        // カメラのフォワード方向を取得
         Vector3 cameraDirection = input.CameraForwardDirection;
 
         // Y成分を0にしてY軸回転のみにする
@@ -60,10 +50,5 @@ public class PlayerMovement : NetworkBehaviour, ISetPlayerInformation
         cameraDirection.Normalize();
 
         transform.rotation = Quaternion.LookRotation(cameraDirection);
-    }
-
-    public void SetCamera(CinemachineCamera camera)
-    {
-        //_camera = camera;
     }
 }

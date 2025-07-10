@@ -1,15 +1,57 @@
 
+using Fusion;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class PlayerAvatarView : MonoBehaviour
+/// <summary>
+/// プレイヤーアバターのカメラビュー制御
+/// FPS視点でのカメラ回転とネットワーク同期を担当
+/// カメラのみで上下左右の視点制御を実現
+/// </summary>
+public class PlayerAvatarView : NetworkBehaviour
 {
+    private CinemachineCamera _cinemachineCamera; // Cinemachineカメラの参照
+
+    [SerializeField, Required]
+    private Transform _followTarget; // Cinemachineカメラの参照
+
+    [Header("カメラ設定")]
+  
+    [SerializeField] private float _maxLookAngle = 80f; // 上下視点制限角度
+    [SerializeField] private bool _invertYAxis = false; // Y軸反転オプション
+
+    // ネットワーク同期される累積回転角度
+    private float _networkedXRotation;
+    private float _networkedYRotation;
+
+    /// <summary>
+    /// カメラの優先度を設定してアクティブ化
+    /// ローカルプレイヤーのスポーン時に呼び出される
+    /// </summary>
     public void SetCamera()
     {
-        CinemachineCamera freeLookCamera = FindFirstObjectByType<CinemachineCamera>();
+        _cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
 
-        freeLookCamera.LookAt = transform;
-        freeLookCamera.Follow = transform;
+        _cinemachineCamera.Target.TrackingTarget = _followTarget; // カメラの追跡ターゲットを設定
+        Debug.Log("FPSカメラがアクティブ化されました");
+    }
+
+    /// <summary>
+    /// ネットワーク対応の固定更新処理
+    /// 入力権限を持つプレイヤーのみカメラ回転を処理
+    /// </summary>
+    public override void FixedUpdateNetwork()
+    {
+        // 入力権限がない場合は処理をスキップ
+        if (!Object.HasInputAuthority) return;
+
+        //Cursor.lockState = CursorLockMode.Locked; // カーソルを画面中央にロック
+        //Cursor.visible = false; // カーソルを非表示にする
+
+        // ネットワーク入力を取得
+        if (!GetInput(out PlayerNetworkInput input)) return;
+
+       //インタラクトする処理をここに書きたい
     }
 
    

@@ -6,6 +6,15 @@
             "id": "a6140839-6ea6-4cf7-9ce9-71b315196c37",
             "actions": [
                 {
+                    "name": "CameraMove",
+                    "type": "Value",
+                    "id": "ec9de496-a525-4f48-8993-381c259af947",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "Move",
                     "type": "Value",
                     "id": "5979434a-b9ef-47cd-8ebf-9698dac08587",
@@ -141,6 +150,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "45c45e1c-3545-494e-b238-591156eb3ae4",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CameraMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "15d319ec-207d-4cc2-a573-3f7b43b407c5",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "ScaleVector2(x=10,y=10)",
+                    "groups": "",
+                    "action": "CameraMove",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -19,14 +19,9 @@ public class PlayerAvatar : NetworkBehaviour
 
     public override void Spawned()
     {
-        _movement = GetComponent<PlayerMovement>();
-
         if (Object.HasInputAuthority)
         {
-            CinemachineCamera freeLookCamera = FindFirstObjectByType<CinemachineCamera>();
-
             _playerAvatarView.SetCamera(); // ビューコンポーネントにカメラを設定
-            _movement?.SetCamera(freeLookCamera); // 移動コンポーネントにカメラを設定
         }
 
        

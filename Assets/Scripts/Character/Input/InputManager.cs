@@ -9,6 +9,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     private GameInput.PlayerActions _playerActions;
 
     private Vector2 _currentMovementDirection = Vector2.zero;
+    private Vector2 _currentCameraDirection = Vector2.zero;
     private bool _jumpPressed = false;
     private bool _interactPressed = false;
 
@@ -50,6 +51,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         Vector3 moveDirecton = TransformCalculation.GetMoveDirection(Camera.main.transform, _currentMovementDirection);
         _networkInput.MoveDirection = moveDirecton; // 移動方向（正規化済み）
         _networkInput.CameraForwardDirection = Camera.main.transform.forward; // カメラの方向（Y軸回転のみを考慮）
+        _networkInput.LookInput = _currentCameraDirection;
         _networkInput.JumpPressed.Set(MyButtons.Jump, _jumpPressed); // ジャンプボタンが押されたか
         _networkInput.InteractPressed.Set(MyButtons.Interact, _interactPressed); // インタラクトボタンが押されたか
     }
@@ -69,6 +71,12 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     public void OnMove(InputAction.CallbackContext context)
     {
         _currentMovementDirection = context.ReadValue<Vector2>();
+    }
+
+    /// <summary>カメラ回転入力コールバック（マウス、右スティック）</summary>
+    public void OnCameraMove(InputAction.CallbackContext context)
+    {
+        _currentCameraDirection = context.ReadValue<Vector2>();
     }
 
     /// <summary>ジャンプ入力コールバック（スペース、Aボタン）</summary>
