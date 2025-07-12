@@ -1,7 +1,6 @@
 
 using Fusion;
 using Unity.Cinemachine;
-using Unity.Mathematics;
 using UnityEngine;
 
 /// <summary>
@@ -53,14 +52,14 @@ public class PlayerAvatarView : NetworkBehaviour
 
         if (input.InteractPressed.IsSet(MyButtons.Interact))
         {
-            CheckIntaract();
+            ProcessInteractAction();
         }
 
 
        //インタラクトする処理をここに書きたい
     }
 
-    private void CheckIntaract()
+    private void ProcessInteractAction()
     {
         Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, Mathf.Infinity, _interactableLayerMask);
        

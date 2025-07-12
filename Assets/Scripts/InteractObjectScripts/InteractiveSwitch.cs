@@ -1,6 +1,6 @@
 using System;
 
-public class Swich : BaseInteractButtonObject
+public class InteractiveSwitch : BaseInteractButtonObject
 {
 
     /// <summary>
