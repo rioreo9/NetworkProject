@@ -20,9 +20,8 @@ public class PlayerAvatarView : NetworkBehaviour
     [SerializeField] private float _maxLookAngle = 80f; // 上下視点制限角度
     [SerializeField] private bool _invertYAxis = false; // Y軸反転オプション
 
-    // ネットワーク同期される累積回転角度
-    private float _networkedXRotation;
-    private float _networkedYRotation;
+    [Header("インタラクト設定")]
+    [SerializeField] private LayerMask _interactableLayerMask; // インタラクト可能なオブジェクトのレイヤーマスク
 
     /// <summary>
     /// カメラの優先度を設定してアクティブ化
@@ -51,8 +50,29 @@ public class PlayerAvatarView : NetworkBehaviour
         // ネットワーク入力を取得
         if (!GetInput(out PlayerNetworkInput input)) return;
 
+        if (input.InteractPressed.IsSet(MyButtons.Interact))
+        {
+            ProcessInteractAction();
+        }
+
+
        //インタラクトする処理をここに書きたい
     }
 
-   
+    private void ProcessInteractAction()
+    {
+        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, Mathf.Infinity, _interactableLayerMask);
+       
+        if (hit.collider != null)
+        {
+            Debug.Log($"ヒットしたオブジェクト: {hit.collider.name}");
+            // ヒットしたオブジェクトがインタラクト可能なオブジェクトかどうかをチェック
+            IInteractableButton interactable = hit.collider.GetComponent<IInteractableButton>();
+            if (interactable != null)
+            {
+                // インタラクト可能なオブジェクトが見つかった場合、ボタンを押す
+                interactable.PushButton();
+            }
+        }
+    }
 }
