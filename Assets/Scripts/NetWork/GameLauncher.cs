@@ -21,6 +21,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     private string _sesionName = "Test";
 
     [SerializeField]
+    [Header("共有モード切替")]
     private bool _enableSharedMode = false; // シェアードモードを使用するかどうか
 
     private NetworkRunner _runner;
@@ -102,6 +103,11 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
             Debug.LogError($"サーバー起動失敗: {result.ShutdownReason}");
             // エラーの詳細情報を出力
             Debug.LogError($"エラーメッセージ: {result.ErrorMessage}");
+
+            if (_enableSharedMode)
+            {
+                StartGame(GameMode.Shared);
+            }
         }
     }
 
