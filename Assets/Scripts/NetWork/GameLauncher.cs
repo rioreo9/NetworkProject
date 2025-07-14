@@ -20,6 +20,9 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField, Required]
     private string _sesionName = "Test";
 
+    [SerializeField]
+    private bool _shared = false; // シェアードモードを使用するかどうか
+
     private NetworkRunner _runner;
 
     private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
@@ -33,6 +36,11 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         // インターネット接続状態を確認
         StartCoroutine(CheckInternetConnection());
+
+        if (_shared)
+        {
+            StartGame(GameMode.Shared);
+        }
     }
 
     /// <summary>
@@ -101,12 +109,12 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        
-        if (runner.IsServer)
+        // アバターの初期位置を計算する（半径5の円の内部のランダムな点）
+        Vector2 rand = UnityEngine.Random.insideUnitCircle * 5f;
+        Vector3 spawnPosition = new Vector3(rand.x, 2f, rand.y);
+
+        if (_shared && player == runner.LocalPlayer || runner.IsServer)
         {
-            // アバターの初期位置を計算する（半径5の円の内部のランダムな点）
-            Vector2 rand = UnityEngine.Random.insideUnitCircle * 5f;
-            Vector3 spawnPosition = new Vector3(rand.x, 2f, rand.y);
             // 自分自身のアバターをスポーンする
             var spawnedObject = runner.Spawn(_player, spawnPosition, Quaternion.identity, player);
 
