@@ -21,7 +21,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     private string _sesionName = "Test";
 
     [SerializeField]
-    private bool _shared = false; // シェアードモードを使用するかどうか
+    private bool _enableSharedMode = false; // シェアードモードを使用するかどうか
 
     private NetworkRunner _runner;
 
@@ -37,7 +37,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         // インターネット接続状態を確認
         StartCoroutine(CheckInternetConnection());
 
-        if (_shared)
+        if (_enableSharedMode)
         {
             StartGame(GameMode.Shared);
         }
@@ -113,7 +113,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         Vector2 rand = UnityEngine.Random.insideUnitCircle * 5f;
         Vector3 spawnPosition = new Vector3(rand.x, 2f, rand.y);
 
-        if (_shared && player == runner.LocalPlayer || runner.IsServer)
+        if (_enableSharedMode && player == runner.LocalPlayer || runner.IsServer)
         {
             // 自分自身のアバターをスポーンする
             var spawnedObject = runner.Spawn(_player, spawnPosition, Quaternion.identity, player);
@@ -211,6 +211,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
             GUI.Label(new Rect(10, 130, 400, 30), $"IsRunning: {_runner.IsRunning}");
             GUI.Label(new Rect(10, 160, 400, 30), $"Tick: {_runner.Tick}");
             GUI.Label(new Rect(10, 190, 400, 30), $"ActivePlayers: {_runner.ActivePlayers.Count()}");
+            GUI.Label(new Rect(10, 220, 400, 30), $"GameMode: {_runner.GameMode}");
         }
     }
 
