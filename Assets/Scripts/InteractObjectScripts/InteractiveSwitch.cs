@@ -1,11 +1,13 @@
 using Fusion;
-using System;
 using UnityEngine;
 
 public class InteractiveSwitch : BaseInteractButtonObject
 {
-    [SerializeField,Required]
+    [SerializeField, Required]
     private GameObject _moveObj; // スイッチのアニメーター
+
+    [Networked]
+    public bool IsActive { get; private set; } = false; // スイッチの状態
     /// <summary>
     /// ボタンを押したときに呼び出されるメソッド
     /// </summary>
@@ -13,17 +15,31 @@ public class InteractiveSwitch : BaseInteractButtonObject
     {
         if (_moveObj.TryGetComponent<Animator>(out Animator animator))
         {
-            if (animator.GetBool("MoveOn"))
-            {
-                animator.SetBool("MoveOn", false);
-            }
-            else
-            {
-                animator.SetBool("MoveOn", true);
-            }
-            Debug.Log("アニメ更新");        
+            CheckActive(animator);
+            Debug.Log("アニメ更新");
         }
         // ボタンが押されたときの処理をここに実装
         print("スイッチが押されました");
     }
+
+    public override void FixedUpdateNetwork()
+    {
+       Debug.Log("スイッチの状態: " + IsActive);
+    }
+
+    private void CheckActive(Animator animator)
+    {
+        if (IsActive)
+        {
+            animator.SetBool("MoveOn", false);
+            IsActive = false;
+        }
+        else
+        {
+            animator.SetBool("MoveOn", true);
+            IsActive = true;
+        }
+    }
+
+
 }
