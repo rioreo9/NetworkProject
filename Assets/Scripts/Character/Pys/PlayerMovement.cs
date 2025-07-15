@@ -17,6 +17,9 @@ public class PlayerMovement : NetworkBehaviour
     //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
+    [SerializeField, Required]
+    private GameObject _arm; // アームのGameObject
+
     public override void Spawned()
     {
        
@@ -42,6 +45,7 @@ public class PlayerMovement : NetworkBehaviour
     private void DoRotation(PlayerNetworkInput input)
     {
         Vector3 cameraDirection = input.CameraForwardDirection;
+        Vector3 armDirection = input.CameraForwardDirection;
 
         // Y成分を0にしてY軸回転のみにする
         cameraDirection.y = 0f;
@@ -50,5 +54,10 @@ public class PlayerMovement : NetworkBehaviour
         cameraDirection.Normalize();
 
         transform.rotation = Quaternion.LookRotation(cameraDirection);
+
+        // アームの回転をカメラの方向に完全に合わせる（左右回転 + 上下回転）
+        armDirection.Normalize();
+
+        _arm.transform.rotation = Quaternion.LookRotation(armDirection);
     }
 }
