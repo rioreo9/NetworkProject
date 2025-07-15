@@ -9,9 +9,6 @@ public class InteractiveSwitch : BaseInteractButtonObject
     [Networked, OnChangedRender(nameof(DoAction))]
     public bool IsActive { private set; get; }
 
-    /// ChangeDetectorを使用して、アニメーションの更新を検出する
-    private ChangeDetector _changeDetector;
-
     /// <summary>
     /// ボタンを押したときに呼び出されるメソッド
     /// </summary>
