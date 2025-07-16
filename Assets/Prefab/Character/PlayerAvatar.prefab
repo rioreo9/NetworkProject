@@ -130,6 +130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _animator: {fileID: 1852162718748208162}
   _targetPos: {fileID: 794579995795800120}
+  _maxLookAngle: 80
 --- !u!54 &2818447074545306170
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -383,9 +384,9 @@ MonoBehaviour:
   Animator: {fileID: 1852162718748208162}
   ApplyTiming: 2
   SyncSettings: 79
-  StateHashes: 000000008a18fce416d07f21
+  StateHashes: 00000000dd83f74b9784ca108a18fce416d07f21958341e22da1b2db3243d566b48337309190346252e416d5
   TriggerHashes: 00000000
-  TotalWords: 3
+  TotalWords: 4
 --- !u!4 &1795673811670785728 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000012322933416, guid: 0a36d45e1b007e14b884de828f3b6938, type: 3}
