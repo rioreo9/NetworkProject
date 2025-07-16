@@ -9,6 +9,8 @@ public class InteractiveSwitch : BaseInteractButtonObject
     [Networked, OnChangedRender(nameof(DoAction))]
     public bool IsActive { private set; get; }
 
+    private const string MOVE_ON_PARAM = "MoveOn"; // アニメーションパラメータ名
+
     /// <summary>
     /// ボタンを押したときに呼び出されるメソッド
     /// </summary>
@@ -50,6 +52,6 @@ public class InteractiveSwitch : BaseInteractButtonObject
 
     private void DoAction()
     {
-        _animator.SetTrigger("MoveOn");
+        _animator.SetTrigger(MOVE_ON_PARAM);
     }
 }

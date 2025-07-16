@@ -18,7 +18,9 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
     [SerializeField, Required]
-    private GameObject _arm; // アームのGameObject
+    private Transform _armTransform; // アームのGameObject
+    [SerializeField, Required]
+    private Transform _bodyTransfom;
 
     public override void Spawned()
     {
@@ -58,6 +60,6 @@ public class PlayerMovement : NetworkBehaviour
         // アームの回転をカメラの方向に完全に合わせる（左右回転 + 上下回転）
         armDirection.Normalize();
 
-        _arm.transform.rotation = Quaternion.LookRotation(armDirection);
+        _armTransform.rotation = Quaternion.LookRotation(armDirection);
     }
 }

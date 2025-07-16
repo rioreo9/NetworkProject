@@ -17,9 +17,8 @@ public class PlayerAvatar : NetworkBehaviour
     [SerializeField, Required]
     private GameObject _armMeshRenderer; // アバターのTransformコンポーネント
 
-    [Header("Layers")]
+    [SerializeField][Header("Layers")]
     private int _localPlayerLayer = 8;
-    private int _remotePlayerLayer = 0;
 
     // ローカルプレイヤーのみが使用する変数
     private bool _isLocalPlayer;
