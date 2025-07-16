@@ -12,7 +12,13 @@ public class PlayerAvatar : NetworkBehaviour
     [SerializeField, Required]
     private PlayerAvatarView _playerAvatarView; // プレイヤーアバタービューコンポーネント
 
-    private ISetPlayerInformation _movement; // 移動コンポーネント
+    [SerializeField, Required]
+    private GameObject _avatarMeshRenderer; // アバターメッシュレンダラー
+    [SerializeField, Required]
+    private GameObject _armMeshRenderer; // アバターのTransformコンポーネント
+
+    [SerializeField][Header("Layers")]
+    private int _localPlayerLayer = 8;
 
     // ローカルプレイヤーのみが使用する変数
     private bool _isLocalPlayer;
@@ -21,10 +27,17 @@ public class PlayerAvatar : NetworkBehaviour
     {
         if (Object.HasInputAuthority)
         {
+            Camera.main.cullingMask &= ~(1 << _localPlayerLayer);
+
             _playerAvatarView.SetCamera(); // ビューコンポーネントにカメラを設定
+            _avatarMeshRenderer?.SetLayer(_localPlayerLayer, true);
+        }
+        else
+        {
+            _armMeshRenderer?.SetActive(false); // 他のプレイヤーのアバターメッシュを有効化
         }
 
-       
+
         Debug.Log("ローカルプレイヤーとしてスポーンされました");
     }
 }
