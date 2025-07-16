@@ -8,7 +8,9 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     private GameInput _gameInput;
     private GameInput.PlayerActions _playerActions;
 
-    private Vector2 _currentMovementDirection = Vector2.zero;
+    private Transform _mainCamera;
+
+    private Vector2 _currentMoveInput = Vector2.zero;
     private Vector2 _currentCameraDirection = Vector2.zero;
     private bool _jumpPressed = false;
     private bool _interactPressed = false;
@@ -20,6 +22,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     {
         _gameInput = new GameInput();
         _playerActions = _gameInput.Player;
+        _mainCamera = Camera.main?.transform;
 
         _playerActions.SetCallbacks(this);
     }
@@ -48,11 +51,19 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     public void UpdateNetWorkInput()
     {
         // 既存の構造体のフィールドを直接更新
-        Vector3 moveDirecton = TransformCalculation.GetMoveDirection(Camera.main.transform, _currentMovementDirection);
+
+        // 移動入力（正規化済み）を設定
+        _networkInput.MoveInput = _currentMoveInput;
+        // カメラ回転入力を設定
+        Vector3 moveDirecton = TransformCalculation.GetMoveDirection(_mainCamera, _currentMoveInput);
         _networkInput.MoveDirection = moveDirecton; // 移動方向（正規化済み）
-        _networkInput.CameraForwardDirection = Camera.main.transform.forward; // カメラの方向（Y軸回転のみを考慮）
-        _networkInput.LookInput = _currentCameraDirection;
+
+        _networkInput.CameraForwardDirection = _mainCamera.forward; // カメラの方向（Y軸回転のみを考慮）
+
+        _networkInput.LookInput = _currentCameraDirection;// カメラ回転入力（マウス, 右スティック）
+
         _networkInput.JumpPressed.Set(MyButtons.Jump, _jumpPressed); // ジャンプボタンが押されたか
+
         _networkInput.InteractPressed.Set(MyButtons.Interact, _interactPressed); // インタラクトボタンが押されたか
     }
 
@@ -70,7 +81,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     /// <summary>移動入力コールバック（WASD、左スティック）</summary>
     public void OnMove(InputAction.CallbackContext context)
     {
-        _currentMovementDirection = context.ReadValue<Vector2>();
+        _currentMoveInput = context.ReadValue<Vector2>();
     }
 
     /// <summary>カメラ回転入力コールバック（マウス、右スティック）</summary>

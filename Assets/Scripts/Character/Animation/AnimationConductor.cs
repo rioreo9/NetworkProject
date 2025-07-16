@@ -11,8 +11,8 @@ public class AnimationConductor : NetworkBehaviour
     {
         if (GetInput(out PlayerNetworkInput input))
         {
-           _animator.SetFloat("WorkX", input.MoveDirection.x);
-           _animator.SetFloat("WorkY", input.MoveDirection.y);
+           _animator.SetFloat("WorkX", input.MoveInput.x);
+           _animator.SetFloat("WorkY", input.MoveInput.y);
         }
     }
 }
