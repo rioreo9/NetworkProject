@@ -55,8 +55,8 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         // 移動入力（正規化済み）を設定
         _networkInput.MoveInput = _currentMoveInput;
         // カメラ回転入力を設定
-        Vector3 moveDirecton = TransformCalculation.GetMoveDirection(_mainCamera, _currentMoveInput);
-        _networkInput.MoveDirection = moveDirecton; // 移動方向（正規化済み）
+        Vector3 moveDirection = TransformCalculation.GetMoveDirection(_mainCamera, _currentMoveInput);
+        _networkInput.MoveDirection = moveDirection; // 移動方向（正規化済み）
 
         _networkInput.CameraForwardDirection = _mainCamera.forward; // カメラの方向（Y軸回転のみを考慮）
 

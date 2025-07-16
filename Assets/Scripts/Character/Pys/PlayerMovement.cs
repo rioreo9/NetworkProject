@@ -19,8 +19,6 @@ public class PlayerMovement : NetworkBehaviour
 
     [SerializeField, Required]
     private Transform _armTransform; // アームのGameObject
-    [SerializeField, Required]
-    private Transform _bodyTransfom;
 
     public override void Spawned()
     {
