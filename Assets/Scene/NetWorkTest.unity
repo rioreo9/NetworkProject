@@ -634,6 +634,7 @@ GameObject:
   m_Component:
   - component: {fileID: 748591730}
   - component: {fileID: 748591729}
+  - component: {fileID: 748591731}
   m_Layer: 0
   m_Name: GameLuncer
   m_TagString: Untagged
@@ -657,8 +658,7 @@ MonoBehaviour:
   _player:
     RawGuidValue: ed95b16f4395ed044b1d6ffad0a0d641
   _inputManager: {fileID: 1235374489}
-  _sesionName: Testsddddd
-  _enableSharedMode: 1
+  _sesionName: Test
 --- !u!4 &748591730
 Transform:
   m_ObjectHideFlags: 0
@@ -674,6 +674,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1683493630}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &748591731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748591728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 4124034953
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours: []
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &942337947
 GameObject:
   m_ObjectHideFlags: 0
@@ -1095,6 +1113,25 @@ MonoBehaviour:
   m_Script: {fileID: 506319458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1964793444 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8139182161883968646, guid: 4f177ec559743914885ad92cbd747388, type: 3}
+  m_PrefabInstance: {fileID: 3200911250158509909}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1964793451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964793444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41d6ba47b253c6d49a675dee2cef7b10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemyPrefab: {fileID: 8454916628943931070, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
+  _spawnPosition: {x: 0, y: 1, z: 0}
 --- !u!1001 &3200911250158509909
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1107,6 +1144,14 @@ PrefabInstance:
       propertyPath: SortKey
       value: 3881090786
       objectReference: {fileID: 0}
+    - target: {fileID: 1155958946505056822, guid: 4f177ec559743914885ad92cbd747388, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155958946505056822, guid: 4f177ec559743914885ad92cbd747388, type: 3}
+      propertyPath: 'NetworkedBehaviours.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1964793451}
     - target: {fileID: 7101165088426481269, guid: 4f177ec559743914885ad92cbd747388, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1167,10 +1212,17 @@ PrefabInstance:
       propertyPath: __isActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8756573513772529033, guid: 4f177ec559743914885ad92cbd747388, type: 3}
+      propertyPath: _waveSpawner
+      value: 
+      objectReference: {fileID: 1964793451}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8139182161883968646, guid: 4f177ec559743914885ad92cbd747388, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1964793451}
   m_SourcePrefab: {fileID: 100100000, guid: 4f177ec559743914885ad92cbd747388, type: 3}
 --- !u!1001 &7946148838030103824
 PrefabInstance:

@@ -6,6 +6,9 @@ public class InteractiveSwitch : BaseInteractButtonObject
     [SerializeField, Required]
     private NetworkMecanimAnimator _animator; // スイッチのアニメーター
 
+    [SerializeField, Required]
+    private WaveSpawner _waveSpawner; // ウェーブスポーン管理
+
     [Networked, OnChangedRender(nameof(DoAction))]
     public bool IsActive { private set; get; }
 
@@ -47,6 +50,9 @@ public class InteractiveSwitch : BaseInteractButtonObject
         if (!IsInteractable) return;
 
         IsActive = !IsActive;
+
+        _waveSpawner.SpawnEnemy();
+
         Debug.Log($"スイッチ状態変更: {IsActive}");
     }
 

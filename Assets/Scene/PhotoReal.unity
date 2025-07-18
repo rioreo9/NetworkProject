@@ -939,6 +939,7 @@ GameObject:
   m_Component:
   - component: {fileID: 695496116}
   - component: {fileID: 695496117}
+  - component: {fileID: 695496118}
   m_Layer: 0
   m_Name: GameLuncer
   m_TagString: Untagged
@@ -978,7 +979,20 @@ MonoBehaviour:
     RawGuidValue: ed95b16f4395ed044b1d6ffad0a0d641
   _inputManager: {fileID: 1705870940}
   _sesionName: Testsddddd
-  _enableSharedMode: 1
+--- !u!114 &695496118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 695496115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41d6ba47b253c6d49a675dee2cef7b10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemyPrefab: {fileID: 8454916628943931070, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
+  _spawnPosition: {x: 0, y: 1, z: 0}
 --- !u!1001 &899818264
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1309,6 +1323,10 @@ PrefabInstance:
       propertyPath: _animator
       value: 
       objectReference: {fileID: 899818267}
+    - target: {fileID: 8756573513772529033, guid: 4f177ec559743914885ad92cbd747388, type: 3}
+      propertyPath: _waveSpawner
+      value: 
+      objectReference: {fileID: 695496118}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
