@@ -33,6 +33,8 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     {
         // インターネット接続状態を確認
         StartCoroutine(CheckInternetConnection());
+
+        Application.targetFrameRate = 60; // フレームレートを60に設定
     }
 
     /// <summary>
