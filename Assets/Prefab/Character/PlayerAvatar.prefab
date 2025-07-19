@@ -115,7 +115,6 @@ MonoBehaviour:
     m_Bits: 1
   _groundCheckOffset: {x: 0, y: 0.1, z: 0}
   _armTransform: {fileID: 8818714478115345640}
-  _bodyTransfom: {fileID: 1795673812625327344}
 --- !u!114 &2085076663426594679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,11 +389,6 @@ MonoBehaviour:
 --- !u!4 &1795673811670785728 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000012322933416, guid: 0a36d45e1b007e14b884de828f3b6938, type: 3}
-  m_PrefabInstance: {fileID: 1794040327418467432}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1795673812625327344 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4000013546016920, guid: 0a36d45e1b007e14b884de828f3b6938, type: 3}
   m_PrefabInstance: {fileID: 1794040327418467432}
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &1852162718748208162 stripped
