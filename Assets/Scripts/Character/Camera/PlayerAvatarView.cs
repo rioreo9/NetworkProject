@@ -73,6 +73,12 @@ public class PlayerAvatarView : NetworkBehaviour
                 // インタラクト可能なオブジェクトが見つかった場合、ボタンを押す
                 interactable.PushButton();
             }
+
+            if (hit.collider.TryGetComponent(out GunEmplacementController gunEmplacementController))
+            {
+                gunEmplacementController.Object.RequestStateAuthority();
+                gunEmplacementController.SetPlayerRef(Object.InputAuthority);
+            }
         }
     }
 }
