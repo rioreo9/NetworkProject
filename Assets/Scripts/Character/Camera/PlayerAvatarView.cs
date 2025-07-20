@@ -23,8 +23,6 @@ public class PlayerAvatarView : NetworkBehaviour
     [Header("インタラクト設定")]
     [SerializeField] private LayerMask _interactableLayerMask; // インタラクト可能なオブジェクトのレイヤーマスク
 
-    public PlayerNetworkInput Input { get; private set; } // ネットワーク入力データ
-
     /// <summary>
     /// カメラの優先度を設定してアクティブ化
     /// ローカルプレイヤーのスポーン時に呼び出される
@@ -55,7 +53,6 @@ public class PlayerAvatarView : NetworkBehaviour
         if (input.InteractPressed.IsSet(MyButtons.Interact))
         {
             ProcessInteractAction();
-            Input = input; // 入力データを保存
         }
 
 

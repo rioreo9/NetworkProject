@@ -3,13 +3,10 @@ using UnityEngine;
 
 public class GunEmplacementController : NetworkBehaviour
 {
-    [Networked]
-    public PlayerRef _currentOperatorP { get; private set; }
-
     public override void FixedUpdateNetwork()
     {
         if (!GetInput(out PlayerNetworkInput input)) return;
-        Debug.Log($"GunEmplacementController FixedUpdateNetwork: {input}");
+       
         DoRotation(input);
     }
 
@@ -38,16 +35,12 @@ public class GunEmplacementController : NetworkBehaviour
     private void RPC_RequestOperation(PlayerRef player)
     {
         SetPlayerInputForce(player);
-        Debug.Log($"RPCでPlayerRefが設定されました: {player}");
     }
 
     private void SetPlayerInputForce(PlayerRef player)
     {
         // 権限がある場合は直接設定
         Object.AssignInputAuthority(player);
-        Debug.Log($"砲台の入力権限をプレイヤー {player} に移譲しました");
-        Debug.Log($"Object.HasInputAuthority: {Object.HasInputAuthority}");
-        Debug.Log($"Object.InputAuthority: {Object.InputAuthority}");
     }
 
     private void DoRotation(PlayerNetworkInput input)
