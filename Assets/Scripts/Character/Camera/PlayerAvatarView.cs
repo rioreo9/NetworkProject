@@ -79,6 +79,7 @@ public class PlayerAvatarView : NetworkBehaviour
 
             if (hit.collider.TryGetComponent(out GunEmplacementController gunEmplacementController))
             {
+                gunEmplacementController.Object.RequestStateAuthority();
                 gunEmplacementController.SetPlayerRef(Object.InputAuthority);
             }
         }
