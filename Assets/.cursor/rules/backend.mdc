@@ -11,6 +11,14 @@
 ### Scripts/ - メインロジック
 プロジェクトのコア機能を担当するスクリプト群
 
+#### Core/ - コアシステム
+- **Container/**: 依存性注入システム
+  - `ProjectInstaller.cs`: VContainerベースのDI設定、システム間の依存関係管理
+- `EnemyWaveHandler.cs`: ウェーブベースの敵スポーンシステム、ゲーム進行管理
+- `GameFlowHandler.cs`: ゲーム全体のフロー制御、ステート管理
+- **Inter/**: インターフェース定義
+  - `IGameStateNotice.cs`: ゲーム状態通知インターフェース
+
 #### Character/ - キャラクター関連
 - **Animation/**: アニメーションシステム
   - `AnimationConductor.cs`: キャラクターアニメーション制御
@@ -26,6 +34,11 @@
   - `PlayerJump.cs`: ジャンプ機能
   - `RotationMove.cs`: 回転制御
   - `PlayerPhysicsMove.cs`: 物理演算対応移動
+- **Enemy/**: 敵キャラクターシステム
+  - **AI/**: 敵AI制御システム
+  - **Combat/**: 戦闘システム
+  - **Core/**: 敵の基本クラス群
+  - **Spawning/**: 敵スポーンシステム
 - `PlayerAvatar.cs`: メインプレイヤーアバターコントローラー
 - `ISetPlayerInformation.cs`: プレイヤー情報設定インターフェース
 
@@ -50,18 +63,23 @@
 
 ### Scene/ - シーン
 - `NetWorkTest.unity`: ネットワーク機能テストシーン
+- `NetWorkAnalysisMiyamoto.unity`: ネットワーク分析・デバッグ用シーン
 - `PhotoReal.unity`: フォトリアリスティック描画テストシーン
 - `OutdoorsScene.unity`: メインゲームシーン
 
 ### Prefab/ - プレハブ
 - **Character/**: キャラクター関連プレハブ
   - `PlayerAvatar.prefab`: プレイヤーアバタープレハブ
+  - **Enemy/**: 敵キャラクタープレハブ
+    - `Enemy.prefab`: 基本敵プレハブ
+- **Object/**: ゲームオブジェクトプレハブ
+  - `Gun.prefab`: 武器プレハブ
 - `NetWorkRunner.prefab`: ネットワークランナープレハブ
 - `Button.prefab`: インタラクション用ボタンプレハブ
 - `MoveObject.prefab`: 移動可能オブジェクトプレハブ
 
 ### Photon/ - Photon Fusion2関連
-Photon Fusion2の機能とアセット
+Photon Fusion2の機能とアセット（最新版 Build 920）
 - **Fusion/**: メインライブラリ
   - **Runtime/**: ランタイムライブラリ
   - **Editor/**: エディター拡張
@@ -71,7 +89,7 @@ Photon Fusion2の機能とアセット
   - **CodeGen/**: Fusionコード生成機能
 - **FusionDemos/**: サンプルコード
 - **FusionMenu/**: メニューシステム
-- **PhotonLibs/**: Photonライブラリ群
+- **PhotonLibs/**: Photonライブラリ群（4.1.8.15対応）
   - **WebSocket/**: WebSocket通信ライブラリ
 - **PhotonUnityNetworking/**: Photon Unity Networking設定
 
@@ -93,12 +111,13 @@ Photon Fusion2の機能とアセット
   - `DefaultSettingsVolumeProfile.asset`: デフォルトボリューム設定
 
 ### Editor/ - エディター機能
-- `AutoSave.cs`: 自動保存機能
+- `AutoSave.cs`: 自動保存機能（変更検知・プレイモード保存対応）
 - `Attribute.cs`: カスタム属性定義
 
 ### Animation/ - アニメーション
 - **Character/**: キャラクターアニメーション
   - `Player.controller`: プレイヤーアニメーターコントローラー
+  - `LookDown.anim`, `LookStreet.anim`: キャラクター視線制御アニメーション
 - **Object/**: オブジェクトアニメーション
   - `MoveBox.anim`: 移動ボックスアニメーション
   - `MoveBox.controller`: 移動ボックスアニメーターコントローラー
@@ -106,11 +125,24 @@ Photon Fusion2の機能とアセット
 ### Material/ - マテリアル
 - `Floor.mat`: 床用マテリアル
 - `Switch.mat`: スイッチ用マテリアル
+- `Prototype_512x512_Blue1.mat`: プロトタイプ用マテリアル
 
 ## 主要機能
 
+### 依存性注入システム
+- VContainerベースのDI設定
+- `ProjectInstaller`によるシステム間の依存関係管理
+- `GameFlowHandler`と`EnemyWaveHandler`のシングルトン登録
+- インターフェースベースの疎結合設計
+
+### ゲームフロー管理
+- `GameFlowHandler`: ゲーム全体の状態制御
+- `EnemyWaveHandler`: ウェーブシステム管理
+- `IGameStateNotice`: ゲーム状態通知インターフェース
+- ウェーブクリア後の強化・アップグレードシステム基盤
+
 ### ネットワーク機能
-- Photon Fusion2を使用したマルチプレイヤー対応
+- Photon Fusion2を使用したマルチプレイヤー対応（最新Build 920）
 - ホスト/クライアント/シェアードモード対応
 - プレイヤー参加/退出処理
 - ネットワーク入力同期
@@ -118,6 +150,7 @@ Photon Fusion2の機能とアセット
 - リージョン別接続テスト
 - インターネット接続状態確認
 - セッション管理とプレイヤーオブジェクト制御
+- NetworkBehaviourベースのネットワーク同期
 
 ### プレイヤーシステム
 - FPS視点でのキャラクター操作
@@ -126,6 +159,13 @@ Photon Fusion2の機能とアセット
 - ネットワーク同期されたアバター
 - アニメーション制御システム
 - 物理演算対応移動システム
+
+### 敵システム基盤
+- 敵AI制御基盤
+- 戦闘システム基盤
+- 敵スポーンシステム
+- ウェーブ管理システム
+- ネットワーク同期対応
 
 ### 入力システム
 - Unity Input Systemベース
@@ -145,6 +185,11 @@ Photon Fusion2の機能とアセット
 - 複数の画質設定プロファイル
 - ボリューメトリック効果とライティング
 
+### エディター機能
+- 自動保存システム（変更検知・プレイモード対応）
+- 必須フィールド検証属性
+- カスタムエディター拡張
+
 ## 開発方針
 - var型の使用を避ける
 - 適切な粒度でのメソッド分割
@@ -152,8 +197,16 @@ Photon Fusion2の機能とアセット
 - 各行にコメント記述、関数にsummary記述
 - 既存コード設計の一貫性を保つ
 - R3を活用したリアクティブプログラミング
+- VContainerによる依存性注入設計
 - Photon Fusion2のベストプラクティスに従う
 - エラーハンドリングとデバッグ情報の充実
+- ネットワーク同期を考慮した設計
+
+## 現在の開発状況
+- **進捗**: フェーズ2（ゲームプレイ実装）進行中
+- **完了機能**: 基盤システム、ネットワーク、プレイヤーシステム、DI基盤
+- **実装中**: 敵システム、戦闘システム、ウェーブ管理
+- **今後**: 砲台システム、防御システム、アップグレードシステム
 
 alwaysApply: false
 ---
