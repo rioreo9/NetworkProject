@@ -8,7 +8,7 @@ public class ProjectInstaller : LifetimeScope
     [SerializeField, Required]
     private GameFlowHandler _gameFlowHandler;
     [SerializeField, Required]
-    private EnemyWaveHandler _enemyWaveHandler;
+    private WaveHandler _enemyWaveHandler;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -26,6 +26,7 @@ public class ProjectInstaller : LifetimeScope
         {
             builder.RegisterComponent(_enemyWaveHandler);
         }
-
+        builder.RegisterComponentInHierarchy<UpgradePhaseEndButton>();
+        builder.RegisterComponentInHierarchy<PreparationEndButton>();
     }
 }

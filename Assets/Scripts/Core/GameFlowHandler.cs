@@ -8,16 +8,24 @@ public enum GameState
     WaitingForPlayers,
     Preparation,
     WaveAction,
-    WaveComplete,
     UpgradePhase,
     GameOver,
     Victory
 }
 
+public enum ChangeStateType
+{
+    WaitingForPlayersEnd,
+    PreparationEnd,
+    WavePhaseEnd,
+    WavePhaseComplete,
+    UpgradePhaseEnd,  
+}
+
 public readonly struct GameStateChangeCommand : ICommand
 {
-    public GameState NewState { get; }
-    public GameStateChangeCommand(GameState newState)
+    public ChangeStateType NewState { get; }
+    public GameStateChangeCommand(ChangeStateType newState)
     {
         NewState = newState;
     }
@@ -36,7 +44,7 @@ public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
 
     public override void Spawned()
     {
-        UpdateGameState(GameState.WaveAction);
+        UpdateGameState(GameState.Preparation);
     }
 
     /// <summary>
@@ -49,9 +57,24 @@ public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
         CurrentGameState = state;
     }
 
+    /// <summary>
+    /// ゲームの状態変更コマンドを受け取り、状態を更新するメソッド
+    /// </summary>
+    /// <param name="state"></param>
     public void OnStateChange(GameStateChangeCommand state)
     {
         Debug.Log(state);
-        UpdateGameState(state.NewState);
+        switch (state.NewState)
+        {
+            case ChangeStateType.PreparationEnd:
+                UpdateGameState(GameState.WaveAction);
+                break;
+            case ChangeStateType.WavePhaseEnd:
+                UpdateGameState(GameState.UpgradePhase);
+                break;
+            case ChangeStateType.UpgradePhaseEnd:
+                UpdateGameState(GameState.WaveAction);
+                break;
+        }
     }
 }

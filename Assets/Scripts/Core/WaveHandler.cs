@@ -4,7 +4,7 @@ using R3;
 using VitalRouter;
 using UnityEngine;
 
-public class EnemyWaveHandler : NetworkBehaviour
+public class WaveHandler : NetworkBehaviour
 {
     private IGameStateNotice _gameStateNotice;
 
@@ -43,12 +43,16 @@ public class EnemyWaveHandler : NetworkBehaviour
         if (_waveNowTime > 5f)
         {
             _publisher.PublishAsync
-                (new GameStateChangeCommand(GameState.WaveComplete));
+                (new GameStateChangeCommand(ChangeStateType.WavePhaseEnd));
             _waveNowTime = 0f; // Waveの時間をリセット
             Debug.Log("Wave Complete");
         }
     }
 
+    /// <summary>
+    /// ゲームの状態をチェックし、Waveがアクティブかどうかを設定するメソッド
+    /// </summary>
+    /// <param name="state"></param>
     private void CheckWave(GameState state)
     {
         if (state == GameState.WaveAction)

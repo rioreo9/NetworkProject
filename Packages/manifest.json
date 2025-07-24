@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "com.cysharp.r3": "1.3.0",
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
     "com.unity.burst": "1.8.21",
     "com.unity.cinemachine": "3.1.4",
@@ -36,6 +38,7 @@
     "com.unity.visualeffectgraph": "17.0.4",
     "com.unity.visualscripting": "1.9.7",
     "jp.hadashikick.vcontainer": "1.17.0",
+    "jp.hadashikick.vitalrouter": "https://github.com/hadashiA/VitalRouter.git?path=/src/VitalRouter.Unity/Assets/VitalRouter",
     "net.wraithavengames.unityinterfacesupport": "https://github.com/TheDudeFromCI/Unity-Interface-Support.git?path=/Packages/net.wraithavengames.unityinterfacesupport",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
@@ -70,9 +73,7 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
-    "jp.hadashikick.vitalrouter": "https://github.com/hadashiA/VitalRouter.git?path=/src/VitalRouter.Unity/Assets/VitalRouter"
+    "com.unity.modules.xr": "1.0.0"
   },
   "scopedRegistries": [
     {
