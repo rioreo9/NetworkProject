@@ -1,46 +1,63 @@
 using Fusion;
 using VContainer;
+using R3;
+using VitalRouter;
 using UnityEngine;
-using VContainer.Unity;
 
 public class EnemyWaveHandler : NetworkBehaviour
 {
     private IGameStateNotice _gameStateNotice;
 
-    public override void Spawned()
-    {
-        // ネットワークオブジェクトがスポーンされた時に手動で依存性注入を実行
-        InjectDependencies();
-    }
+    private ICommandPublisher _publisher;
+
+   private bool _isWaveActive = false;
+
+    private float _waveNowTime = 0f; // 1 Waveの持続時間
 
     /// <summary>
     /// VContainerから手動で依存性を注入するメソッド
     /// </summary>
-    private void InjectDependencies()
+    [Inject]
+    public void InjectDependencies(IGameStateNotice notice, ICommandPublisher publisher)
     {
-        // LifetimeScopeを検索してコンテナを取得
-        LifetimeScope lifetimeScope = FindFirstObjectByType<LifetimeScope>();
-        if (lifetimeScope != null)
-        {
-            // コンテナから依存性を解決
-            _gameStateNotice = lifetimeScope.Container.Resolve<IGameStateNotice>();
-            Debug.Log("EnemyWaveHandler: 依存性注入が完了しました");
-        }
-        else
-        {
-            Debug.LogError("EnemyWaveHandler: LifetimeScopeが見つかりません");
-        }
+        _gameStateNotice = notice;
+        _publisher = publisher;
+    }
+
+    public override void Spawned()
+    {
+        //Stateの変更を購読
+        _gameStateNotice.GameStateRP.Subscribe(CheckWave);
     }
 
     public override void FixedUpdateNetwork()
     {
-        if (_gameStateNotice == null)
+        if (!Object.HasStateAuthority) return;
+
+        if (_isWaveActive)
         {
-            Debug.LogError("IGameStateNotice is not injected into EnemyWaveHandler.");
+            _waveNowTime += Runner.DeltaTime;
+            Debug.Log($"Wave Time: {_waveNowTime:F2} seconds");
+        }
+
+        if (_waveNowTime > 5f)
+        {
+            _publisher.PublishAsync
+                (new GameStateChangeCommand(GameState.WaveComplete));
+            _waveNowTime = 0f; // Waveの時間をリセット
+            Debug.Log("Wave Complete");
+        }
+    }
+
+    private void CheckWave(GameState state)
+    {
+        if (state == GameState.WaveAction)
+        {
+            _isWaveActive = true;
         }
         else
         {
-            Debug.Log("EnemyWaveHandler spawned with IGameStateNotice injected.");
+            _isWaveActive = false;
         }
     }
 }

@@ -1,6 +1,7 @@
-using System;
-using R3;
 using Fusion;
+using R3;
+using VitalRouter;
+using UnityEngine;
 
 public enum GameState
 {
@@ -12,10 +13,20 @@ public enum GameState
     GameOver,
     Victory
 }
-public class GameFlowHandler : NetworkBehaviour, IGameStateNotice
+
+public readonly struct GameStateChangeCommand : ICommand
+{
+    public GameState NewState { get; }
+    public GameStateChangeCommand(GameState newState)
+    {
+        NewState = newState;
+    }
+}
+[Routes]
+public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
 {
     [Networked]
-    public GameState CurrentGameState {private set; get; }
+    public GameState CurrentGameState { get; private set; }
 
     /// <summary>
     /// ゲームの状態をリアクティブに管理するプロパティ
@@ -25,12 +36,7 @@ public class GameFlowHandler : NetworkBehaviour, IGameStateNotice
 
     public override void Spawned()
     {
-        UpdateGameState(GameState.WaitingForPlayers);
-    }
-
-    public override void FixedUpdateNetwork()
-    {
-        
+        UpdateGameState(GameState.WaveAction);
     }
 
     /// <summary>
@@ -39,10 +45,13 @@ public class GameFlowHandler : NetworkBehaviour, IGameStateNotice
     /// <param name="state"></param>
     private void UpdateGameState(GameState state)
     {
-        if (Object.HasStateAuthority)
-        {
-            _gameStateRP.Value = state;
-            CurrentGameState = state;
-        }
+        _gameStateRP.Value = state;
+        CurrentGameState = state;
+    }
+
+    public void OnStateChange(GameStateChangeCommand state)
+    {
+        Debug.Log(state);
+        UpdateGameState(state.NewState);
     }
 }

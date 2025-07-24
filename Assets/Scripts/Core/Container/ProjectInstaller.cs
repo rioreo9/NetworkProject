@@ -1,7 +1,7 @@
-using Fusion;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
+using VitalRouter.VContainer;
 
 public class ProjectInstaller : LifetimeScope
 {
@@ -12,19 +12,20 @@ public class ProjectInstaller : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
-        // インスタンス登録（シーンに配置されたオブジェクトを使用）
-        if (_gameFlowHandler != null)
+        // Vital RouterをDIコンテナに登録
+        builder.RegisterVitalRouter(routing =>
         {
-            builder.RegisterInstance(_gameFlowHandler).As<IGameStateNotice>();
-        }
+            //購読側（一元的にまとめるクラスが望ましい）
+            routing.Map(_gameFlowHandler).As<IGameStateNotice>();
+        });
+
+
+        // インスタンス登録（シーンに配置されたオブジェクトを使用）
 
         if (_enemyWaveHandler != null)
         {
-            builder.RegisterInstance(_enemyWaveHandler);
+            builder.RegisterComponent(_enemyWaveHandler);
         }
 
-        // または、型による自動登録の場合
-        // builder.RegisterComponentInHierarchy<GameFlowHandler>().As<IGameStateNotice>();
-        // builder.RegisterComponentInHierarchy<EnemyWaveHandler>();
     }
 }
