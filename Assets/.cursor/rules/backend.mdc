@@ -4,7 +4,7 @@
 - **ジャンル**: FPS視点の3Dオンライン協力防衛ゲーム
 - **プレイ人数**: 1～4人（マルチプレイヤー対応）
 - **プラットフォーム**: Unity + C#
-- **技術スタック**: R3, VContainer, UniTask, HDRP, Photon Fusion2
+- **技術スタック**: R3, VContainer, UniTask, HDRP, Photon Fusion2, VitalRouter
 
 ## ディレクトリ構造と機能
 
@@ -14,8 +14,8 @@
 #### Core/ - コアシステム
 - **Container/**: 依存性注入システム
   - `ProjectInstaller.cs`: VContainerベースのDI設定、システム間の依存関係管理
-- `EnemyWaveHandler.cs`: ウェーブベースの敵スポーンシステム、ゲーム進行管理
-- `GameFlowHandler.cs`: ゲーム全体のフロー制御、ステート管理
+- `GameFlowHandler.cs`: ゲーム全体のフロー制御、ステート管理（VitalRouter統合）
+- `WaveHandler.cs`: ウェーブベースの敵スポーンシステム、ゲーム進行管理
 - **Inter/**: インターフェース定義
   - `IGameStateNotice.cs`: ゲーム状態通知インターフェース
 
@@ -36,9 +36,14 @@
   - `PlayerPhysicsMove.cs`: 物理演算対応移動
 - **Enemy/**: 敵キャラクターシステム
   - **AI/**: 敵AI制御システム
-  - **Combat/**: 戦闘システム
+    - `EnemyAIBrain.cs`: 敵AI基本実装（実装中）
+  - **Combat/**: 戦闘システム（基盤構築中）
   - **Core/**: 敵の基本クラス群
+    - `BaseEnemy.cs`: 敵キャラクターの基底クラス
   - **Spawning/**: 敵スポーンシステム
+    - `WaveSpawner.cs`: ウェーブベースの敵スポーン管理
+  - **Types/**: 敵タイプ実装
+    - `EnemyWakame.cs`: 特定敵タイプの実装
 - `PlayerAvatar.cs`: メインプレイヤーアバターコントローラー
 - `ISetPlayerInformation.cs`: プレイヤー情報設定インターフェース
 
@@ -53,6 +58,12 @@
 - `IInteractableControllable.cs`: 操縦可能オブジェクトのインターフェース
 - `IInteractableButton.cs`: ボタンインタラクションインターフェース
 - `InteractiveSwitch.cs`: スイッチ型インタラクションオブジェクト
+
+#### UI/ - ユーザーインターフェース
+- **Base/**: UI基底クラス
+  - `PhaseEndButtonBase.cs`: フェーズ終了ボタンの基底クラス
+- `PreparationEndButton.cs`: 準備フェーズ終了ボタン
+- `UpgradePhaseEndButton.cs`: アップグレードフェーズ終了ボタン
 
 #### Utility/ - ユーティリティ
 - `TransformCalculation.cs`: カメラ基準の移動方向計算
@@ -132,14 +143,21 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
 ### 依存性注入システム
 - VContainerベースのDI設定
 - `ProjectInstaller`によるシステム間の依存関係管理
-- `GameFlowHandler`と`EnemyWaveHandler`のシングルトン登録
+- `GameFlowHandler`と`WaveHandler`のシングルトン登録
 - インターフェースベースの疎結合設計
 
 ### ゲームフロー管理
-- `GameFlowHandler`: ゲーム全体の状態制御
-- `EnemyWaveHandler`: ウェーブシステム管理
+- `GameFlowHandler`: ゲーム全体の状態制御（VitalRouter統合）
+- `WaveHandler`: ウェーブシステム管理
 - `IGameStateNotice`: ゲーム状態通知インターフェース
 - ウェーブクリア後の強化・アップグレードシステム基盤
+- GameState列挙型: WaitingForPlayers, Preparation, WaveAction, UpgradePhase, GameOver, Victory
+- ChangeStateType列挙型: フェーズ遷移制御
+
+### VitalRouterによるコマンドシステム
+- `GameStateChangeCommand`: ゲーム状態変更コマンド
+- コマンドパブリッシャーとルーティング機能
+- 疎結合なゲーム状態管理
 
 ### ネットワーク機能
 - Photon Fusion2を使用したマルチプレイヤー対応（最新Build 920）
@@ -160,12 +178,12 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
 - アニメーション制御システム
 - 物理演算対応移動システム
 
-### 敵システム基盤
-- 敵AI制御基盤
-- 戦闘システム基盤
-- 敵スポーンシステム
-- ウェーブ管理システム
-- ネットワーク同期対応
+### 敵システム（実装中）
+- `BaseEnemy`: 敵キャラクターの基底クラス
+- `EnemyAIBrain`: 敵AI制御システム
+- `WaveSpawner`: ウェーブベースの敵スポーン管理
+- `EnemyWakame`: 特定敵タイプの実装
+- ネットワーク同期対応設計
 
 ### 入力システム
 - Unity Input Systemベース
@@ -178,6 +196,12 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
 - 砲台操縦、シールド操作等のベース機能
 - ボタン、スイッチ、コントロール可能オブジェクト
 - 階層化されたインタラクションインターフェース
+
+### UIシステム
+- フェーズ管理UI
+- `PhaseEndButtonBase`: フェーズ終了ボタンの基底クラス
+- `PreparationEndButton`: 準備フェーズ終了ボタン
+- `UpgradePhaseEndButton`: アップグレードフェーズ終了ボタン
 
 ### 描画システム
 - HDRP (High Definition Render Pipeline) 使用
@@ -198,15 +222,27 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
 - 既存コード設計の一貫性を保つ
 - R3を活用したリアクティブプログラミング
 - VContainerによる依存性注入設計
+- VitalRouterによるコマンドパターン活用
 - Photon Fusion2のベストプラクティスに従う
 - エラーハンドリングとデバッグ情報の充実
 - ネットワーク同期を考慮した設計
 
-## 現在の開発状況
+## 現在の開発状況（2024年12月）
 - **進捗**: フェーズ2（ゲームプレイ実装）進行中
-- **完了機能**: 基盤システム、ネットワーク、プレイヤーシステム、DI基盤
-- **実装中**: 敵システム、戦闘システム、ウェーブ管理
-- **今後**: 砲台システム、防御システム、アップグレードシステム
+- **完了機能**: 
+  - 基盤システム、ネットワーク、プレイヤーシステム
+  - DI基盤、ゲームフロー管理システム
+  - VitalRouterによるコマンドシステム
+  - UI基盤システム
+- **実装中**: 
+  - 敵システム（BaseEnemy, EnemyAIBrain実装済み）
+  - ウェーブ管理システム（WaveHandler, WaveSpawner実装済み）
+  - 戦闘システム基盤
+- **今後の開発予定**: 
+  - 砲台システム完全実装
+  - 防御システム（シールド機能）
+  - アップグレードシステム
+  - バランス調整とテストプレイ
 
 alwaysApply: false
 ---
