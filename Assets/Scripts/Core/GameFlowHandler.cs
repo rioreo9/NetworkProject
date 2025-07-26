@@ -33,7 +33,7 @@ public readonly struct GameStateChangeCommand : ICommand
 [Routes]
 public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
 {
-    [Networked]
+    [Networked, OnChangedRender(nameof(UpdateGameState))]
     public GameState CurrentGameState { get; private set; }
 
     /// <summary>
@@ -44,17 +44,22 @@ public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
 
     public override void Spawned()
     {
-        UpdateGameState(GameState.Preparation);
+        RPC_SetGameState(GameState.Preparation);
     }
 
     /// <summary>
     /// ゲームの状態を更新するメソッド
     /// </summary>
     /// <param name="state"></param>
-    private void UpdateGameState(GameState state)
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_SetGameState(GameState state)
     {
-        _gameStateRP.Value = state;
         CurrentGameState = state;
+    }
+
+    private void UpdateGameState()
+    {
+        _gameStateRP.Value = CurrentGameState;
     }
 
     /// <summary>
@@ -67,13 +72,13 @@ public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
         switch (state.NewState)
         {
             case ChangeStateType.PreparationEnd:
-                UpdateGameState(GameState.WaveAction);
+                RPC_SetGameState(GameState.WaveAction);
                 break;
             case ChangeStateType.WavePhaseEnd:
-                UpdateGameState(GameState.UpgradePhase);
+                RPC_SetGameState(GameState.UpgradePhase);
                 break;
             case ChangeStateType.UpgradePhaseEnd:
-                UpdateGameState(GameState.WaveAction);
+                RPC_SetGameState(GameState.WaveAction);
                 break;
         }
     }
