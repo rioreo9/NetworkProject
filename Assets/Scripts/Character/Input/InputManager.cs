@@ -25,6 +25,9 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         _mainCamera = Camera.main?.transform;
 
         _playerActions.SetCallbacks(this);
+
+        //Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void OnEnable()
