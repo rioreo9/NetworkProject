@@ -13,7 +13,11 @@ public class AnimationConductor : NetworkBehaviour
     [SerializeField]
     private float _maxLookAngle = 80f; // 最大視線角度
 
+    [SerializeField]
+    private float _moveTransitionSpeed = 5f; // 移動方向の変更スピード
+
     private float _currentLookAngle = 0f; // 現在の視線角度を保持
+    private Vector2 _currentMoveValue = Vector2.zero; // 現在の移動アニメーション値
 
     private const string WORK_X_PARAM = "WorkX";
     private const string WORK_Y_PARAM = "WorkY";
@@ -23,8 +27,11 @@ public class AnimationConductor : NetworkBehaviour
     {
         if (GetInput(out PlayerNetworkInput input))
         {
-            _animator.SetFloat(WORK_X_PARAM, input.MoveInput.x);
-            _animator.SetFloat(WORK_Y_PARAM, input.MoveInput.y);
+            // 移動入力を徐々に変更
+            _currentMoveValue = Vector2.Lerp(_currentMoveValue, input.MoveInput, _moveTransitionSpeed * Runner.DeltaTime);
+            
+            _animator.SetFloat(WORK_X_PARAM, _currentMoveValue.x);
+            _animator.SetFloat(WORK_Y_PARAM, _currentMoveValue.y);
             
             // 視線角度を累積し、制限を適用
             _currentLookAngle -= input.LookInput.y * Runner.DeltaTime; // 感度調整

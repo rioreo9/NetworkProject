@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2085076663426594679}
   - component: {fileID: 2818447074545306170}
   - component: {fileID: 7775733860546693326}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PlayerAvatar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,6 +130,7 @@ MonoBehaviour:
   _animator: {fileID: 1852162718748208162}
   _targetPos: {fileID: 794579995795800120}
   _maxLookAngle: 80
+  _moveTransitionSpeed: 5
 --- !u!54 &2818447074545306170
 Rigidbody:
   m_ObjectHideFlags: 0
