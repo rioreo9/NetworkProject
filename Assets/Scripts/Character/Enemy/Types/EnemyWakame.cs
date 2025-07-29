@@ -28,9 +28,10 @@ public class EnemyWakame : BaseEnemy
     }
     public override void AttackTarget()
     {
-        BulletMove bullet = Runner.Spawn(_bulletPrefab, transform.position + transform.forward * 2, Quaternion.identity);
-        bullet.transform.rotation = transform.rotation;
-        bullet.Init();
+        Vector3 targetDirection = (_targetBattleship.position - transform.position).normalized;
+
+        BulletMove bullet = Runner.Spawn(_bulletPrefab, transform.position + targetDirection * 2, Quaternion.identity);
+        bullet.Init(targetDirection);
     }
 
     private void SearchTarget()
