@@ -1,7 +1,5 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 あなたは高度な問題解決能力を持つAIアシスタントです。
 後に示す指示に従って、効率的かつ正確にタスクを遂行してください。
