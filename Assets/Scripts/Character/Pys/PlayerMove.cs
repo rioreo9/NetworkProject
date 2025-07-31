@@ -7,9 +7,9 @@ public class PlayerMove
 {
     private Transform _cameraTransform;
 
-    public PlayerMove(Transform cameraTransform)
+    public PlayerMove()
     {
-        _cameraTransform = cameraTransform;
+        
     }
 
     /// <summary>
