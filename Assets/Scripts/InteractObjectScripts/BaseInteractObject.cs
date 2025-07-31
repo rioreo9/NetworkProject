@@ -18,6 +18,8 @@ public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractabl
     /// そのオブジェクトをコントロールするためのメソッド
     /// </summary>
     /// <param name="networkInput">Networkに対応したInput</param>
-    public abstract void ControlObject(NetworkInput networkInput);
+    public abstract void ControlObject();
+
+   
 }
 

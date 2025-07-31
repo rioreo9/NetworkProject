@@ -1,6 +1,7 @@
 using Fusion;
 using UnityEngine;
 /// <summary>
+/// テスト
 /// 峯廻制作
 /// インタラクト可能なボタンの基底クラス
 /// </summary>

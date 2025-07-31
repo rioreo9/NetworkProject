@@ -14,5 +14,5 @@ public interface IInteractableControllable
     /// コントロールするためのメソッド
     /// </summary>
     /// <param name="networkInput">Networkに対応したInput</param>
-    public void ControlObject(NetworkInput networkInput);
+    public void ControlObject();
 }
