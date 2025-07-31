@@ -31,7 +31,6 @@ alwaysApply: true
 
 ■ 主な技術スタック
 - R3
-- VContainer
 - UniTask
 - HDRP
 -Photon Fusion2
