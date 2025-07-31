@@ -20,9 +20,10 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField, Required]
     private Transform _armTransform; // アームのGameObject
 
+
     public override void Spawned()
     {
-       
+ 
     }
 
     public override void FixedUpdateNetwork()
