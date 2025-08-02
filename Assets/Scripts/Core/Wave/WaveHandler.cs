@@ -30,6 +30,7 @@ public class WaveHandler : NetworkBehaviour
     private bool _isWaveActive = false;
 
     private float _waveNowTime = 0f; // 1 Waveの持続時間
+    private float _waveDuration = 0f; // ウェーブの持続時間（秒）
 
     /// <summary>
     /// VContainerから手動で依存性を注入するメソッド
@@ -57,10 +58,10 @@ public class WaveHandler : NetworkBehaviour
         if (_isWaveActive)
         {
             _waveNowTime += Runner.DeltaTime;
-            Debug.Log($"Wave Now Time: {_waveNowTime} seconds");
+            //Debug.Log($"Wave Now Time: {_waveNowTime} seconds");
         }
 
-        if (_waveNowTime > 5f)
+        if (_waveNowTime > _waveDuration)
         {
             ClearWave();
         }
@@ -123,7 +124,7 @@ public class WaveHandler : NetworkBehaviour
         List<BaseEnemy> spawnedEnemies = new List<BaseEnemy>();
 
         spawnedEnemies = _waveSpawner.SpawnEnemy(_waveConfiguration.Waves[_currentWaveIndex]);
-
+        _waveDuration = _waveConfiguration.Waves[_currentWaveIndex].WaveDuration;
         _enemyCoordinator.SetWaveTarget(spawnedEnemies);
     }
 }

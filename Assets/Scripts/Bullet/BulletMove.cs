@@ -62,9 +62,9 @@ public class BulletMove : NetworkBehaviour
             // 弾丸移動処理
             // Runner.DeltaTimeを使用してネットワークタイムベースで移動
             transform.position += Speed * transform.forward * Runner.DeltaTime;
-            
+
             // 当たり判定処理を実行
-            //HitAction();
+            HitAction();
         }
     }
 
@@ -75,31 +75,26 @@ public class BulletMove : NetworkBehaviour
     /// </summary>
     private void HitAction()
     {
-        // ラグ補償レイキャスト：ネットワーク遅延を考慮した当たり判定
-        Runner.LagCompensation.Raycast(
-            transform.position + transform.forward * 0.15f, // レイ開始位置（弾丸の少し前方）
-            transform.forward,                              // レイの方向（弾丸の進行方向）
-            Speed * Runner.DeltaTime,                      // レイの長さ（1フレーム分の移動距離）
-            Object.InputAuthority,                         // 入力権限（誰の入力による弾丸か）
-            out var hit,                                   // ヒット結果を格納
-            hitMask.value,                                 // 判定対象レイヤー
-            HitOptions.None);                             // 追加オプション
-
-        // デバッグ用レイ可視化（エディタ上で赤線として表示）
-        // 実際のレイより5倍長く表示して見やすくする
-        Debug.DrawRay(
-            transform.position + transform.forward * 0.15f,
-            transform.forward * Speed * Runner.DeltaTime * 5,
-            Color.red, Runner.DeltaTime);
-
-        // 着弾処理
-        if (hit.GameObject != null)
+        // Nullチェックを追加
+        if (Runner == null || Runner.LagCompensation == null || Object == null)
         {
-            // TODO: 着弾時の処理を実装
-            // - ダメージ適用
-            // - ヒットエフェクト再生
-            // - 弾丸削除
-            // - スコア計算など
+            Debug.LogWarning(Runner);
+            Debug.LogWarning(Runner.LagCompensation);
+            Debug.LogWarning(Object);
+            return;
+
+        }
+
+        bool isHit = Runner.LagCompensation.Raycast
+              (transform.position,
+              transform.forward,
+              Speed,
+              Object.InputAuthority,
+              out LagCompensatedHit hit);
+
+        if (isHit)
+        {
+            Debug.Log(hit.GameObject);
         }
     }
 }
