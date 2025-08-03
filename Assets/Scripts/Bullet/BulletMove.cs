@@ -8,6 +8,9 @@ using UnityEngine;
 /// </summary>
 public class BulletMove : NetworkBehaviour
 {
+    [SerializeField]
+    private int _damage = 1;
+
     /// <summary>
     /// 弾丸の寿命タイマー（ネットワーク同期）
     /// TickTimerを使用してサーバータイムベースで正確な時間管理
@@ -31,7 +34,7 @@ public class BulletMove : NetworkBehaviour
     /// Inspectorで設定可能、敵・壁・オブジェクトなどを指定
     /// </summary>
     [SerializeField]
-    public LayerMask hitMask;
+    public LayerMask _targetLayerMask;
 
     /// <summary>
     /// 弾丸初期化処理
@@ -75,26 +78,27 @@ public class BulletMove : NetworkBehaviour
     /// </summary>
     private void HitAction()
     {
-        // Nullチェックを追加
-        if (Runner == null || Runner.LagCompensation == null || Object == null)
-        {
-            Debug.LogWarning(Runner);
-            Debug.LogWarning(Runner.LagCompensation);
-            Debug.LogWarning(Object);
-            return;
-
-        }
-
         bool isHit = Runner.LagCompensation.Raycast
               (transform.position,
               transform.forward,
               Speed,
               Object.InputAuthority,
-              out LagCompensatedHit hit);
+              out LagCompensatedHit hit,
+              _targetLayerMask);
 
         if (isHit)
         {
-            Debug.Log(hit.GameObject);
+            CheckHitTarget(hit);
+        }
+    }
+
+    private void CheckHitTarget(LagCompensatedHit hit)
+    {
+        if (hit.GameObject.TryGetComponent<IDamageable>(out IDamageable target))
+        {
+            target.TakeDamage(_damage, hit.Point, transform.forward);
+            // ネットワークオブジェクトとして適切に削除
+            Runner.Despawn(Object);
         }
     }
 }

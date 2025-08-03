@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1134084172759317943}
   - component: {fileID: 8804760917969790564}
   - component: {fileID: 2931661975613902088}
+  - component: {fileID: 6031194110917087923}
   m_Layer: 10
   m_Name: Capsule
   m_TagString: Untagged
@@ -132,6 +133,21 @@ MonoBehaviour:
   Offset: {x: 0, y: 0, z: 0}
   Root: {fileID: 544982912752670805}
   GizmosColor: {r: 1, g: 0.9203187, b: 0, a: 1}
+--- !u!114 &6031194110917087923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4823871234712445250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c3d6b6acf747d44b556fa4df7006a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _CurrentHealth: 0
+  _baseEnemy: {fileID: 3029952727810328984}
+  _maxHealth: 10
 --- !u!1 &5107852061944549873
 GameObject:
   m_ObjectHideFlags: 0
@@ -299,6 +315,7 @@ MonoBehaviour:
   - {fileID: 2940687782619106103}
   - {fileID: 3029952727810328984}
   - {fileID: 544982912752670805}
+  - {fileID: 6031194110917087923}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &2940687782619106103
 MonoBehaviour:
@@ -359,7 +376,6 @@ MonoBehaviour:
   _maxHealth: 100
   _moveSpeed: 3
   _attackDamage: 10
-  _CurrentHealth: 0
   _IsAlive: 0
   _targetMask:
     serializedVersion: 2

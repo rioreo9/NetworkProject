@@ -49,6 +49,8 @@ public class WaveHandler : NetworkBehaviour
 
         _waveSpawner = gameObject.GetComponent<WaveSpawner>();
         _enemyCoordinator = gameObject.GetComponent<EnemyCoordinator>();
+
+        _enemyCoordinator.OnEnemyAllDeath += ClearWave; // 敵が全て倒されたらウェーブクリアをチェック
     }
 
     public override void FixedUpdateNetwork()
@@ -58,7 +60,6 @@ public class WaveHandler : NetworkBehaviour
         if (_isWaveActive)
         {
             _waveNowTime += Runner.DeltaTime;
-            //Debug.Log($"Wave Now Time: {_waveNowTime} seconds");
         }
 
         if (_waveNowTime > _waveDuration)
