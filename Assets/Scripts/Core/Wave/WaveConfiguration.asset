@@ -18,23 +18,16 @@ MonoBehaviour:
     _spawnInterval: 0
     _enemyPrefabs:
     - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    _waveDuration: 0
+    _waveDuration: 30
   - _waveIndex: 0
     _enemyCount: 0
     _spawnInterval: 0
     _enemyPrefabs:
     - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    _waveDuration: 0
+    _waveDuration: 30
   - _waveIndex: 0
     _enemyCount: 0
     _spawnInterval: 0
     _enemyPrefabs:
     - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    - {fileID: 3029952727810328984, guid: 68bb2a0b36cd41d438130b6ff54012e5, type: 3}
-    _waveDuration: 0
+    _waveDuration: 30

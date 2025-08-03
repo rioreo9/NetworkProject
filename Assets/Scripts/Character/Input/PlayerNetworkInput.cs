@@ -7,7 +7,8 @@ public enum MyButtons
 {
     Jump = 0,
     Interact = 1,
-    Run = 2
+    Run = 2,
+    Attack = 3
 }
 
 public struct PlayerNetworkInput : INetworkInput

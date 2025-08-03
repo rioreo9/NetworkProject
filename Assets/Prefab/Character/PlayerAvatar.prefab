@@ -115,6 +115,7 @@ MonoBehaviour:
     m_Bits: 1
   _groundCheckOffset: {x: 0, y: 0.1, z: 0}
   _armTransform: {fileID: 8818714478115345640}
+  _bulletPrefab: {fileID: -3978404706333264883, guid: c5ed3919cc67b11489493151c84eca0f, type: 3}
 --- !u!114 &2085076663426594679
 MonoBehaviour:
   m_ObjectHideFlags: 0

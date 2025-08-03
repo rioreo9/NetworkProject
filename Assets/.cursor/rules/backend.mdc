@@ -1,5 +1,5 @@
 
-# FPS協力防衛ゲーム プロジェクト構造
+# FPS協力防衛ゲーム プロジェクト構造 (更新版)
 
 ## プロジェクト概要
 - **ジャンル**: FPS視点の3Dオンライン協力防衛ゲーム
@@ -16,7 +16,7 @@
 - **Container/**: 依存性注入システム
   - `ProjectInstaller.cs`: VContainerベースのDI設定、システム間の依存関係管理
 - `GameFlowHandler.cs`: ゲーム全体のフロー制御、ステート管理（VitalRouter統合）
-- **Wave/**: ウェーブ管理システム（新実装）
+- **Wave/**: ウェーブ管理システム（実装完了）
   - `WaveHandler.cs`: ウェーブベースの敵スポーンシステム、ゲーム進行管理
   - `EnemyCoordinator.cs`: 敵の生死管理、ウェーブクリア判定（実装完了）
   - `WaveConfiguration.cs`: ウェーブデータ設定（ScriptableObject）
@@ -29,6 +29,7 @@
   - Photon Fusion2のラグ補償機能使用
   - TickTimerベース寿命管理
   - ネットワーク同期対応完了
+  - IDamageableインターフェース対応当たり判定実装
 
 #### Character/ - キャラクター関連
 - **Animation/**: アニメーションシステム
@@ -40,7 +41,7 @@
   - `GameInput.cs`: 自動生成された入力アクション
   - `PlayerNetworkInput.cs`: ネットワーク入力構造体定義
 - **Pys/**: 物理・移動システム
-  - `PlayerMovement.cs`: ネットワーク対応プレイヤー移動制御
+  - `PlayerMovement.cs`: ネットワーク対応プレイヤー移動制御 + 射撃システム統合
   - `PlayerMove.cs`: 基本移動機能
   - `PlayerJump.cs`: ジャンプ機能
   - `RotationMove.cs`: 回転制御
@@ -57,6 +58,7 @@
     - `EnemyWakame.cs`: 特定敵タイプの実装（攻撃ロジック実装済み）
 - `PlayerAvatar.cs`: メインプレイヤーアバターコントローラー
 - `ISetPlayerInformation.cs`: プレイヤー情報設定インターフェース
+- `NetworkedDamageable.cs`: ネットワーク対応ダメージ処理システム（実装完了）
 
 #### NetWork/ - ネットワーク機能
 - `GameLauncher.cs`: Photon Fusionセッション管理とプレイヤー接続制御
@@ -69,6 +71,9 @@
 - `IInteractableControllable.cs`: 操縦可能オブジェクトのインターフェース
 - `IInteractableButton.cs`: ボタンインタラクションインターフェース
 - `InteractiveSwitch.cs`: スイッチ型インタラクションオブジェクト
+- `GunEmplacementController.cs`: 砲台操縦システム（実装中85%）
+- **AttackObject/**: 攻撃系インタラクション
+  - `LaserGun.cs`: レーザー砲システム
 
 #### UI/ - ユーザーインターフェース
 - **Base/**: UI基底クラス
@@ -182,6 +187,7 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
 - インターネット接続状態確認
 - セッション管理とプレイヤーオブジェクト制御
 - NetworkBehaviourベースのネットワーク同期
+- ラグ補償機能（LagCompensation）統合
 
 ### プレイヤーシステム
 - FPS視点でのキャラクター操作
@@ -190,13 +196,22 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
 - ネットワーク同期されたアバター
 - アニメーション制御システム
 - 物理演算対応移動システム
+- 射撃システム統合（PlayerMovement内）
 
 ### 弾丸システム（実装完了）
 - `BulletMove.cs`: ネットワーク同期対応弾丸移動システム
 - Photon Fusion2のラグ補償機能使用
 - TickTimerベース寿命管理
 - ネットワーク同期対応完了
-- 当たり判定機能実装（ダメージ処理接続待ち）
+- IDamageableインターフェース対応当たり判定実装
+- 高精度レイキャスト当たり判定
+
+### ダメージシステム（実装完了）
+- `NetworkedDamageable.cs`: ネットワーク対応ダメージ処理
+- `IDamageable`: ダメージ受付インターフェース
+- ネットワーク同期HP管理
+- 弾丸システムとの統合完了
+- 敵の死亡処理統合
 
 ### 敵システム（実装完了）
 - `BaseEnemy`: 敵キャラクターの基底クラス（完了）
@@ -205,13 +220,14 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
 - `EnemyCoordinator`: 敵の生死管理、ウェーブクリア判定（完了）
 - `EnemyWakame`: 特定敵タイプの実装（攻撃ロジック実装済み）
 - ネットワーク同期対応設計（完了）
+- ダメージシステム統合完了
 
-### 戦闘システム（実装中 - 65%完了）
-- 弾丸システム：ラグ補償、寿命管理実装済み（100%）
-- 敵攻撃システム：ターゲット検索、弾丸生成、自動照準機能実装済み（100%）
-- ダメージ処理：実装中（65%完了）
-- HP/耐久値システム：設計完了、実装開始
-- 攻撃判定：ネットワーク同期対応実装中
+### 砲台システム（実装中 - 85%完了）
+- `GunEmplacementController`: 砲台操縦システム
+- プレイヤー権限管理（Input Authority）
+- ネットワーク同期回転制御
+- RPC通信による操縦権要求システム
+- 残り実装：射撃機能統合、UI実装
 
 ### 入力システム
 - Unity Input Systemベース
@@ -254,9 +270,10 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
 - Photon Fusion2のベストプラクティスに従う
 - エラーハンドリングとデバッグ情報の充実
 - ネットワーク同期を考慮した設計
+- ラグ補償機能の積極的活用
 
-## 現在の開発状況（2024年1月）
-- **進捗**: フェーズ2後半（65%完了）
+## 現在の開発状況（2024年1月 - 更新版）
+- **進捗**: フェーズ2最終段階（75%完了）
 - **完了機能**: 
   - 基盤システム、ネットワーク、プレイヤーシステム
   - DI基盤、ゲームフロー管理システム
@@ -266,12 +283,15 @@ Photon Fusion2の機能とアセット（最新版 Build 920）
   - 弾丸システム（BulletMove.cs完全実装）
   - 敵攻撃システム（EnemyWakame.cs実装済み）
   - ウェーブ管理システム（EnemyCoordinator + WaveHandler + VitalRouterコマンドシステム完成）
+  - ダメージシステム（NetworkedDamageable.cs + IDamageable完全実装）
+  - プレイヤー戦闘システム（PlayerMovement + 射撃統合完了）
 - **実装中**: 
-  - 戦闘システム（65%完了）
-  - ダメージ処理システム（65%）
-  - HP/耐久値システム（設計完了、実装中）
+  - 砲台システム（85%完了 - GunEmplacementController実装済み）
+  - 砲台射撃機能統合
+  - 砲台操縦UI実装
 - **次期実装予定**: 
   - シールドシステム
+  - 戦艦耐久値システム
   - アップグレードシステム
   - バランス調整とテストプレイ
 

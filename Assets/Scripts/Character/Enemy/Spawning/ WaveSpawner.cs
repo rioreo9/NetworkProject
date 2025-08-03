@@ -19,7 +19,7 @@ public class WaveSpawner : NetworkBehaviour
         {
             Debug.Log(Runner);
 
-            BaseEnemy enemyPrefab = Runner.Spawn(waveData.EnemyPrefabs[i]);
+            BaseEnemy enemyPrefab = Runner.Spawn(waveData.EnemyPrefabs[i], Vector3.up);
 
             spawnedEnemies.Add(enemyPrefab);
             Debug.Log($"Spawned Enemy: {waveData.EnemyPrefabs[i].name}");

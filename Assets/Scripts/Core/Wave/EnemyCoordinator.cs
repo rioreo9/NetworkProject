@@ -9,6 +9,8 @@ public class EnemyCoordinator : NetworkBehaviour
 
     private List<BaseEnemy> _enemies = new List<BaseEnemy>();
 
+    public event System.Action OnEnemyAllDeath;
+
     public override void Spawned()
     {
         // 初期化
@@ -19,12 +21,18 @@ public class EnemyCoordinator : NetworkBehaviour
     /// <summary>
     /// Waveの目標を設定するメソッド
     /// </summary>
-    /// <param name="enemy"></param>
-    public void SetWaveTarget(List<BaseEnemy> enemy)
+    /// <param name="enemies"></param>
+    public void SetWaveTarget(List<BaseEnemy> enemies)
     {
-        if (!Object.HasStateAuthority || enemy == null) return;
-        _enemies = enemy;
-        AliveEnemyCount = enemy.Count;
+        if (!Object.HasStateAuthority || enemies == null) return;
+        _enemies = enemies;
+        AliveEnemyCount = enemies.Count;
+
+        // 各敵に死亡イベントを登録
+        foreach (BaseEnemy enemy in enemies)
+        {
+            enemy.OnDeath += OnEnemyDeath;
+        }
     }
 
     /// <summary>
@@ -43,5 +51,25 @@ public class EnemyCoordinator : NetworkBehaviour
         }
 
         _enemies.Clear();      
+    }
+
+    private void OnEnemyDeath(BaseEnemy enemy, Vector3 position)
+    {
+        if (!Object.HasStateAuthority) return;
+        AliveEnemyCount--;
+        RequiredKillCount++;
+
+        // 敵の死亡イベントを解除
+        if (enemy != null)
+        {
+            enemy.OnDeath -= OnEnemyDeath;
+            Runner.Despawn(enemy.Object);
+        }
+
+        // すべての敵が倒されたらウェーブクリア
+        if (AliveEnemyCount <= 0)
+        {
+            OnEnemyAllDeath?.Invoke();
+        }
     }
 }
