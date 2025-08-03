@@ -1,7 +1,5 @@
-using System;
 using Fusion;
 using UnityEngine;
-using UnityEngine.Splines;
 
 public interface IDamageable
 {

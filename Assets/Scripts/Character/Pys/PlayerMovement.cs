@@ -64,7 +64,7 @@ public class PlayerMovement : NetworkBehaviour
     }
 
     /// <summary>
-    /// 弾丸を発射する処理(削除予定)
+    /// TODO: 一時的な実装。後で削除予定。
     /// </summary>
     private void ShotBullet()
     {

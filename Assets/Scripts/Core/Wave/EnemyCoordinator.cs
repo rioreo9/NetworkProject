@@ -21,15 +21,15 @@ public class EnemyCoordinator : NetworkBehaviour
     /// <summary>
     /// Waveの目標を設定するメソッド
     /// </summary>
-    /// <param name="enemys"></param>
-    public void SetWaveTarget(List<BaseEnemy> enemys)
+    /// <param name="enemies"></param>
+    public void SetWaveTarget(List<BaseEnemy> enemies)
     {
-        if (!Object.HasStateAuthority || enemys == null) return;
-        _enemies = enemys;
-        AliveEnemyCount = enemys.Count;
+        if (!Object.HasStateAuthority || enemies == null) return;
+        _enemies = enemies;
+        AliveEnemyCount = enemies.Count;
 
         // 各敵に死亡イベントを登録
-        foreach (BaseEnemy enemy in enemys)
+        foreach (BaseEnemy enemy in enemies)
         {
             enemy.OnDeath += OnEnemyDeath;
         }
