@@ -1,4 +1,5 @@
 using Fusion;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -8,26 +9,22 @@ using UnityEngine;
 /// </summary>
 public class WaveSpawner : NetworkBehaviour
 {
-    [SerializeField, Required]
-    private GameObject _enemyPrefab; // スポーンする敵のプレハブ
-
-    [SerializeField, Required]
-    private Vector3 _spawnPosition; // 敵の初期スポーン位置
-
-    public override void FixedUpdateNetwork()
+    public List<BaseEnemy> SpawnEnemy(WaveData waveData)
     {
+        if (waveData == null) return null;
 
+        List<BaseEnemy> spawnedEnemies = new List<BaseEnemy>();
+
+        for (int i = 0; i < waveData.EnemyPrefabs.Length; i++)
+        {
+            Debug.Log(Runner);
+
+            BaseEnemy enemyPrefab = Runner.Spawn(waveData.EnemyPrefabs[i], Vector3.up);
+
+            spawnedEnemies.Add(enemyPrefab);
+            Debug.Log($"Spawned Enemy: {waveData.EnemyPrefabs[i].name}");
+        }
+
+        return spawnedEnemies;
     }
-
-    public void SpawnEnemy()
-    {
-        Runner.Spawn(_enemyPrefab, _spawnPosition, Quaternion.identity);
-    }
-
-    // ウェーブ開始・敵スポーン・完了判定
-    public void StartWave(int waveIndex) { }
-   
-    private void CheckWaveCompletion() { }
-
-   
 }

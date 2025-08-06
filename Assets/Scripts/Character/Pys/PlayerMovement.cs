@@ -1,7 +1,4 @@
 using Fusion;
-using System;
-using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : NetworkBehaviour
@@ -20,20 +17,24 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField, Required]
     private Transform _armTransform; // アームのGameObject
 
-
+    [SerializeField, Required]
+    private BulletMove _bulletPrefab; // 弾丸プレハブ
     public override void Spawned()
     {
- 
+
     }
 
     public override void FixedUpdateNetwork()
     {
-        if (GetInput(out PlayerNetworkInput input))
-        {
-            DoMove(input);
-            DoRotation(input);
-        }
+        if (!GetInput(out PlayerNetworkInput input)) return;
 
+        DoMove(input);
+        DoRotation(input);
+
+        if (input.AttackPressed.IsSet(MyButtons.Attack))
+        {
+            ShotBullet();
+        }
     }
 
     private void DoMove(PlayerNetworkInput input)
@@ -60,5 +61,19 @@ public class PlayerMovement : NetworkBehaviour
         armDirection.Normalize();
 
         _armTransform.rotation = Quaternion.LookRotation(armDirection);
+    }
+
+    /// <summary>
+    /// TODO: 一時的な実装。後で削除予定。
+    /// </summary>
+    private void ShotBullet()
+    {
+        // 弾丸の発射位置をアームの先端に設定
+        Vector3 bulletSpawnPosition = _armTransform.position + _armTransform.forward * 0.5f;
+        // 弾丸を生成
+        BulletMove bullet = Runner.Spawn(_bulletPrefab, bulletSpawnPosition, Quaternion.identity);
+
+        // 弾丸の初期化
+        bullet.Init(_armTransform.forward);
     }
 }

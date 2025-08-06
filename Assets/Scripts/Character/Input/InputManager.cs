@@ -12,8 +12,10 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
 
     private Vector2 _currentMoveInput = Vector2.zero;
     private Vector2 _currentCameraDirection = Vector2.zero;
+
     private bool _jumpPressed = false;
     private bool _interactPressed = false;
+    private bool _isAttackPressed = false;
 
     private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
     public PlayerNetworkInput NetworkInput => _networkInput;
@@ -68,6 +70,8 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         _networkInput.JumpPressed.Set(MyButtons.Jump, _jumpPressed); // ジャンプボタンが押されたか
 
         _networkInput.InteractPressed.Set(MyButtons.Interact, _interactPressed); // インタラクトボタンが押されたか
+
+        _networkInput.AttackPressed.Set(MyButtons.Attack, _isAttackPressed); // 攻撃ボタンが押されたか
     }
 
     /// <summary>
@@ -77,6 +81,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     {
         _jumpPressed = false;
         _interactPressed = false;
+        _isAttackPressed = false;
     }
 
     #region Input Action Callbacks
@@ -108,6 +113,15 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         if (context.performed)
         {
             _interactPressed = true;
+        }
+    }
+
+    /// <summary>攻撃入力コールバック（左クリック、RTトリガー）</summary>
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            _isAttackPressed = true;
         }
     }
 
