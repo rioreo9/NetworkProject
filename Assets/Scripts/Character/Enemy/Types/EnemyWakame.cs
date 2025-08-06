@@ -11,6 +11,8 @@ public class EnemyWakame : BaseEnemy
 
     public override void FixedUpdateNetwork()
     {
+        // HasStateAuthority：サーバー もしくは ホストの場合Trueを返す
+        // おそらくホスト側のみで処理させようとしている
         if (!HasStateAuthority) return;
         SearchTarget();
 
@@ -26,6 +28,7 @@ public class EnemyWakame : BaseEnemy
     {
 
     }
+
     public override void AttackTarget()
     {
         Vector3 targetDirection = (_targetBattleship.position - transform.position).normalized;
@@ -47,7 +50,7 @@ public class EnemyWakame : BaseEnemy
         }
     }
 
-         private void DoRotation(Vector3 targetDirection)
+    private void DoRotation(Vector3 targetDirection)
     {
         // Y成分を0にしてY軸回転のみにする
         targetDirection.y = 0f;
