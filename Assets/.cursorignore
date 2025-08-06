@@ -5,24 +5,24 @@
 
 # Unity自動生成ファイル
 **/*.meta
-Library/
-Temp/
-obj/
-Logs/
-UserSettings/
-MemoryCaptures/
-.vsconfig
+../Library/
+../Temp/
+../obj/
+../Logs/
+../UserSettings/
+../MemoryCaptures/
+../.vsconfig
 
 # ビルド出力
-Builds/
-Build/
-build/
+../Builds/
+../Build/
+../build/
 
 # Visual Studio / Rider
-.vs/
-.vscode/
-*.sln
-*.csproj
+../.vs/
+../.vscode/
+../*.sln
+../*.csproj
 *.userprefs
 *.pidb
 *.booproj
@@ -37,8 +37,12 @@ Packages/
 !Packages/manifest.json
 !Packages/packages-lock.json
 
+# NuGetパッケージ関連（Assetsフォルダ内に移動済み）
+NuGet.config
+packages.config
+
 # Unity設定ファイル（プロジェクト固有）
-ProjectSettings/Packages/
+../ProjectSettings/Packages/
 
 # アセットファイル（バイナリが多く、AIが読む必要性が低い）
 **/*.prefab
@@ -105,8 +109,8 @@ ProjectSettings/Packages/
 Photon/FusionDemos/
 Photon/FusionMenu/
 
-# NuGetパッケージ
-Assets/Packages/
+# NuGetパッケージ（削除済み - 上記で対応）
+# Assets/Packages/
 
 # 一時ファイル・キャッシュ
 *.tmp
