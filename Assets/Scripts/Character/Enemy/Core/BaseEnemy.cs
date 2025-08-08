@@ -11,6 +11,9 @@ public abstract class BaseEnemy : NetworkBehaviour
     [SerializeField] protected float _maxHealth = 100f; // 最大HP
     [SerializeField] protected float _moveSpeed = 3f;   // 移動速度
     [SerializeField] protected float _attackDamage = 10f; // 攻撃力
+    [SerializeField] protected float _visionRange = 12f; // 索敵距離
+    [SerializeField] protected float _attackRange = 6f;  // 攻撃射程
+    [SerializeField] protected LayerMask _targetMask;    // 索敵対象レイヤー
 
     [Networked] public bool IsAlive { get; set; }
 
@@ -21,11 +24,32 @@ public abstract class BaseEnemy : NetworkBehaviour
     // 死亡時のイベント
     public event Action<BaseEnemy, Vector3> OnDeath; // 死亡イベント
 
+    // 参照用プロパティ（AIから参照）
+    public float MoveSpeed => _moveSpeed;
+    public float AttackDamage => _attackDamage;
+    public float VisionRange => _visionRange;
+    public float AttackRange => _attackRange;
+    public LayerMask TargetMask => _targetMask;
+
+    public override void Spawned()
+    {
+        // ネットワーク生成時の初期化
+        IsAlive = true;
+
+        // AI参照を確保して初期化
+        _enemyAI = _enemyAI != null ? _enemyAI : GetComponent<EnemyAIBrain>();
+        _enemyAI?.Initialize(this);
+
+        // 派生クラスの初期化
+        Initialize();
+    }
+
     public abstract void Initialize(); // 敵固有の初期化
     public abstract void AttackTarget(); // 攻撃実行
 
     public void Death()
     {
+        IsAlive = false;
         OnDeath?.Invoke(this, transform.position); // 死亡イベントを発火
     }
 }
