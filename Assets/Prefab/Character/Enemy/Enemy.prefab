@@ -380,7 +380,8 @@ MonoBehaviour:
   _targetMask:
     serializedVersion: 2
     m_Bits: 512
-  _bulletPrefab: {fileID: -3978404706333264883, guid: c5ed3919cc67b11489493151c84eca0f, type: 3}
+  _bulletPrefab: {fileID: -3978404706333264883, guid: f8c50f13389450e4da404e8044ab9fcd, type: 3}
+  _fireRate: 2
 --- !u!114 &544982912752670805
 MonoBehaviour:
   m_ObjectHideFlags: 0

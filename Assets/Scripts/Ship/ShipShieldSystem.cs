@@ -2,13 +2,21 @@ using UnityEngine;
 using Fusion;
 using R3;
 
-public class ShipShieldSystem : NetworkBehaviour
+public interface IShieldBreakable
+{
+    void BreakShield();
+}
+
+public class ShipShieldSystem : NetworkBehaviour, IShieldBreakable
 {
     [SerializeField]
     private GameObject _shieldVisual; // シールドのビジュアルオブジェクト
 
     [Networked, OnChangedRender(nameof(UpdateShieldActive))]
     public bool IsShieldActive { get; private set; } = false;
+    [Networked]
+    public bool IsShieldBroken { get; private set; } = false;
+
 
     private ReactiveProperty<bool> _shieldActiveRP = new();
     public ReadOnlyReactiveProperty<bool> ShieldActiveRP => _shieldActiveRP;
@@ -26,10 +34,21 @@ public class ShipShieldSystem : NetworkBehaviour
        
     }
 
+    public void BreakShield()
+    {
+        IsShieldBroken = true;
+        UpdateShieldActive();
+    }
+
     private void UpdateShieldActive()
     {
-        _shieldActiveRP.Value = IsShieldActive;
+         if (IsShieldBroken)
+        {
+            // シールドが壊れた場合はアクティブ状態を無効にする
+            IsShieldActive = false;
+        }
 
+        _shieldActiveRP.Value = IsShieldActive;
         /// シールドの状態を更新
         _shieldVisual.SetActive(IsShieldActive);
     }

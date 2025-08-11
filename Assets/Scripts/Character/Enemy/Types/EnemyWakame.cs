@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Fusion;
 
 public class EnemyWakame : BaseEnemy
 {
@@ -8,6 +9,12 @@ public class EnemyWakame : BaseEnemy
 
     [SerializeField, Required]
     private BulletMove _bulletPrefab; // 弾丸プレハブ
+    
+    [SerializeField]
+    private float _fireRate = 1.0f; // 射撃レート（秒間）
+    
+    [Networked]
+    private TickTimer _fireTimer { get; set; }
 
     public override void FixedUpdateNetwork()
     {
@@ -19,7 +26,14 @@ public class EnemyWakame : BaseEnemy
         if (_targetBattleship != null)
         {
             DoRotation(_targetBattleship.position - transform.position);
-            AttackTarget();
+            
+            // タイマーが完了している場合のみ攻撃
+            if (_fireTimer.ExpiredOrNotRunning(Runner))
+            {
+                AttackTarget();
+                // 次の射撃までのタイマーを設定
+                _fireTimer = TickTimer.CreateFromSeconds(Runner, 1.0f / _fireRate);
+            }
         }
         //transform.position += transform.forward * Runner.DeltaTime;
     }
