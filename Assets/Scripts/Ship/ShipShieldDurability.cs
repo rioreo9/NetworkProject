@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using Fusion;
 using R3;
+using VContainer;
 public class ShipShieldDurability : NetworkBehaviour, IDamageable
 {
     [Networked, OnChangedRender(nameof(UpdateHp))]
@@ -12,15 +13,14 @@ public class ShipShieldDurability : NetworkBehaviour, IDamageable
     private ReactiveProperty<float> _shieldPointsRP = new();
     public ReadOnlyReactiveProperty<float> ShieldPointsRP => _shieldPointsRP;
 
+    [Inject]
+    public void InjectDependencies(ShipShieldSystem shieldSystem)
+    {
+        _shipShieldSystem = shieldSystem;
+    }
+
     public override void Spawned()
     {
-        if (!gameObject.TryGetComponent<IShieldBreakable>(out IShieldBreakable shieldSystem))
-        {
-            Debug.LogWarning($"{nameof(ShipShieldDurability)}: IShieldBreakable component not found on {gameObject.name}.");
-        }
-
-        _shipShieldSystem = shieldSystem;
-
         _shieldPointsRP.Value = CurrentShieldPoints;
     }
 
