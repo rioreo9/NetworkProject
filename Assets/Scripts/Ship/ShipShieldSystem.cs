@@ -35,7 +35,8 @@ public class ShipShieldSystem : NetworkBehaviour, IShieldBreakable
             return; // サーバー権限がない場合は何もしない
         }
 
-      CurrentShieldState = CurrentShieldState == ShieldState.Active ? ShieldState.Inactive : ShieldState.Active;
+      CurrentShieldState = CurrentShieldState ==
+            ShieldState.Active ? ShieldState.Inactive : ShieldState.Active;
     }
 
     public void BreakShield()

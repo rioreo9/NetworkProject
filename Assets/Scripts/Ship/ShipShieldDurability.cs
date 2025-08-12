@@ -14,8 +14,13 @@ public class ShipShieldDurability : NetworkBehaviour, IDamageable
 
     public override void Spawned()
     {
-        gameObject.TryGetComponent<IShieldBreakable>(out IShieldBreakable shieldSystem);
+        if (!gameObject.TryGetComponent<IShieldBreakable>(out IShieldBreakable shieldSystem))
+        {
+            Debug.LogWarning($"{nameof(ShipShieldDurability)}: IShieldBreakable component not found on {gameObject.name}.");
+        }
+
         _shipShieldSystem = shieldSystem;
+
         _shieldPointsRP.Value = CurrentShieldPoints;
     }
 
@@ -24,7 +29,6 @@ public class ShipShieldDurability : NetworkBehaviour, IDamageable
         if (!HasStateAuthority) return;
 
         CurrentShieldPoints = Mathf.Max(0, CurrentShieldPoints - damage);
-        _shieldPointsRP.Value = CurrentShieldPoints;
 
         if (CurrentShieldPoints <= 0)
         {
