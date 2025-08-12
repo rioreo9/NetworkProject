@@ -128,7 +128,7 @@ MonoBehaviour:
   _Speed: 5
   _targetLayerMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 2048
 --- !u!114 &1044343728680563899
 MonoBehaviour:
   m_ObjectHideFlags: 0

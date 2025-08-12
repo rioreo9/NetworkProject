@@ -10,8 +10,6 @@ public class ShipShieldButton : NetworkBehaviour
   
     [SerializeField]
     private Button _shieldButton;
-    [SerializeField]
-    private Text _shieldButtonText;
 
     private ShipShieldSystem _shipShieldSystem;
 
@@ -19,10 +17,6 @@ public class ShipShieldButton : NetworkBehaviour
     public void InjectDependencies(ShipShieldSystem shieldSystem)
     {
         _shipShieldSystem = shieldSystem;
-
-        _shipShieldSystem.ShieldActiveRP
-            .Subscribe(UpdateButtonState)
-            .AddTo(this);
     }
 
     public override void Spawned()
@@ -60,17 +54,5 @@ public class ShipShieldButton : NetworkBehaviour
     private void RPC_RequestToggleShield()
     {
         ToggleShield();
-    }
-
-    private void UpdateButtonState(bool isShildActive)
-    {
-        if (isShildActive)
-        {
-            _shieldButtonText.text = "停止";
-        }
-        else
-        {
-            _shieldButtonText.text = "起動";
-        }
     }
 }

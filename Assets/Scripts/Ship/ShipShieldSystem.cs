@@ -7,49 +7,57 @@ public interface IShieldBreakable
     void BreakShield();
 }
 
+public enum ShieldState
+{
+    Active,
+    Inactive,
+    Broken
+}
+
 public class ShipShieldSystem : NetworkBehaviour, IShieldBreakable
 {
     [SerializeField]
     private GameObject _shieldVisual; // シールドのビジュアルオブジェクト
 
     [Networked, OnChangedRender(nameof(UpdateShieldActive))]
-    public bool IsShieldActive { get; private set; } = false;
-    [Networked]
-    public bool IsShieldBroken { get; private set; } = false;
+    public ShieldState CurrentShieldState { get; private set; } = ShieldState.Inactive;
 
-
-    private ReactiveProperty<bool> _shieldActiveRP = new();
-    public ReadOnlyReactiveProperty<bool> ShieldActiveRP => _shieldActiveRP;
+    private ReactiveProperty<ShieldState> _shieldStateRP = new();
+    public ReadOnlyReactiveProperty<ShieldState> ShieldStateRP => _shieldStateRP;
 
     /// <summary>
     /// スイッチ状態を切り替える（サーバー側のみ実行）
     /// </summary>
     public void ToggleShield()
     {
-        if (!Object.HasStateAuthority)
+        if (!Object.HasStateAuthority || CurrentShieldState == ShieldState.Broken)
         {
             return; // サーバー権限がない場合は何もしない
         }
-        IsShieldActive = !IsShieldActive;
-       
+
+      CurrentShieldState = CurrentShieldState == ShieldState.Active ? ShieldState.Inactive : ShieldState.Active;
     }
 
     public void BreakShield()
     {
-        IsShieldBroken = true;
-        UpdateShieldActive();
+        CurrentShieldState = ShieldState.Broken;
     }
 
     private void UpdateShieldActive()
     {
-         if (IsShieldBroken)
+        switch (CurrentShieldState)
         {
-            // シールドが壊れた場合はアクティブ状態を無効にする
-            IsShieldActive = false;
+            case ShieldState.Active:
+                _shieldVisual.SetActive(true);
+                break;
+            case ShieldState.Inactive:
+                _shieldVisual.SetActive(false);
+                break;
+            case ShieldState.Broken:
+                _shieldVisual.SetActive(false);
+                break;
         }
 
-        _shieldActiveRP.Value = IsShieldActive;
-        /// シールドの状態を更新
-        _shieldVisual.SetActive(IsShieldActive);
+        _shieldStateRP.Value = CurrentShieldState;
     }
 }

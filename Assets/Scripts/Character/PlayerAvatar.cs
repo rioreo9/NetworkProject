@@ -36,8 +36,5 @@ public class PlayerAvatar : NetworkBehaviour
         {
             _armMeshRenderer?.SetActive(false); // 他のプレイヤーのアバターメッシュを有効化
         }
-
-
-        Debug.Log("ローカルプレイヤーとしてスポーンされました");
     }
 }
