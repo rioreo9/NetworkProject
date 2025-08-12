@@ -68,7 +68,6 @@ public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
     /// <param name="state"></param>
     public void OnStateChange(GameStateChangeCommand state)
     {
-        Debug.Log(state);
         switch (state.NewState)
         {
             case ChangeStateType.PreparationEnd:

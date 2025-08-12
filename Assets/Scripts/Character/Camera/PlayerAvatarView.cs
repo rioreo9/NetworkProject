@@ -32,7 +32,6 @@ public class PlayerAvatarView : NetworkBehaviour
         _cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
 
         _cinemachineCamera.Target.TrackingTarget = _followTarget; // カメラの追跡ターゲットを設定
-        Debug.Log("FPSカメラがアクティブ化されました");
     }
 
     /// <summary>
