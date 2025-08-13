@@ -4,9 +4,7 @@ using Fusion;
 
 public class EnemyWakame : BaseEnemy
 {
-    [SerializeField]
-    private LayerMask _targetMask; // 当たり判定対象のレイヤーマスク
-
+   
     [SerializeField, Required]
     private BulletMove _bulletPrefab; // 弾丸プレハブ
     
@@ -21,7 +19,7 @@ public class EnemyWakame : BaseEnemy
         // HasStateAuthority：サーバー もしくは ホストの場合Trueを返す
         // おそらくホスト側のみで処理させようとしている
         if (!HasStateAuthority) return;
-        SearchTarget();
+        _enemyAIBrain.StateMove();
 
         if (_targetBattleship != null)
         {

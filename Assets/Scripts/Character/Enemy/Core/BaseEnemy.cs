@@ -1,5 +1,5 @@
-using System;
 using Fusion;
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -18,18 +18,12 @@ public abstract class BaseEnemy : NetworkBehaviour
     [Networked] public bool IsAlive { get; set; }
 
     // AI状態管理
+    protected EnemyAIBrainState _enemyAIBrain; // AI行動制御
     protected Transform _targetBattleship; // 戦艦のターゲット
-    protected EnemyAIBrain _enemyAI; // AI行動制御
 
     // 死亡時のイベント
     public event Action<BaseEnemy, Vector3> OnDeath; // 死亡イベント
 
-    // 参照用プロパティ（AIから参照）
-    public float MoveSpeed => _moveSpeed;
-    public float AttackDamage => _attackDamage;
-    public float VisionRange => _visionRange;
-    public float AttackRange => _attackRange;
-    public LayerMask TargetMask => _targetMask;
 
     public override void Spawned()
     {
@@ -37,8 +31,11 @@ public abstract class BaseEnemy : NetworkBehaviour
         IsAlive = true;
 
         // AI参照を確保して初期化
-        _enemyAI = _enemyAI != null ? _enemyAI : GetComponent<EnemyAIBrain>();
-        _enemyAI?.Initialize(this);
+        if(_enemyAIBrain == null)
+        {
+            _enemyAIBrain = GetComponent<EnemyAIBrainState>();
+        }
+
 
         // 派生クラスの初期化
         Initialize();
