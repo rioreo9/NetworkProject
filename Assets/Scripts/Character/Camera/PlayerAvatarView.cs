@@ -14,11 +14,14 @@ public class PlayerAvatarView : NetworkBehaviour
 
     [SerializeField, Required]
     private Transform _followTarget; // Cinemachineカメラの参照
+
     [SerializeField, Required]
-    private Transform _handParent; // 手の親オブジェクト（武器やアイテムの持ち手）
+    private Transform _localHandParent; // 手の親オブジェクト（武器やアイテムの持ち手）
+    [SerializeField, Required]
+    private Transform _networkHandParent;
 
     [Header("カメラ設定")]
-  
+
     [SerializeField] private float _maxLookAngle = 80f; // 上下視点制限角度
     [SerializeField] private bool _invertYAxis = false; // Y軸反転オプション
 
@@ -60,17 +63,17 @@ public class PlayerAvatarView : NetworkBehaviour
         if (input.InteractPressed.IsSet(MyButtons.Interact))
         {
             UseTool();
-            ProcessInteractAction();      
+            ProcessInteractAction();
         }
 
 
-       //インタラクトする処理をここに書きたい
+        //インタラクトする処理をここに書きたい
     }
 
     private void ProcessInteractAction()
     {
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, Mathf.Infinity, _interactableLayerMask);
-       
+
         if (hit.collider != null)
         {
             // ヒットしたオブジェクトがインタラクト可能なオブジェクトかどうかをチェック
@@ -82,10 +85,8 @@ public class PlayerAvatarView : NetworkBehaviour
 
             if (hit.collider.TryGetComponent<IInteractableTool>(out IInteractableTool interactable))
             {
-                // インタラクト可能なオブジェクトが見つかった場合、ボタンを押す
-                hit.collider.gameObject.transform.position = _handParent.position; // 手の位置にオブジェクトを移動
-                hit.collider.gameObject.transform.SetParent(_handParent, true); // 手の親オブジェクトに設定
-                _interactableControllable = interactable; // インタラクト可能なオブジェクトを保存
+                PickUpItem(interactable, hit);
+
             }
 
             if (hit.collider.TryGetComponent(out GunEmplacementController gunEmplacementController))
@@ -96,10 +97,30 @@ public class PlayerAvatarView : NetworkBehaviour
         }
     }
 
+    private void PickUpItem(IInteractableTool interactable, RaycastHit hit)
+    {
+        if (Object.HasInputAuthority)
+        {
+            // ローカルプレイヤー（入力権限を持つプレイヤー）用の処理
+            hit.collider.gameObject.transform.position = _localHandParent.position; // 手の位置にオブジェクトを移動
+            Debug.Log($"インタラクト可能なオブジェクトを取得: {_localHandParent.position} (ローカル)");
+            hit.collider.gameObject.transform.SetParent(_localHandParent, true); // ローカル手の親オブジェクトに設定
+        }
+        else
+        {
+            // リモートプレイヤー（他のプレイヤー）用の処理
+            hit.collider.gameObject.transform.position = _networkHandParent.position; // 手の位置にオブジェクトを移動
+            Debug.Log($"インタラクト可能なオブジェクトを取得: {_networkHandParent.position} (ネットワーク)");
+            hit.collider.gameObject.transform.SetParent(_networkHandParent, true); // ネットワーク手の親オブジェクトに設定
+        }
+
+        _interactableControllable = interactable; // インタラクト可能なオブジェクトを保存
+    }
+
     private void UseTool()
     {
         if (_interactableControllable == null) return;
-      
+
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, Mathf.Infinity, _interactableControllable.layerMask);
         if (hit.collider == null) return;
 
