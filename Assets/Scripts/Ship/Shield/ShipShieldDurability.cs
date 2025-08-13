@@ -36,6 +36,13 @@ public class ShipShieldDurability : NetworkBehaviour, IDamageable
         }
     }
 
+    public void RepairShield(float repairAmount)
+    {
+        if (!HasStateAuthority) return;
+        CurrentShieldPoints = Mathf.Min(CurrentShieldPoints + repairAmount, 100f); // Assuming 100 is the max shield points
+        UpdateHp();
+    }
+
     private void UpdateHp()
     {
         _shieldPointsRP.Value = CurrentShieldPoints;
