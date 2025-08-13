@@ -13,6 +13,7 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
     private float _repairAmount = 20f; // シールドの修理量
 
     private ShieldRepairStation _shieldRepairStation;
+    private GameObject _copyObj;
 
     public override void ControlObject()
     {
@@ -35,6 +36,11 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
         }
     }
 
+    public void SetCopyObj(GameObject networkObj)
+    {
+        _copyObj = networkObj;
+    }
+
     private void UseTool()
     {
         _shieldRepairStation.RepairShield(_repairAmount);
@@ -50,5 +56,9 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
     private void ConsumptionTool()
     {
         Runner.Despawn(this.Object);
+        if (_copyObj != null)
+        {
+            Destroy(_copyObj);
+        }
     }
 }

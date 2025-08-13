@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
+using Fusion;
 
-public class ShieldRepairStation : MonoBehaviour
+public class ShieldRepairStation : NetworkBehaviour
 {
     [SerializeField, Required]
     private ShipShieldDurability _shipShieldDurability;

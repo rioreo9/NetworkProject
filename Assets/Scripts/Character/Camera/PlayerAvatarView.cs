@@ -31,6 +31,7 @@ public class PlayerAvatarView : NetworkBehaviour
     [SerializeField] private LayerMask _interactableLayerMask; // インタラクト可能なオブジェクトのレイヤーマスク
 
     private IInteractableTool _interactableControllable;
+    private RaycastHit _hit; // レイキャスト用のヒット情報
 
     /// <summary>
     /// カメラの優先度を設定してアクティブ化
@@ -62,7 +63,7 @@ public class PlayerAvatarView : NetworkBehaviour
 
         if (input.InteractPressed.IsSet(MyButtons.Interact))
         {
-            UseTool();
+            RPC_UseTool();
             ProcessInteractAction();
         }
 
@@ -85,8 +86,17 @@ public class PlayerAvatarView : NetworkBehaviour
 
             if (hit.collider.TryGetComponent<IInteractableTool>(out IInteractableTool interactable))
             {
-                PickUpItem(interactable, hit);
+                _hit = hit; // ヒット情報を保存
+                _interactableControllable = interactable; // インタラクト可能なオブジェクトを保存
+                RPC_PickUpItem(hit.collider.GetComponent<NetworkObject>());
 
+                GameObject obj = Instantiate(hit.collider.gameObject, _networkHandParent.position, Quaternion.identity);
+                _interactableControllable.SetCopyObj(obj); // インタラクト可能なオブジェクトのコピーを設定
+
+                // ローカルプレイヤー（入力権限を持つプレイヤー）用の処理
+                obj.transform.position = _localHandParent.position; // 手の位置にオブジェクトを移動
+                Debug.Log($"インタラクト可能なオブジェクトを取得: {_localHandParent.position} (ローカル)");
+                obj.transform.SetParent(_localHandParent, true); // ローカル手の親オブジェクトに設定
             }
 
             if (hit.collider.TryGetComponent(out GunEmplacementController gunEmplacementController))
@@ -97,27 +107,19 @@ public class PlayerAvatarView : NetworkBehaviour
         }
     }
 
-    private void PickUpItem(IInteractableTool interactable, RaycastHit hit)
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_PickUpItem(NetworkObject networkObject)
     {
-        if (Object.HasInputAuthority)
-        {
-            // ローカルプレイヤー（入力権限を持つプレイヤー）用の処理
-            hit.collider.gameObject.transform.position = _localHandParent.position; // 手の位置にオブジェクトを移動
-            Debug.Log($"インタラクト可能なオブジェクトを取得: {_localHandParent.position} (ローカル)");
-            hit.collider.gameObject.transform.SetParent(_localHandParent, true); // ローカル手の親オブジェクトに設定
-        }
-        else
-        {
-            // リモートプレイヤー（他のプレイヤー）用の処理
-            hit.collider.gameObject.transform.position = _networkHandParent.position; // 手の位置にオブジェクトを移動
-            Debug.Log($"インタラクト可能なオブジェクトを取得: {_networkHandParent.position} (ネットワーク)");
-            hit.collider.gameObject.transform.SetParent(_networkHandParent, true); // ネットワーク手の親オブジェクトに設定
-        }
+        _interactableControllable = networkObject.GetComponent<IInteractableTool>();
 
-        _interactableControllable = interactable; // インタラクト可能なオブジェクトを保存
+        // リモートプレイヤー（他のプレイヤー）用の処理
+        networkObject.transform.position = _networkHandParent.position; // 手の位置にオブジェクトを移動
+        Debug.Log($"インタラクト可能なオブジェクトを取得: {_networkHandParent.position} (ネットワーク)");
+        networkObject.transform.SetParent(_networkHandParent, true); // ネットワーク手の親オブジェクトに設定
     }
 
-    private void UseTool()
+     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_UseTool()
     {
         if (_interactableControllable == null) return;
 

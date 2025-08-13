@@ -946,7 +946,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd5556f90b3d8ed40ad55ae3f6ba6dba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _waveConfiguration: {fileID: 11400000, guid: b29304fbc77c61946a94f5f5eac33e79, type: 2}
+  _waveConfiguration: {fileID: 11400000, guid: b8cd376785753fd4b818e2e32ff976cd, type: 2}
   __currentWaveIndex: 0
 --- !u!114 &536665794
 MonoBehaviour:
@@ -1884,7 +1884,8 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 1003500113}
   ForceRemoteRenderTimeframe: 0
 --- !u!1 &1087776491
 GameObject:
@@ -2943,7 +2944,7 @@ PrefabInstance:
       addedObject: {fileID: 1932341153}
     - targetCorrespondingSourceObject: {fileID: 7619005040000837976, guid: c479979b7f3986d47bf992777b1287f8, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1932341155}
+      addedObject: {fileID: 1932341158}
   m_SourcePrefab: {fileID: 100100000, guid: c479979b7f3986d47bf992777b1287f8, type: 3}
 --- !u!4 &1932341149 stripped
 Transform:
@@ -2968,7 +2969,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 1932341154}
-  - {fileID: 1932341155}
+  - {fileID: 1932341158}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &1932341154
 MonoBehaviour:
@@ -2986,7 +2987,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   _repairAmount: 20
---- !u!114 &1932341155
+--- !u!114 &1932341158
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
