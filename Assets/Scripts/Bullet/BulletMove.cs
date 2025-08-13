@@ -40,11 +40,11 @@ public class BulletMove : NetworkBehaviour
     /// 弾丸初期化処理
     /// 弾丸生成直後に呼び出され、寿命タイマーを開始
     /// </summary>
-    public void Init(Vector3 shiotDirection)
+    public void Init(Vector3 shotDirection)
     {
         // サーバーのTickベースで正確な寿命タイマーを作成
         life = TickTimer.CreateFromSeconds(Runner, lifeTime);
-        transform.rotation = Quaternion.LookRotation(shiotDirection);
+        transform.rotation = Quaternion.LookRotation(shotDirection);
     }
 
     /// <summary>
