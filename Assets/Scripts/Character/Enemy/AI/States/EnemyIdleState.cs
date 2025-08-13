@@ -69,7 +69,7 @@ public sealed class EnemyIdleState : IEnemyState
         Transform nearest = null;
         for (int i = 0; i < hits.Length; i++)
         {
-            var t = hits[i].transform;
+            Transform t = hits[i].transform;
             float sqr = (t.position - _owner.transform.position).sqrMagnitude;
             if (sqr < nearestSqr)
             {
