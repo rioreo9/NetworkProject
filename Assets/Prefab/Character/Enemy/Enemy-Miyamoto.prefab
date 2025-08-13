@@ -271,6 +271,8 @@ GameObject:
   - component: {fileID: 2940687782619106103}
   - component: {fileID: 7902729651752345819}
   - component: {fileID: 544982912752670805}
+  - component: {fileID: 279985919380735688}
+  - component: {fileID: 520800902836600693}
   m_Layer: 10
   m_Name: Enemy-Miyamoto
   m_TagString: Untagged
@@ -313,6 +315,8 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 2940687782619106103}
   - {fileID: 544982912752670805}
+  - {fileID: 279985919380735688}
+  - {fileID: 520800902836600693}
   - {fileID: 6031194110917087923}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &2940687782619106103
@@ -377,3 +381,39 @@ MonoBehaviour:
   GizmosColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   Hitboxes:
   - {fileID: 2931661975613902088}
+--- !u!114 &279985919380735688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8454916628943931070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 800646a4f3fd8c44791f908cab06779d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHealth: 100
+  _moveSpeed: 3
+  _attackDamage: 10
+  _visionRange: 12
+  _attackRange: 6
+  _targetMask:
+    serializedVersion: 2
+    m_Bits: 512
+  _IsAlive: 0
+  _bulletPrefab: {fileID: -3978404706333264883, guid: f8c50f13389450e4da404e8044ab9fcd, type: 3}
+  _fireRate: 1
+--- !u!114 &520800902836600693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8454916628943931070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2178d668d6ef5b3418f0669e4b162865, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _State: 0
