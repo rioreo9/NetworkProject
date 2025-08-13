@@ -3,7 +3,9 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// ネットワーク対応の敵キャラクターの基底クラス
+/// ネットワーク対応の敵キャラクターの基底クラス。
+/// すべての敵タイプはこのクラスを継承し、
+/// ステータス・AI連携・死亡通知などの共通機能を利用します。
 /// </summary>
 public abstract class BaseEnemy : NetworkBehaviour
 {
@@ -15,14 +17,24 @@ public abstract class BaseEnemy : NetworkBehaviour
     [SerializeField] protected float _attackRange = 6f;  // 攻撃射程
     [SerializeField] protected LayerMask _targetMask;    // 索敵対象レイヤー
 
+    /// <summary>
+    /// 生存フラグ（Networked）。権限側で更新し、全クライアントへ同期。
+    /// </summary>
     [Networked] public bool IsAlive { get; set; }
 
     // AI状態管理
     protected EnemyAIBrainState _enemyAIBrain; // AI行動制御
-    protected Transform _targetBattleship; // 戦艦のターゲット
+    protected Transform _targetBattleship; // 旧実装互換用のターゲット参照（現行は Brain が管理）
 
     // 死亡時のイベント
     public event Action<BaseEnemy, Vector3> OnDeath; // 死亡イベント
+
+    // States から参照される公開プロパティ
+    public float MoveSpeed => _moveSpeed;
+    public float AttackDamage => _attackDamage;
+    public float VisionRange => _visionRange;
+    public float AttackRange => _attackRange;
+    public LayerMask TargetMask => _targetMask;
 
 
     public override void Spawned()
@@ -35,14 +47,22 @@ public abstract class BaseEnemy : NetworkBehaviour
         {
             _enemyAIBrain = GetComponent<EnemyAIBrainState>();
         }
-
+        _enemyAIBrain?.Initialize();
 
         // 派生クラスの初期化
         Initialize();
     }
 
-    public abstract void Initialize(); // 敵固有の初期化
-    public abstract void AttackTarget(); // 攻撃実行
+    /// <summary>敵固有の初期化</summary>
+    public abstract void Initialize();
+    /// <summary>攻撃実行（弾生成などの本処理はここで行う）</summary>
+    public abstract void AttackTarget();
+
+    // AttackState の汎用クールダウン（派生で上書き可能）
+    public virtual float GetAttackInterval()
+    {
+        return 1.0f;
+    }
 
     public void Death()
     {
