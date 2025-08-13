@@ -94,6 +94,8 @@ public class BulletMove : NetworkBehaviour
 
     private void CheckHitTarget(LagCompensatedHit hit)
     {
+        if (!hit.GameObject.activeSelf) return;
+
         if (hit.GameObject.TryGetComponent<IDamageable>(out IDamageable target))
         {
             target.TakeDamage(_damage, hit.Point, transform.forward);

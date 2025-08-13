@@ -91,7 +91,6 @@ public class WaveHandler : NetworkBehaviour
         {
             _isWaveActive = true;
             CheckClear();
-            Debug.Log($"Wave Start: {_currentWaveIndex} Wave");
         }
         else
         {

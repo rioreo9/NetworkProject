@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1044343728680563899}
   - component: {fileID: 88406334327039219}
   m_Layer: 0
-  m_Name: Bullet
+  m_Name: EnemyBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
   _Speed: 5
   _targetLayerMask:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 512
 --- !u!114 &1044343728680563899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 1579057118
+  SortKey: 2147264485
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []

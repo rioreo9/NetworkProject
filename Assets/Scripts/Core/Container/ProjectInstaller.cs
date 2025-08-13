@@ -28,5 +28,10 @@ public class ProjectInstaller : LifetimeScope
         }
         builder.RegisterComponentInHierarchy<UpgradePhaseEndButton>();
         builder.RegisterComponentInHierarchy<PreparationEndButton>();
+
+        builder.RegisterComponentInHierarchy<ShipShieldButton>();
+        builder.RegisterComponentInHierarchy<ShipShieldSystem>();
+        builder.RegisterComponentInHierarchy<ShipShieldDurability>();
+        builder.RegisterComponentInHierarchy<ShipShieldVisualizer>();
     }
 }
