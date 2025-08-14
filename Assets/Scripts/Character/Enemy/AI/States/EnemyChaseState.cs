@@ -28,7 +28,7 @@ public sealed class EnemyChaseState : IEnemyState
     /// </summary>
     public void NetworkUpdate()
     {
-        var target = _brain.CurrentTarget;
+        Transform target = _brain.CurrentTarget;
         if (target == null)
         {
             _brain.TransitionTo(_brain.Idle);
@@ -48,6 +48,8 @@ public sealed class EnemyChaseState : IEnemyState
         {
             _brain.TransitionTo(_brain.Idle);
         }
+
+
     }
 
     /// <summary>
@@ -55,6 +57,7 @@ public sealed class EnemyChaseState : IEnemyState
     /// </summary>
     public void Exit()
     {
+
     }
 }
 
