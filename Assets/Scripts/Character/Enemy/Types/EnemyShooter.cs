@@ -1,4 +1,3 @@
-using Fusion;
 using UnityEngine;
 
 /// <summary>
@@ -39,7 +38,10 @@ public class EnemyShooter : BaseEnemy
     /// </summary>
     public override float GetAttackInterval()
     {
-        if (_fireRate <= 0f) return base.GetAttackInterval();
+        if (_fireRate <= 0f)
+        {
+            return base.GetAttackInterval();
+        }
         return 1.0f / _fireRate;
     }
 }

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7880181303805449723}
   - component: {fileID: -62276876764842548}
+  - component: {fileID: 7624781991657091100}
   m_Layer: 0
   m_Name: NetWorkRunner
   m_TagString: Untagged
@@ -44,3 +45,20 @@ MonoBehaviour:
   m_Script: {fileID: -1199893898, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7624781991657091100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6402505633993043192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aab553f719d345d4aa1037ffd467eb01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DelayIfSceneManagerIsBusy: 1
+  _pooledWhiteListPrefabs:
+  - {fileID: 1044343728680563899, guid: c5ed3919cc67b11489493151c84eca0f, type: 3}
+  - {fileID: 1044343728680563899, guid: f8c50f13389450e4da404e8044ab9fcd, type: 3}
+  _maxPoolCount: 0

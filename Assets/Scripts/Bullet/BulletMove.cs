@@ -1,5 +1,4 @@
 using Fusion;
-using System;
 using UnityEngine;
 
 /// <summary>
@@ -16,13 +15,13 @@ public class BulletMove : NetworkBehaviour
     /// TickTimerを使用してサーバータイムベースで正確な時間管理
     /// </summary>
     [Networked] private TickTimer life { get; set; }
-    
+
     /// <summary>
     /// 弾丸の寿命（秒）
     /// 生成時に設定され、ネットワーク上で同期される
     /// </summary>
     [Networked] public float lifeTime { get; set; }
-    
+
     /// <summary>
     /// 弾丸の移動速度（単位/秒）
     /// ネットワーク同期されるため全クライアントで一致
@@ -35,6 +34,31 @@ public class BulletMove : NetworkBehaviour
     /// </summary>
     [SerializeField]
     public LayerMask _targetLayerMask;
+
+
+    private int _cashDamage;
+    private float _cashLifeTime;
+    private float _cashSpeed;
+    private LayerMask _cashTargetLayerMask;
+
+
+    private void OnEnable()
+    {
+        _damage = _cashDamage;
+        lifeTime = _cashLifeTime;
+        Speed = _cashSpeed;
+        _targetLayerMask = _cashTargetLayerMask;
+    }
+
+    private void Start()
+    {
+        _cashDamage = _damage;
+        _cashLifeTime = lifeTime;
+        _cashSpeed = Speed;
+        _cashTargetLayerMask = _targetLayerMask;
+    }
+
+
 
     /// <summary>
     /// 弾丸初期化処理
@@ -57,6 +81,7 @@ public class BulletMove : NetworkBehaviour
         // 寿命チェック：期限切れの場合は弾丸を削除
         if (life.Expired(Runner))
         {
+
             // ネットワークオブジェクトとして適切に削除
             Runner.Despawn(Object);
         }

@@ -273,6 +273,7 @@ GameObject:
   - component: {fileID: 544982912752670805}
   - component: {fileID: 279985919380735688}
   - component: {fileID: 520800902836600693}
+  - component: {fileID: 7253248104104164796}
   m_Layer: 10
   m_Name: Enemy-Miyamoto
   m_TagString: Untagged
@@ -317,6 +318,7 @@ MonoBehaviour:
   - {fileID: 544982912752670805}
   - {fileID: 279985919380735688}
   - {fileID: 520800902836600693}
+  - {fileID: 7253248104104164796}
   - {fileID: 6031194110917087923}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &2940687782619106103
@@ -417,3 +419,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _State: 0
+--- !u!114 &7253248104104164796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8454916628943931070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c3d6b6acf747d44b556fa4df7006a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _CurrentHealth: 0
+  _baseEnemy: {fileID: 279985919380735688}
+  _maxHealth: 100
