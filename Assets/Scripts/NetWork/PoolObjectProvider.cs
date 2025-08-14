@@ -85,7 +85,7 @@ public class PoolObjectProvider : Fusion.Behaviour, INetworkObjectProvider
         }
 
 
-        // キューに空きががあるためプールに戻し、オブジェクトを非アクティブにする
+        // キューに空きがあるためプールに戻し、オブジェクトを非アクティブにする
         freeQ.Enqueue(instance);
 		instance.gameObject.SetActive(false);
     }
