@@ -12,7 +12,6 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
     [SerializeField]
     private float _repairAmount = 20f; // シールドの修理量
 
-    private ShieldRepairStation _shieldRepairStation;
     private GameObject _copyObj;
 
     public override void ControlObject()
@@ -22,17 +21,19 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
 
     public void CheckInteractableObject(RaycastHit hit)
     {
+        if (!hit.collider.TryGetComponent<NetworkObject>(out NetworkObject networkObject)) return;
         if (!hit.collider.TryGetComponent<ShieldRepairStation>(out ShieldRepairStation shieldRepair)) return;
 
-        _shieldRepairStation = shieldRepair;
+        ConsumptionLocalTool();
 
         if (Object.HasStateAuthority)
         {
-            UseTool();
+            UseTool(shieldRepair);
         }
         else
         {
-            RPC_UseTool();
+            // クライアント側でのRPC呼び出し
+            RPC_UseTool(networkObject);
         }
     }
 
@@ -41,24 +42,32 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
         _copyObj = networkObj;
     }
 
-    private void UseTool()
+    private void UseTool(ShieldRepairStation repairStation)
     {
-        _shieldRepairStation.RepairShield(_repairAmount);
-        ConsumptionTool();
+        repairStation.RepairShield(_repairAmount);
+        ConsumptionNetTool();
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    private void RPC_UseTool()
+    private void RPC_UseTool(NetworkObject shieldRepair)
     {
-        UseTool();
+        if (shieldRepair.TryGetComponent<ShieldRepairStation>(out ShieldRepairStation repairStation))
+        {
+            UseTool(repairStation);
+        }
     }
 
-    private void ConsumptionTool()
+    private void ConsumptionLocalTool()
     {
-        Runner.Despawn(this.Object);
         if (_copyObj != null)
         {
+            Debug.Log("Local tool consumption started.");
             Destroy(_copyObj);
         }
+    }
+
+    private void ConsumptionNetTool()
+    {
+        Runner.Despawn(this.Object);
     }
 }

@@ -63,7 +63,7 @@ public class PlayerAvatarView : NetworkBehaviour
 
         if (input.InteractPressed.IsSet(MyButtons.Interact))
         {
-            RPC_UseTool();
+            UseTool();
             ProcessInteractAction();
         }
 
@@ -118,8 +118,7 @@ public class PlayerAvatarView : NetworkBehaviour
         networkObject.transform.SetParent(_networkHandParent, true); // ネットワーク手の親オブジェクトに設定
     }
 
-     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    private void RPC_UseTool()
+    private void UseTool()
     {
         if (_interactableControllable == null) return;
 
