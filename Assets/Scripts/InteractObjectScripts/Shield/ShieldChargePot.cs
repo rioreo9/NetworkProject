@@ -42,6 +42,15 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
         _copyObj = networkObj;
     }
 
+    public bool CheckCopyObject()
+    {
+        if (_copyObj == null)
+        {
+            return false;
+        }
+        return true;
+    }
+
     private void UseTool(ShieldRepairStation repairStation)
     {
         repairStation.RepairShield(_repairAmount);
@@ -61,7 +70,6 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
     {
         if (_copyObj != null)
         {
-            Debug.Log("Local tool consumption started.");
             Destroy(_copyObj);
         }
     }

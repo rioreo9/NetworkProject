@@ -90,12 +90,14 @@ public class PlayerAvatarView : NetworkBehaviour
                 _interactableControllable = interactable; // インタラクト可能なオブジェクトを保存
                 RPC_PickUpItem(hit.collider.GetComponent<NetworkObject>());
 
+                if (_interactableControllable.CheckCopyObject()) return;
+               
                 GameObject obj = Instantiate(hit.collider.gameObject, _networkHandParent.position, Quaternion.identity);
                 _interactableControllable.SetCopyObj(obj); // インタラクト可能なオブジェクトのコピーを設定
 
                 // ローカルプレイヤー（入力権限を持つプレイヤー）用の処理
                 obj.transform.position = _localHandParent.position; // 手の位置にオブジェクトを移動
-                Debug.Log($"インタラクト可能なオブジェクトを取得: {_localHandParent.position} (ローカル)");
+                
                 obj.transform.SetParent(_localHandParent, true); // ローカル手の親オブジェクトに設定
             }
 
@@ -114,7 +116,6 @@ public class PlayerAvatarView : NetworkBehaviour
 
         // リモートプレイヤー（他のプレイヤー）用の処理
         networkObject.transform.position = _networkHandParent.position; // 手の位置にオブジェクトを移動
-        Debug.Log($"インタラクト可能なオブジェクトを取得: {_networkHandParent.position} (ネットワーク)");
         networkObject.transform.SetParent(_networkHandParent, true); // ネットワーク手の親オブジェクトに設定
     }
 
@@ -126,6 +127,5 @@ public class PlayerAvatarView : NetworkBehaviour
         if (hit.collider == null) return;
 
         _interactableControllable.CheckInteractableObject(hit); // インタラクト可能なオブジェクトをチェック
-        Debug.Log($"インタラクト可能なオブジェクト: {hit.collider.name}");
     }
 }

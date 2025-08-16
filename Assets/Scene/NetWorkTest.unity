@@ -995,6 +995,7 @@ GameObject:
   - component: {fileID: 627779767}
   - component: {fileID: 627779764}
   - component: {fileID: 627779768}
+  - component: {fileID: 627779769}
   m_Layer: 9
   m_Name: Ship
   m_TagString: Untagged
@@ -1113,6 +1114,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 627779767}
   - {fileID: 627779768}
+  - {fileID: 627779769}
   - {fileID: 740196950}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &627779766
@@ -1168,6 +1170,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _shieldVisual: {fileID: 740196942}
   _CurrentShieldState: 1
+--- !u!114 &627779769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 627779759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72f672e42307ed2439ee285f218de425, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _CurrentShieldPoints: 10
 --- !u!1 &718314545
 GameObject:
   m_ObjectHideFlags: 0
@@ -1548,10 +1563,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 740196942}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72f672e42307ed2439ee285f218de425, type: 3}
+  m_Script: {fileID: 11500000, guid: 976c941681f621144bc0cc815533fade, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _CurrentShieldPoints: 10
+  _damageNotifiable: {fileID: 627779759}
 --- !u!1 &748591728
 GameObject:
   m_ObjectHideFlags: 0
@@ -1867,7 +1882,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 182696805a8027f48a344e29cd33cf62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _shipShieldDurability: {fileID: 740196950}
+  _shipShieldDurability: {fileID: 627779769}
 --- !u!114 &1003500114
 MonoBehaviour:
   m_ObjectHideFlags: 0

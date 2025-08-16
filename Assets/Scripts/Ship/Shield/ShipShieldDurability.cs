@@ -3,7 +3,7 @@ using UnityEngine;
 using Fusion;
 using R3;
 using VContainer;
-public class ShipShieldDurability : NetworkBehaviour, IDamageable
+public class ShipShieldDurability : NetworkBehaviour, IDamageNotifiable
 {
     [Networked, OnChangedRender(nameof(UpdateHp))]
     public float CurrentShieldPoints { get; private set; }

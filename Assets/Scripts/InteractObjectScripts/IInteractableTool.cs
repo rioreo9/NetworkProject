@@ -9,4 +9,6 @@ public interface IInteractableTool
     public void CheckInteractableObject(RaycastHit hit); // インタラクト可能なオブジェクトをチェックするメソッド
 
     public void SetCopyObj(GameObject networkObj);// インタラクト可能なオブジェクトのコピーを設定するメソッド
+
+    public bool CheckCopyObject();
 }
