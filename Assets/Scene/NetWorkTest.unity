@@ -1563,7 +1563,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 740196942}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 976c941681f621144bc0cc815533fade, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e68fd96e0f976c408c741d78824b2cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _damageNotifiable: {fileID: 627779759}
