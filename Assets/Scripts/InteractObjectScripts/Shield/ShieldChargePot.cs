@@ -43,11 +43,7 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
 
     public bool CheckCopyObject()
     {
-        if (_copyObj == null)
-        {
-            return false;
-        }
-        return true;
+        return _copyObj != null;
     }
 
     private void UseTool(ShieldRepairStation repairStation)
