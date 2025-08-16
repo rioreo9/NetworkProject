@@ -1,7 +1,6 @@
 using Fusion;
 using System;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
 {
@@ -42,6 +41,11 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
         _copyObj = networkObj;
     }
 
+    public bool CheckCopyObject()
+    {
+        return _copyObj != null;
+    }
+
     private void UseTool(ShieldRepairStation repairStation)
     {
         repairStation.RepairShield(_repairAmount);
@@ -61,7 +65,6 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
     {
         if (_copyObj != null)
         {
-            Debug.Log("Local tool consumption started.");
             Destroy(_copyObj);
         }
     }
