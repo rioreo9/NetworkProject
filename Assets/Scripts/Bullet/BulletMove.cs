@@ -35,30 +35,47 @@ public class BulletMove : NetworkBehaviour
     [SerializeField]
     public LayerMask _targetLayerMask;
 
+    // キャッシュ用変数（プール再利用時のデフォルト値保存）
+    private int _defaultDamage;
+    private float _defaultLifeTime = 5.0f; // デフォルト5秒
+    private float _defaultSpeed = 20.0f;   // デフォルト速度20
+    private LayerMask _defaultTargetLayerMask;
 
-    private int _cashDamage;
-    private float _cashLifeTime;
-    private float _cashSpeed;
-    private LayerMask _cashTargetLayerMask;
+    /// <summary>
+    /// NetworkObject初期化（Inspector値のキャッシュ）
+    /// </summary>
+    private void Awake()
+    {
+        // Inspector設定値をキャッシュ（プール再利用時のデフォルト値）
+        _defaultDamage = _damage;
+        _defaultTargetLayerMask = _targetLayerMask;
+    }
 
+    /// <summary>
+    /// ネットワークオブジェクトがスポーンされた後の初期化
+    /// [Networked]プロパティへの安全なアクセスが可能
+    /// </summary>
+    public override void Spawned()
+    {
+        // Networkedプロパティの初期化（デフォルト値設定）
+        lifeTime = _defaultLifeTime;
+        Speed = _defaultSpeed;
+        
+        // 非Networkedプロパティの初期化
+        _damage = _defaultDamage;
+        _targetLayerMask = _defaultTargetLayerMask;
+    }
 
+    /// <summary>
+    /// プール再利用時の初期化（OnEnable代替）
+    /// Networkedプロパティには触れない
+    /// </summary>
     private void OnEnable()
     {
-        _damage = _cashDamage;
-        lifeTime = _cashLifeTime;
-        Speed = _cashSpeed;
-        _targetLayerMask = _cashTargetLayerMask;
+        // Networkedプロパティ以外のみ初期化
+        _damage = _defaultDamage;
+        _targetLayerMask = _defaultTargetLayerMask;
     }
-
-    private void Start()
-    {
-        _cashDamage = _damage;
-        _cashLifeTime = lifeTime;
-        _cashSpeed = Speed;
-        _cashTargetLayerMask = _targetLayerMask;
-    }
-
-
 
     /// <summary>
     /// 弾丸初期化処理
@@ -66,6 +83,19 @@ public class BulletMove : NetworkBehaviour
     /// </summary>
     public void Init(Vector3 shotDirection)
     {
+        // デフォルト値で初期化
+        InitWithParams(shotDirection, _defaultLifeTime, _defaultSpeed);
+    }
+
+    /// <summary>
+    /// パラメータ指定での弾丸初期化
+    /// </summary>
+    public void InitWithParams(Vector3 shotDirection, float bulletLifeTime, float bulletSpeed)
+    {
+        // Networkedプロパティを設定（Spawned後なので安全）
+        lifeTime = bulletLifeTime;
+        Speed = bulletSpeed;
+        
         // サーバーのTickベースで正確な寿命タイマーを作成
         life = TickTimer.CreateFromSeconds(Runner, lifeTime);
         transform.rotation = Quaternion.LookRotation(shotDirection);
@@ -81,7 +111,6 @@ public class BulletMove : NetworkBehaviour
         // 寿命チェック：期限切れの場合は弾丸を削除
         if (life.Expired(Runner))
         {
-
             // ネットワークオブジェクトとして適切に削除
             Runner.Despawn(Object);
         }
