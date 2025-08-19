@@ -1,0 +1,302 @@
+
+# FPS協力防衛ゲーム プロジェクト構造 (更新版)
+
+## プロジェクト概要
+- **ジャンル**: FPS視点の3Dオンライン協力防衛ゲーム
+- **プレイ人数**: 1～4人（マルチプレイヤー対応）
+- **プラットフォーム**: Unity + C#
+- **技術スタック**: R3, VContainer, UniTask, HDRP, Photon Fusion2 (Build 920), VitalRouter
+
+## ディレクトリ構造と機能
+
+### Scripts/ - メインロジック
+プロジェクトのコア機能を担当するスクリプト群
+
+#### Core/ - コアシステム
+- **Container/**: 依存性注入システム
+  - `ProjectInstaller.cs`: VContainerベースのDI設定、システム間の依存関係管理
+- `GameFlowHandler.cs`: ゲーム全体のフロー制御、ステート管理（VitalRouter統合）
+- **Wave/**: ウェーブ管理システム（実装完了）
+  - `WaveHandler.cs`: ウェーブベースの敵スポーンシステム、ゲーム進行管理
+  - `EnemyCoordinator.cs`: 敵の生死管理、ウェーブクリア判定（実装完了）
+  - `WaveConfiguration.cs`: ウェーブデータ設定（ScriptableObject）
+  - `WaveConfiguration.asset`: ウェーブ設定アセット
+- **Inter/**: インターフェース定義
+  - `IGameStateNotice.cs`: ゲーム状態通知インターフェース
+
+#### Bullet/ - 弾丸システム（実装完了）
+- `BulletMove.cs`: ネットワーク同期対応弾丸移動システム
+  - Photon Fusion2のラグ補償機能使用
+  - TickTimerベース寿命管理
+  - ネットワーク同期対応完了
+  - IDamageableインターフェース対応当たり判定実装
+
+#### Character/ - キャラクター関連
+- **Animation/**: アニメーションシステム
+  - `AnimationConductor.cs`: キャラクターアニメーション制御
+- **Camera/**: カメラシステム
+  - `PlayerAvatarView.cs`: Cinemachineカメラの優先度制御
+- **Input/**: 入力システム
+  - `InputManager.cs`: Unity Input Systemを使用したプレイヤー入力管理
+  - `GameInput.cs`: 自動生成された入力アクション
+  - `PlayerNetworkInput.cs`: ネットワーク入力構造体定義
+- **Pys/**: 物理・移動システム
+  - `PlayerMovement.cs`: ネットワーク対応プレイヤー移動制御 + 射撃システム統合
+  - `PlayerMove.cs`: 基本移動機能
+  - `PlayerJump.cs`: ジャンプ機能
+  - `RotationMove.cs`: 回転制御
+  - `PlayerPhysicsMove.cs`: 物理演算対応移動
+- **Enemy/**: 敵キャラクターシステム（実装完了）
+  - **AI/**: 敵AI制御システム
+    - `EnemyAIBrain.cs`: 敵AI基本実装（完了）
+  - **Combat/**: 戦闘システム（実装中）
+  - **Core/**: 敵の基本クラス群
+    - `BaseEnemy.cs`: 敵キャラクターの基底クラス（完了）
+  - **Spawning/**: 敵スポーンシステム
+    - `WaveSpawner.cs`: ウェーブベースの敵スポーン管理（完了）
+  - **Types/**: 敵タイプ実装
+    - `EnemyWakame.cs`: 特定敵タイプの実装（攻撃ロジック実装済み）
+- `PlayerAvatar.cs`: メインプレイヤーアバターコントローラー
+- `ISetPlayerInformation.cs`: プレイヤー情報設定インターフェース
+- `NetworkedDamageable.cs`: ネットワーク対応ダメージ処理システム（実装完了）
+
+#### NetWork/ - ネットワーク機能
+- `GameLauncher.cs`: Photon Fusionセッション管理とプレイヤー接続制御
+- `PhotonConnectionTest.cs`: 接続テスト機能、リージョン別接続テスト対応
+
+#### InteractObjectScripts/ - インタラクションシステム
+戦艦内設備操作のためのインタラクション機能
+- `BaseInteractObject.cs`: インタラクト可能オブジェクトの基底クラス
+- `BaseInteractButtonObject.cs`: ボタン型インタラクトオブジェクト
+- `IInteractableControllable.cs`: 操縦可能オブジェクトのインターフェース
+- `IInteractableButton.cs`: ボタンインタラクションインターフェース
+- `InteractiveSwitch.cs`: スイッチ型インタラクションオブジェクト
+- `GunEmplacementController.cs`: 砲台操縦システム（実装中85%）
+- **AttackObject/**: 攻撃系インタラクション
+  - `LaserGun.cs`: レーザー砲システム
+
+#### UI/ - ユーザーインターフェース
+- **Base/**: UI基底クラス
+  - `PhaseEndButtonBase.cs`: フェーズ終了ボタンの基底クラス
+- `PreparationEndButton.cs`: 準備フェーズ終了ボタン
+- `UpgradePhaseEndButton.cs`: アップグレードフェーズ終了ボタン
+
+#### Utility/ - ユーティリティ
+- `TransformCalculation.cs`: カメラ基準の移動方向計算
+- `GameObjectExtensions.cs`: GameObjectの拡張メソッド群
+
+#### SubEditor/ - エディター拡張
+- `RequiredAttribute.cs`: 必須フィールド検証属性
+
+### Scene/ - シーン
+- `NetWorkTest.unity`: ネットワーク機能テストシーン
+- `NetWorkAnalysisMiyamoto.unity`: ネットワーク分析・デバッグ用シーン
+- `PhotoReal.unity`: フォトリアリスティック描画テストシーン
+- `OutdoorsScene.unity`: メインゲームシーン
+
+### Prefab/ - プレハブ
+- **Character/**: キャラクター関連プレハブ
+  - `PlayerAvatar.prefab`: プレイヤーアバタープレハブ
+  - **Enemy/**: 敵キャラクタープレハブ
+    - `Enemy.prefab`: 基本敵プレハブ
+- **Object/**: ゲームオブジェクトプレハブ
+  - **Bullet/**: 弾丸プレハブ（実装完了）
+  - `Gun.prefab`: 武器プレハブ
+- `NetWorkRunner.prefab`: ネットワークランナープレハブ
+- `Button.prefab`: インタラクション用ボタンプレハブ
+- `MoveObject.prefab`: 移動可能オブジェクトプレハブ
+
+### Photon/ - Photon Fusion2関連
+Photon Fusion2の機能とアセット（最新版 Build 920）
+- **Fusion/**: メインライブラリ
+  - **Runtime/**: ランタイムライブラリ
+  - **Editor/**: エディター拡張
+  - **Resources/**: ネットワーク設定ファイル
+    - `NetworkProjectConfig.fusion`: ネットワークプロジェクト設定
+    - `PhotonAppSettings.asset`: Photonアプリケーション設定
+  - **CodeGen/**: Fusionコード生成機能
+- **FusionDemos/**: サンプルコード
+- **FusionMenu/**: メニューシステム
+- **PhotonLibs/**: Photonライブラリ群（4.1.8.15対応）
+  - **WebSocket/**: WebSocket通信ライブラリ
+- **PhotonUnityNetworking/**: Photon Unity Networking設定
+
+### Packages/ - 外部ライブラリ
+主要な依存パッケージ
+- **R3.1.3.0/**: リアクティブプログラミングライブラリ
+- **ObservableCollections.3.3.3/**: 観測可能コレクション
+- **ObservableCollections.R3.3.3.3/**: R3統合観測可能コレクション
+- **Microsoft.Bcl.AsyncInterfaces.6.0.0/**: 非同期インターフェース
+- **Microsoft.Bcl.TimeProvider.8.0.0/**: 時間プロバイダー
+- **System.ComponentModel.Annotations.5.0.0/**: コンポーネント注釈
+- **System.Runtime.CompilerServices.Unsafe.6.0.0/**: アンセーフランタイム
+- **System.Threading.Channels.8.0.0/**: スレッディングチャンネル
+
+### Settings/ - プロジェクト設定
+- **HDRP設定**: HDRP Balanced, HDRP High Fidelity
+- **HDRPDefaultResources/**: デフォルトリソース
+  - `DefaultLookDevProfile.asset`: デフォルトLookDev設定
+  - `DefaultSettingsVolumeProfile.asset`: デフォルトボリューム設定
+
+### Editor/ - エディター機能
+- `AutoSave.cs`: 自動保存機能（変更検知・プレイモード保存対応）
+- `Attribute.cs`: カスタム属性定義
+
+### Animation/ - アニメーション
+- **Character/**: キャラクターアニメーション
+  - `Player.controller`: プレイヤーアニメーターコントローラー
+  - `LookDown.anim`, `LookStreet.anim`: キャラクター視線制御アニメーション
+- **Object/**: オブジェクトアニメーション
+  - `MoveBox.anim`: 移動ボックスアニメーション
+  - `MoveBox.controller`: 移動ボックスアニメーターコントローラー
+
+### Material/ - マテリアル
+- `Floor.mat`: 床用マテリアル
+- `Switch.mat`: スイッチ用マテリアル
+- `Prototype_512x512_Blue1.mat`: プロトタイプ用マテリアル
+
+## 主要機能
+
+### 依存性注入システム
+- VContainerベースのDI設定
+- `ProjectInstaller`によるシステム間の依存関係管理
+- `GameFlowHandler`と`WaveHandler`のシングルトン登録
+- インターフェースベースの疎結合設計
+
+### ゲームフロー管理
+- `GameFlowHandler`: ゲーム全体の状態制御（VitalRouter統合）
+- `WaveHandler`: ウェーブシステム管理（EnemyCoordinator統合完了）
+- `EnemyCoordinator`: 敵の生死管理、ウェーブクリア判定
+- `IGameStateNotice`: ゲーム状態通知インターフェース
+- ウェーブクリア後の強化・アップグレードシステム基盤
+- GameState列挙型: WaitingForPlayers, Preparation, WaveAction, UpgradePhase, GameOver, Victory
+- ChangeStateType列挙型: フェーズ遷移制御
+
+### VitalRouterによるコマンドシステム
+- `GameStateChangeCommand`: ゲーム状態変更コマンド
+- コマンドパブリッシャーとルーティング機能
+- 疎結合なゲーム状態管理
+
+### ネットワーク機能
+- Photon Fusion2を使用したマルチプレイヤー対応（最新Build 920）
+- ホスト/クライアント/シェアードモード対応
+- プレイヤー参加/退出処理
+- ネットワーク入力同期
+- 自動接続リトライ機能
+- リージョン別接続テスト
+- インターネット接続状態確認
+- セッション管理とプレイヤーオブジェクト制御
+- NetworkBehaviourベースのネットワーク同期
+- ラグ補償機能（LagCompensation）統合
+
+### プレイヤーシステム
+- FPS視点でのキャラクター操作
+- カメラ基準の移動制御
+- ジャンプ機能
+- ネットワーク同期されたアバター
+- アニメーション制御システム
+- 物理演算対応移動システム
+- 射撃システム統合（PlayerMovement内）
+
+### 弾丸システム（実装完了）
+- `BulletMove.cs`: ネットワーク同期対応弾丸移動システム
+- Photon Fusion2のラグ補償機能使用
+- TickTimerベース寿命管理
+- ネットワーク同期対応完了
+- IDamageableインターフェース対応当たり判定実装
+- 高精度レイキャスト当たり判定
+
+### ダメージシステム（実装完了）
+- `NetworkedDamageable.cs`: ネットワーク対応ダメージ処理
+- `IDamageable`: ダメージ受付インターフェース
+- ネットワーク同期HP管理
+- 弾丸システムとの統合完了
+- 敵の死亡処理統合
+
+### 敵システム（実装完了）
+- `BaseEnemy`: 敵キャラクターの基底クラス（完了）
+- `EnemyAIBrain`: 敵AI制御システム（完了）
+- `WaveSpawner`: ウェーブベースの敵スポーン管理（完了）
+- `EnemyCoordinator`: 敵の生死管理、ウェーブクリア判定（完了）
+- `EnemyWakame`: 特定敵タイプの実装（攻撃ロジック実装済み）
+- ネットワーク同期対応設計（完了）
+- ダメージシステム統合完了
+
+### 砲台システム（実装中 - 85%完了）
+- `GunEmplacementController`: 砲台操縦システム
+- プレイヤー権限管理（Input Authority）
+- ネットワーク同期回転制御
+- RPC通信による操縦権要求システム
+- 残り実装：射撃機能統合、UI実装
+
+### 入力システム
+- Unity Input Systemベース
+- キーボード・マウス、ゲームパッド対応
+- ネットワーク入力として統合
+- R3を使用したリアクティブ入力処理
+
+### インタラクションシステム
+- 戦艦内設備との相互作用
+- 砲台操縦、シールド操作等のベース機能
+- ボタン、スイッチ、コントロール可能オブジェクト
+- 階層化されたインタラクションインターフェース
+
+### UIシステム
+- フェーズ管理UI
+- `PhaseEndButtonBase`: フェーズ終了ボタンの基底クラス
+- `PreparationEndButton`: 準備フェーズ終了ボタン
+- `UpgradePhaseEndButton`: アップグレードフェーズ終了ボタン
+
+### 描画システム
+- HDRP (High Definition Render Pipeline) 使用
+- フォトリアリスティック描画対応
+- 複数の画質設定プロファイル
+- ボリューメトリック効果とライティング
+
+### エディター機能
+- 自動保存システム（変更検知・プレイモード対応）
+- 必須フィールド検証属性
+- カスタムエディター拡張
+
+## 開発方針
+- var型の使用を避ける
+- 適切な粒度でのメソッド分割
+- リーダブルコードの原則に従う
+- 各行にコメント記述、関数にsummary記述
+- 既存コード設計の一貫性を保つ
+- R3を活用したリアクティブプログラミング
+- VContainerによる依存性注入設計
+- VitalRouterによるコマンドパターン活用
+- Photon Fusion2のベストプラクティスに従う
+- エラーハンドリングとデバッグ情報の充実
+- ネットワーク同期を考慮した設計
+- ラグ補償機能の積極的活用
+
+## 現在の開発状況（2024年1月 - 更新版）
+- **進捗**: フェーズ2最終段階（75%完了）
+- **完了機能**: 
+  - 基盤システム、ネットワーク、プレイヤーシステム
+  - DI基盤、ゲームフロー管理システム
+  - VitalRouterによるコマンドシステム
+  - UI基盤システム
+  - 敵AI基盤（BaseEnemy + EnemyAIBrain + WaveSpawner完了）
+  - 弾丸システム（BulletMove.cs完全実装）
+  - 敵攻撃システム（EnemyWakame.cs実装済み）
+  - ウェーブ管理システム（EnemyCoordinator + WaveHandler + VitalRouterコマンドシステム完成）
+  - ダメージシステム（NetworkedDamageable.cs + IDamageable完全実装）
+  - プレイヤー戦闘システム（PlayerMovement + 射撃統合完了）
+- **実装中**: 
+  - 砲台システム（85%完了 - GunEmplacementController実装済み）
+  - 砲台射撃機能統合
+  - 砲台操縦UI実装
+- **次期実装予定**: 
+  - シールドシステム
+  - 戦艦耐久値システム
+  - アップグレードシステム
+  - バランス調整とテストプレイ
+
+alwaysApply: false
+---
+
+alwaysApply: false
+---
