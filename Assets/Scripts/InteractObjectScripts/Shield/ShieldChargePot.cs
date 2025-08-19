@@ -2,6 +2,8 @@ using Fusion;
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
+
 public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
 {
     [SerializeField]
@@ -12,6 +14,19 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
     private float _repairAmount = 20f; // シールドの修理量
 
     private GameObject _copyObj;
+    private Rigidbody _rigidbody;
+
+    public override void Spawned()
+    {
+        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+        {
+            _rigidbody = rigidbody;
+        }
+        else
+        {
+            _rigidbody = gameObject.AddComponent<Rigidbody>();
+        }
+    }
 
     public override void ControlObject()
     {

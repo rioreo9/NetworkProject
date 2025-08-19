@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3140566706026218206}
   - component: {fileID: 4266423195967035261}
   m_Layer: 6
-  m_Name: ShieldChargeObj
+  m_Name: ShieldChargeCup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,7 +44,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7619005040000837976}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &7733092740866112638
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -139,7 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 565374234
+  SortKey: 85235427
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
