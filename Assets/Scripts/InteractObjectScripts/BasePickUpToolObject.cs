@@ -23,7 +23,7 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
 
         if (!interactable)
         {
-            transform.position = transform.position + transform.forward ; // ツールの位置を更新する
+            transform.position = transform.position + transform.forward; // ツールの位置を更新する
             transform.SetParent(null); // ツールの親を解除する
         } 
     }
@@ -54,7 +54,7 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
         return IsInteractable; // インタラクト可能状態を返す
     }
 
-    public abstract void CheckInteractableObject(RaycastHit hit);// インタラクト可能なオブジェクトをチェックするメソッド
+    public abstract bool CheckInteractableObject(RaycastHit hit);// インタラクト可能なオブジェクトをチェックするメソッド
 
     protected abstract void UseTool(Component component);
 

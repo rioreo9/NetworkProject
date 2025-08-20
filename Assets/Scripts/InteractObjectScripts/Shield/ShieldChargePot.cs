@@ -19,10 +19,10 @@ public class ShieldChargePot : BasePickUpToolObject, IInteractableTool
         }
     }
 
-    public override void CheckInteractableObject(RaycastHit hit)
+    public override bool CheckInteractableObject(RaycastHit hit)
     {
-        if (!hit.collider.TryGetComponent<NetworkObject>(out NetworkObject networkObject)) return;
-        if (!hit.collider.TryGetComponent<ShieldRepairStation>(out ShieldRepairStation shieldRepair)) return;
+        if (!hit.collider.TryGetComponent<NetworkObject>(out NetworkObject networkObject)) return false;
+        if (!hit.collider.TryGetComponent<ShieldRepairStation>(out ShieldRepairStation shieldRepair)) return false;
 
         ConsumptionLocalTool();
 
@@ -35,6 +35,8 @@ public class ShieldChargePot : BasePickUpToolObject, IInteractableTool
             // クライアント側でのRPC呼び出し
             RPC_UseTool(networkObject);
         }
+
+        return true;
     }
 
     protected override void UseTool(Component component)
