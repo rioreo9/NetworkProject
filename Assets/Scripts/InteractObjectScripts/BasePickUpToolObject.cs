@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
 {
-    [Networked, OnChangedRender(nameof(ChangeInteractMode))]
+    [Networked]
     public bool IsInteractable { get; private set; } // インタラクト中かどうか
 
     public LayerMask layerMask => _layerMask; // インタラクト可能なオブジェクトのレイヤーマスク
@@ -15,17 +15,19 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
 
     protected Rigidbody _copyObj; // インタラクト可能なオブジェクトのコピー
     protected Rigidbody _rigidbody; // Rigidbodyコンポーネント
+    protected NetworkTransform _networkTransform; // ネットワークトランスフォームコンポーネント
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_SetInteractable(bool interactable)
     {
         IsInteractable = interactable; // インタラクト可能状態を設定するメソッド
 
-        if (!interactable)
-        {
-            transform.position = transform.position + Vector3.up; // ツールの位置を更新する
-            transform.SetParent(null); // ツールの親を解除する
-        } 
+        ChangeInteractMode(interactable);
+    }
+
+    public void RPC_SetItemPosition(Vector3 setItemPos)
+    {
+        _networkTransform.Teleport(setItemPos);
     }
 
     /// <summary>
@@ -37,7 +39,7 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
         if(networkObj.TryGetComponent(out Rigidbody targetRigidbody))
         {
             _copyObj = targetRigidbody;
-        }  
+        }
     }
 
     /// <summary>
@@ -61,7 +63,7 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     protected virtual void RPC_UseTool(NetworkObject netObj) { }
 
-    protected void ChangeInteractMode()
+    protected void ChangeInteractMode(bool interacte)
     {
         if (IsInteractable)
         {
@@ -73,7 +75,8 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
         else
         {
             _rigidbody.isKinematic = IsInteractable;
-           
+            transform.position = transform.position + Vector3.up; // ツールの位置を更新する
+            transform.SetParent(null); // ツールの親を解除する
             ConsumptionLocalTool();
         }
     }
