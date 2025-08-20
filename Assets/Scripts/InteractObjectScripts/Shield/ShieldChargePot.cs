@@ -2,26 +2,27 @@ using Fusion;
 using System;
 using UnityEngine;
 
-public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
+public class ShieldChargePot : BasePickUpToolObject, IInteractableTool
 {
-    [SerializeField]
-    private LayerMask _interactableLayerMask; // インタラクト可能なオブジェクトのレイヤーマスク
-    public LayerMask layerMask => _interactableLayerMask; // インタラクト可能なオブジェクトのレイヤーマスク
-
     [SerializeField]
     private float _repairAmount = 20f; // シールドの修理量
 
-    private GameObject _copyObj;
-
-    public override void ControlObject()
+    public override void Spawned()
     {
-        _isInteractable = true;
+        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+        {
+            _rigidbody = rigidbody;
+        }
+        else
+        {
+            _rigidbody = gameObject.AddComponent<Rigidbody>();
+        }
     }
 
-    public void CheckInteractableObject(RaycastHit hit)
+    public override bool CheckInteractableObject(RaycastHit hit)
     {
-        if (!hit.collider.TryGetComponent<NetworkObject>(out NetworkObject networkObject)) return;
-        if (!hit.collider.TryGetComponent<ShieldRepairStation>(out ShieldRepairStation shieldRepair)) return;
+        if (!hit.collider.TryGetComponent<NetworkObject>(out NetworkObject networkObject)) return false;
+        if (!hit.collider.TryGetComponent<ShieldRepairStation>(out ShieldRepairStation shieldRepair)) return false;
 
         ConsumptionLocalTool();
 
@@ -34,26 +35,21 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
             // クライアント側でのRPC呼び出し
             RPC_UseTool(networkObject);
         }
+
+        return true;
     }
 
-    public void SetCopyObj(GameObject networkObj)
+    protected override void UseTool(Component component)
     {
-        _copyObj = networkObj;
-    }
-
-    public bool CheckCopyObject()
-    {
-        return _copyObj != null;
-    }
-
-    private void UseTool(ShieldRepairStation repairStation)
-    {
-        repairStation.RepairShield(_repairAmount);
-        ConsumptionNetTool();
+        if (component is ShieldRepairStation repairStation)
+        {
+            repairStation.RepairShield(_repairAmount);
+            ConsumptionNetTool();
+        }
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    private void RPC_UseTool(NetworkObject shieldRepair)
+    protected override void RPC_UseTool(NetworkObject shieldRepair)
     {
         if (shieldRepair.TryGetComponent<ShieldRepairStation>(out ShieldRepairStation repairStation))
         {
@@ -61,16 +57,4 @@ public class ShieldChargePot : BaseInteractControlObject, IInteractableTool
         }
     }
 
-    private void ConsumptionLocalTool()
-    {
-        if (_copyObj != null)
-        {
-            Destroy(_copyObj);
-        }
-    }
-
-    private void ConsumptionNetTool()
-    {
-        Runner.Despawn(this.Object);
-    }
 }

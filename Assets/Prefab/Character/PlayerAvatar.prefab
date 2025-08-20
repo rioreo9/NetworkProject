@@ -159,7 +159,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 90
+  m_Constraints: 122
   m_CollisionDetection: 0
 --- !u!136 &7775733860546693326
 CapsuleCollider:
@@ -232,11 +232,13 @@ MonoBehaviour:
   _followTarget: {fileID: 6823839256273516172}
   _localHandParent: {fileID: 7368818650585804885}
   _networkHandParent: {fileID: 1795673812188064030}
+  _mouseSensitivity: 2
   _maxLookAngle: 80
   _invertYAxis: 0
   _interactableLayerMask:
     serializedVersion: 2
     m_Bits: 4160
+  _interactRange: 5
 --- !u!1 &7599676453635705112
 GameObject:
   m_ObjectHideFlags: 0

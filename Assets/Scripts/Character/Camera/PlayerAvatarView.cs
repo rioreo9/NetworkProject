@@ -45,7 +45,7 @@ public class PlayerAvatarView : NetworkBehaviour
     public void SetCamera()
     {
         _cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
-        
+
         if (_cinemachineCamera == null)
         {
             Debug.LogError("CinemachineCamera が見つかりません");
@@ -150,10 +150,10 @@ public class PlayerAvatarView : NetworkBehaviour
 
         // 距離制限付きレイキャスト（GC削減のため配列を再利用）
         int hitCount = Physics.RaycastNonAlloc(
-            _cameraTransform.position, 
-            _cameraTransform.forward, 
-            _raycastResults, 
-            _interactRange, 
+            _cameraTransform.position,
+            _cameraTransform.forward,
+            _raycastResults,
+            _interactRange,
             _interactableLayerMask
         );
 
@@ -175,7 +175,7 @@ public class PlayerAvatarView : NetworkBehaviour
     /// </summary>
     private bool TryInteractWithButton(Collider collider)
     {
-        if (!collider.TryGetComponent<IInteractableButton>(out IInteractableButton button)) 
+        if (!collider.TryGetComponent<IInteractableButton>(out IInteractableButton button))
             return false;
 
         if (!button.IsInteractable) return false;
@@ -189,10 +189,16 @@ public class PlayerAvatarView : NetworkBehaviour
     /// </summary>
     private bool TryInteractWithTool(RaycastHit hit)
     {
-        if (!hit.collider.TryGetComponent<IInteractableTool>(out IInteractableTool tool)) 
-            return false;
+        if (!hit.collider.TryGetComponent<IInteractableTool>(out IInteractableTool tool)) return false;
+        if (tool.CheckInteractable()) return false; // ツールがインタラクト可能でない場合は処理を中止
+
+        //元々所持しているツールがある場合は、インタラクト不可状態に設定
+        _currentTool?.RPC_SetInteractable(false); // インタラクト不可状態を設定
 
         _currentTool = tool;
+        //現在のツールがインタラクト可能状態に設定
+        _currentTool?.RPC_SetInteractable(true); // インタラクト可能状態を設定
+
         RPC_PickUpItem(hit.collider.GetComponent<NetworkObject>());
 
         if (_currentTool.CheckCopyObject()) return true;
@@ -221,7 +227,7 @@ public class PlayerAvatarView : NetworkBehaviour
     /// </summary>
     private bool TryInteractWithGunEmplacement(Collider collider)
     {
-        if (!collider.TryGetComponent(out GunEmplacementController gunEmplacementController)) 
+        if (!collider.TryGetComponent(out GunEmplacementController gunEmplacementController))
             return false;
 
         gunEmplacementController.Object.RequestStateAuthority();
@@ -259,22 +265,17 @@ public class PlayerAvatarView : NetworkBehaviour
 
         // ツール専用のレイキャスト処理（距離制限付き）
         if (Physics.Raycast(
-            _cameraTransform.position, 
-            _cameraTransform.forward, 
-            out RaycastHit hit, 
-            _interactRange, 
+            _cameraTransform.position,
+            _cameraTransform.forward,
+            out RaycastHit hit,
+            _interactRange,
             _currentTool.layerMask))
         {
-            _currentTool.CheckInteractableObject(hit);
+            if(_currentTool.CheckInteractableObject(hit))
+            {
+                _currentTool = null;
+            }
         }
-    }
-
-    /// <summary>
-    /// ツールを手放す処理
-    /// </summary>
-    public void DropTool()
-    {
-        _currentTool = null;
     }
 
     /// <summary>
