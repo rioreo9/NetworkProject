@@ -23,7 +23,7 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
 
         if (!interactable)
         {
-            transform.position = transform.position + transform.forward; // ツールの位置を更新する
+            transform.position = transform.position + Vector3.up; // ツールの位置を更新する
             transform.SetParent(null); // ツールの親を解除する
         } 
     }
@@ -34,9 +34,9 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
     /// <param name="networkObj"></param>
     public void SetCopyObj(GameObject networkObj)// インタラクト可能なオブジェクトのコピーを設定するメソッド
     {
-        if(networkObj.TryGetComponent(out Rigidbody rigidbody))
+        if(networkObj.TryGetComponent(out Rigidbody targetRigidbody))
         {
-            _copyObj = rigidbody;
+            _copyObj = targetRigidbody;
         }  
     }
 

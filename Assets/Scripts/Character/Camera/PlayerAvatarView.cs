@@ -96,6 +96,11 @@ public class PlayerAvatarView : NetworkBehaviour
         {
             HandleInteraction();
         }
+
+        if (input.DropPressed.IsSet(MyButtons.Drop))
+        {
+            DropTool(); // ツールをドロップ
+        }
     }
 
     /// <summary>
@@ -122,6 +127,18 @@ public class PlayerAvatarView : NetworkBehaviour
 
         // カメラに回転を適用
         _followTarget.rotation = Quaternion.Euler(_verticalRotation, _horizontalRotation, 0f);
+    }
+
+    /// <summary>
+    /// ツールをドロップする処理
+    /// </summary>
+    private void DropTool()
+    {
+        if (_currentTool != null)
+        {
+            _currentTool.RPC_SetInteractable(false); // ツールをインタラクト不可状態に設定
+            _currentTool = null; // 現在のツールをクリア
+        }
     }
 
     /// <summary>
