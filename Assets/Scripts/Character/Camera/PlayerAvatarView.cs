@@ -189,10 +189,15 @@ public class PlayerAvatarView : NetworkBehaviour
     /// </summary>
     private bool TryInteractWithTool(RaycastHit hit)
     {
-        if (!hit.collider.TryGetComponent<IInteractableTool>(out IInteractableTool tool)) 
-            return false;
+        if (!hit.collider.TryGetComponent<IInteractableTool>(out IInteractableTool tool)) return false;
+        if (tool.CheckInteractable()) return false; // ツールがインタラクト可能でない場合は処理を中止
 
+        //元々所持しているツールがある場合は、インタラクト不可状態に設定
+        _currentTool?.RPC_SetInteractable(false); // インタラクト不可状態を設定
         _currentTool = tool;
+        //現在のツールがインタラクト可能状態に設定
+        _currentTool?.RPC_SetInteractable(true); // インタラクト可能状態を設定
+
         RPC_PickUpItem(hit.collider.GetComponent<NetworkObject>());
 
         if (_currentTool.CheckCopyObject()) return true;
