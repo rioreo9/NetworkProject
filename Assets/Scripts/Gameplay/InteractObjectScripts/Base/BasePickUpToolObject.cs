@@ -54,8 +54,6 @@ public abstract class BasePickUpToolObject : NetworkBehaviour
 
     public void SetINetItemPosition(Vector3 setItemPos, Transform parent)
     {
-        Debug.Log($"SetINetItemPosition: {setItemPos}"); // デバッグログを出力する
-
         _networkTransform.Teleport(setItemPos);
         transform.SetParent(parent); // ネットワークトランスフォームの親を設定する
     }
