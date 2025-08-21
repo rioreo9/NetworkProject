@@ -17,6 +17,11 @@ public class ShieldChargePot : BasePickUpToolObject, IInteractableTool
         {
             _rigidbody = gameObject.AddComponent<Rigidbody>();
         }
+
+        if (gameObject.TryGetComponent(out NetworkTransform targetNetworkTransform))
+        {
+            _networkTransform = targetNetworkTransform;
+        }
     }
 
     public override bool CheckInteractableObject(RaycastHit hit)

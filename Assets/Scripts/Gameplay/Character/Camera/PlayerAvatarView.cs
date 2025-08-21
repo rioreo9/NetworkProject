@@ -10,6 +10,10 @@ using UnityEngine;
 /// </summary>
 public class PlayerAvatarView : NetworkBehaviour
 {
+    // カメラ回転状態
+    [Networked] public float VerticalRotation { get; private set; }
+    [Networked] public bool Collected { get; private set; }
+
     private CinemachineCamera _cinemachineCamera; // Cinemachineカメラの参照
     private Transform _cameraTransform; // カメラのTransform
 
@@ -30,8 +34,7 @@ public class PlayerAvatarView : NetworkBehaviour
     [SerializeField] private LayerMask _interactableLayerMask; // インタラクト可能なオブジェクトのレイヤーマスク
     [SerializeField] private float _interactRange = 5.0f; // インタラクト可能距離
 
-    // カメラ回転状態
-    [Networked] private float _verticalRotation { get; set; }
+   
     private float _horizontalRotation;
 
     // インタラクション管理
@@ -73,7 +76,7 @@ public class PlayerAvatarView : NetworkBehaviour
 
         // 初期回転値を設定
         _horizontalRotation = transform.eulerAngles.y;
-        _verticalRotation = 0f;
+        VerticalRotation = 0f;
     }
 
     /// <summary>
@@ -95,6 +98,11 @@ public class PlayerAvatarView : NetworkBehaviour
         if (input.InteractPressed.IsSet(MyButtons.Interact))
         {
             HandleInteraction();
+        }
+
+        if (input.DropPressed.IsSet(MyButtons.Drop))
+        {
+            DropTool(); // ツールをドロップ
         }
     }
 
@@ -118,10 +126,22 @@ public class PlayerAvatarView : NetworkBehaviour
         _horizontalRotation += lookInput.x * _mouseSensitivity;
 
         // 垂直回転（X軸）- ネットワーク同期される値
-        _verticalRotation = Mathf.Clamp(_verticalRotation - lookInput.y * _mouseSensitivity, -_maxLookAngle, _maxLookAngle);
+        VerticalRotation = Mathf.Clamp(VerticalRotation - lookInput.y * _mouseSensitivity, -_maxLookAngle, _maxLookAngle);
 
         // カメラに回転を適用
-        _followTarget.rotation = Quaternion.Euler(_verticalRotation, _horizontalRotation, 0f);
+        _followTarget.rotation = Quaternion.Euler(VerticalRotation, _horizontalRotation, 0f);
+    }
+
+    /// <summary>
+    /// ツールをドロップする処理
+    /// </summary>
+    private void DropTool()
+    {
+        if (_currentTool != null)
+        {
+            _currentTool.RPC_SetInteractable(false); // ツールをインタラクト不可状態に設定
+            _currentTool = null; // 現在のツールをクリア
+        }
     }
 
     /// <summary>
@@ -242,16 +262,18 @@ public class PlayerAvatarView : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     private void RPC_PickUpItem(NetworkObject networkObject)
     {
+        if (Collected) return;
+
         if (networkObject == null || _networkHandParent == null) return;
 
-        var tool = networkObject.GetComponent<IInteractableTool>();
+        IInteractableTool tool = networkObject.GetComponent<IInteractableTool>();
         if (tool != null)
         {
             _currentTool = tool;
         }
 
         // リモートプレイヤー（他のプレイヤー）用の処理
-        networkObject.transform.position = _networkHandParent.position;
+        tool.RPC_SetItemPosition(_networkHandParent.position);
         networkObject.transform.SetParent(_networkHandParent, true);
     }
 

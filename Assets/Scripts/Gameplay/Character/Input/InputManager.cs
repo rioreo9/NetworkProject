@@ -16,6 +16,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     private bool _jumpPressed = false;
     private bool _interactPressed = false;
     private bool _isAttackPressed = false;
+    private bool _isDropPressed = false; // ドロップボタンが押されたかどうか
 
     private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
     public PlayerNetworkInput NetworkInput => _networkInput;
@@ -72,6 +73,8 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         _networkInput.InteractPressed.Set(MyButtons.Interact, _interactPressed); // インタラクトボタンが押されたか
 
         _networkInput.AttackPressed.Set(MyButtons.Attack, _isAttackPressed); // 攻撃ボタンが押されたか
+
+        _networkInput.DropPressed.Set(MyButtons.Drop, _isDropPressed); // ドロップボタンが押されたか
     }
 
     /// <summary>
@@ -82,6 +85,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         _jumpPressed = false;
         _interactPressed = false;
         _isAttackPressed = false;
+        _isDropPressed = false; // ドロップボタンのリセット
     }
 
     #region Input Action Callbacks
@@ -122,6 +126,14 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         if (context.performed)
         {
             _isAttackPressed = true;
+        }
+    }
+
+    public void OnDrop(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            _isDropPressed = true; // ドロップボタンが押された
         }
     }
 

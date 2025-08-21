@@ -8,7 +8,8 @@ public enum MyButtons
     Jump = 0,
     Interact = 1,
     Run = 2,
-    Attack = 3
+    Attack = 3,
+    Drop = 4,
 }
 
 public struct PlayerNetworkInput : INetworkInput
@@ -30,6 +31,9 @@ public struct PlayerNetworkInput : INetworkInput
 
     ///// <summary>インタラクト入力（E, Xボタン）</summary>
     public NetworkButtons InteractPressed;
+
+    ///// <summary>ドロップ入力（Q, Bボタン）</summary>
+    public NetworkButtons DropPressed;
 
     ///// <summary>走る入力（Shift, 左スティッククリック）</summary>
     public NetworkButtons RunPressed;
