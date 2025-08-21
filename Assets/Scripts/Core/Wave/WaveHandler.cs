@@ -124,6 +124,13 @@ public class WaveHandler : NetworkBehaviour
 
         spawnedEnemies = _waveSpawner.SpawnEnemy(_waveConfiguration.Waves[_currentWaveIndex]);
         _waveTimeLimit = _waveConfiguration.Waves[_currentWaveIndex].WaveDuration;
+
+        if (spawnedEnemies == null || spawnedEnemies.Count == 0)
+        {
+            Debug.LogError("No enemies spawned for the current wave.");
+            ClearWave();
+            return;
+        }
         _enemyCoordinator.SetWaveTarget(spawnedEnemies);
     }
 }
