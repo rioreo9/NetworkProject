@@ -1,21 +1,34 @@
-using System;
+using Core;
 using Fusion;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
+[RequireComponent(typeof(NetworkTransform))]
+
+public abstract class BasePickUpToolObject : NetworkBehaviour
 {
     [Networked]
     public bool IsInteractable { get; private set; } // インタラクト中かどうか
 
-    public LayerMask layerMask => _layerMask; // インタラクト可能なオブジェクトのレイヤーマスク
-
     [SerializeField]
     protected LayerMask _layerMask;
+    public LayerMask layerMask => _layerMask; // インタラクト可能なオブジェクトのレイヤーマスク
 
     protected Rigidbody _copyObj; // インタラクト可能なオブジェクトのコピー
+
     protected Rigidbody _rigidbody; // Rigidbodyコンポーネント
     protected NetworkTransform _networkTransform; // ネットワークトランスフォームコンポーネント
+
+    public override void Spawned()
+    {
+        // コピーオブジェクトを生成するためのGameObjectをInstantiateし、Rigidbodyコンポーネントを取得または追加
+        _copyObj = ComponentUtility.GetOrAddComponent<Rigidbody>(Instantiate(gameObject));
+        _copyObj.gameObject.SetActive(false); // コピーオブジェクトを非アクティブにする
+
+        // 初期化処理(依存を作ってあるため)
+        _rigidbody = ComponentUtility.GetOrAddComponent<Rigidbody>(this);
+        _networkTransform = ComponentUtility.GetOrAddComponent<NetworkTransform>(this);
+    }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_SetInteractable(bool interactable)
@@ -24,36 +37,33 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
 
         ChangeInteractMode(interactable);
     }
-
-    public void RPC_SetItemPosition(Vector3 setItemPos)
+    public void LocalItemInteractable(bool interactable)
     {
-        _networkTransform.Teleport(setItemPos);
-    }
+        if (_copyObj == null) return; // コピーオブジェクトが存在しない場合は何もしない
 
-    /// <summary>
-    /// インタラクト可能なオブジェクトのコピー
-    /// </summary>
-    /// <param name="networkObj"></param>
-    public void SetCopyObj(GameObject networkObj)// インタラクト可能なオブジェクトのコピーを設定するメソッド
-    {
-        if(networkObj.TryGetComponent(out Rigidbody targetRigidbody))
+        if (interactable)
         {
-            _copyObj = targetRigidbody;
+            _copyObj.isKinematic = interactable; // コピーオブジェクトのkinematicを設定
+            _copyObj.gameObject.SetActive(true); // コピーオブジェクトをアクティブにする
+        }
+        else
+        {
+            ConsumptionLocalTool(); // インタラクト終了時にローカルツールを消費する
         }
     }
 
-    /// <summary>
-    /// インタラクト可能なオブジェクトのコピーが存在するかどうかをチェックするメソッド
-    /// </summary>
-    /// <returns></returns>
-    public bool CheckCopyObject()
+    public void SetINetItemPosition(Vector3 setItemPos, Transform parent)
     {
-        return _copyObj != null;
+        Debug.Log($"SetINetItemPosition: {setItemPos}"); // デバッグログを出力する
+
+        _networkTransform.Teleport(setItemPos);
+        transform.SetParent(parent); // ネットワークトランスフォームの親を設定する
     }
 
-    public bool CheckInteractable()
+    public void SetCopyItemPosition(Vector3 pos, Transform parent)
     {
-        return IsInteractable; // インタラクト可能状態を返す
+        _copyObj.transform.position = pos; // コピーオブジェクトの位置を設定する
+        _copyObj.transform.SetParent(parent); // コピーオブジェクトの親を設定する
     }
 
     public abstract bool CheckInteractableObject(RaycastHit hit);// インタラクト可能なオブジェクトをチェックするメソッド
@@ -65,19 +75,12 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
 
     protected void ChangeInteractMode(bool interacte)
     {
-        if (IsInteractable)
-        {
-            _rigidbody.isKinematic = IsInteractable; // インタラクト中の場合はkinematicをtrueにする
+        _rigidbody.isKinematic = interacte; // インタラクト中の場合はkinematicをtrueにする
 
-            if (_copyObj == null) return; // コピーオブジェクトが存在しない場合は何もしない
-            _copyObj.isKinematic = IsInteractable; // コピーオブジェクトのkinematicを設定
-        }
-        else
+        if (!interacte)
         {
-            _rigidbody.isKinematic = IsInteractable;
             transform.position = transform.position + Vector3.up; // ツールの位置を更新する
             transform.SetParent(null); // ツールの親を解除する
-            ConsumptionLocalTool();
         }
     }
     protected void ConsumptionNetTool()
@@ -88,7 +91,7 @@ public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
     {
         if (_copyObj != null)
         {
-            Destroy(_copyObj.gameObject);
+            _copyObj.gameObject.SetActive(false); // コピーオブジェクトを非アクティブにする
         }
     }
 }
