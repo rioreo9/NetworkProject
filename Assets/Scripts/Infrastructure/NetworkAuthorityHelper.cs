@@ -17,6 +17,12 @@ namespace Core.Utils
         /// <param name="rpcAction">StateAuthorityがない場合に実行するRPCアクション</param>
         public static void ExecuteWithAuthority(NetworkBehaviour networkBehaviour, Action directAction, Action rpcAction)
         {
+            if (networkBehaviour == null || networkBehaviour.Object == null)
+            {
+                // networkBehaviourまたはObjectがnullの場合は何もしない
+                return;
+            }
+
             if (networkBehaviour.Object.HasStateAuthority)
             {
                 // サーバーまたは権限を持つクライアントは直接実行

@@ -26,7 +26,7 @@ public class LoginMenuButton : NetworkBehaviour
     {
         if (_cinemachineCamera == null || _loginButton == null || _logoutButton == null)
         {
-            Debug.LogError("ものが設定されていません");
+            Debug.LogError("必要なコンポーネント（CinemachineCamera、LoginButton、LogoutButton）が設定されていません");
             return;
         }
         _logoutButton.interactable = false; // 初期状態ではログアウトボタンは無効
@@ -71,7 +71,7 @@ public class LoginMenuButton : NetworkBehaviour
 
         // ログアウト処理をここに実装
         _cinemachineCamera.Priority = 0; // ログアウト時は優先度をリセット
-        _logoutButton.interactable = false; // ログアウトボタンを有効化
+        _logoutButton.interactable = false; // ログアウトボタンを無効化
 
         NetworkAuthorityHelper.ExecuteWithAuthority(
            this,
