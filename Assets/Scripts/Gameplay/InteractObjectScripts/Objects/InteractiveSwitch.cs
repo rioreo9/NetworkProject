@@ -1,5 +1,6 @@
 using Fusion;
 using UnityEngine;
+using Core.Utils;
 
 public class InteractiveSwitch : BaseInteractButtonObject
 {
@@ -16,17 +17,11 @@ public class InteractiveSwitch : BaseInteractButtonObject
     /// </summary>
     public override void PushButton()
     {
-        // 権限チェック：サーバーまたは入力権限を持つクライアント
-        if (Object.HasStateAuthority)
-        {
-            // サーバーは直接変更可能
-            ToggleSwitch();
-        }
-        else
-        {
-            // クライアントはRPCでリクエスト
-            RPC_RequestToggle();
-        }
+        NetworkAuthorityHelper.ExecuteWithAuthority(
+            this,
+            directAction: ToggleSwitch,
+            rpcAction: RPC_RequestToggle
+        );
     }
 
     /// <summary>
