@@ -29,7 +29,9 @@ public class PlayerCameraController : NetworkBehaviour
     /// </summary>
     public void InitializeCamera()
     {
-        _cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
+        _cinemachineCamera = GameObject.FindGameObjectWithTag("Camera")
+            ?.GetComponent<CinemachineCamera>();
+
 
         if (_cinemachineCamera == null)
         {

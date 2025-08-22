@@ -15,18 +15,22 @@ public abstract class BasePickUpToolObject : NetworkBehaviour
     public LayerMask layerMask => _layerMask; // インタラクト可能なオブジェクトのレイヤーマスク
 
     protected Rigidbody _copyObj; // インタラクト可能なオブジェクトのコピー
+    protected Collider _copyCollider; // コピーオブジェクトのコライダー
 
     protected Rigidbody _rigidbody; // Rigidbodyコンポーネント
+    protected Collider _collider; // コライダーコンポーネント
     protected NetworkTransform _networkTransform; // ネットワークトランスフォームコンポーネント
 
     public override void Spawned()
     {
         // コピーオブジェクトを生成するためのGameObjectをInstantiateし、Rigidbodyコンポーネントを取得または追加
         _copyObj = ComponentUtility.GetOrAddComponent<Rigidbody>(Instantiate(gameObject));
+        _copyCollider = ComponentUtility.GetOrAddComponent<Collider>(_copyObj.gameObject); // コピーオブジェクトのコライダーを取得または追加
         _copyObj.gameObject.SetActive(false); // コピーオブジェクトを非アクティブにする
 
         // 初期化処理(依存を作ってあるため)
         _rigidbody = ComponentUtility.GetOrAddComponent<Rigidbody>(this);
+        _collider = ComponentUtility.GetOrAddComponent<Collider>(this);
         _networkTransform = ComponentUtility.GetOrAddComponent<NetworkTransform>(this);
     }
 
@@ -43,6 +47,7 @@ public abstract class BasePickUpToolObject : NetworkBehaviour
 
         if (interactable)
         {
+            _copyCollider.enabled = !interactable; // コピーオブジェクトのコライダーを有効化する
             _copyObj.isKinematic = interactable; // コピーオブジェクトのkinematicを設定
             _copyObj.gameObject.SetActive(true); // コピーオブジェクトをアクティブにする
         }
@@ -74,6 +79,7 @@ public abstract class BasePickUpToolObject : NetworkBehaviour
     protected void ChangeInteractMode(bool interacte)
     {
         _rigidbody.isKinematic = interacte; // インタラクト中の場合はkinematicをtrueにする
+        _collider.enabled = !interacte; // インタラクト中はコライダーを無効化する
 
         if (!interacte)
         {
