@@ -5,7 +5,7 @@ public class PlayerMovement : NetworkBehaviour
 {
     [Header("移動設定")]
     [SerializeField] private float _moveSpeed = 5.0f; // 移動速度
-    //[SerializeField] private float _runSpeedMultiplier = 1.5f; // 走行時の速度倍率
+    [SerializeField] private float _runSpeedMultiplier = 1.5f; // 走行時の速度倍率
     //[SerializeField] private float _jumpHeight = 2.0f; // ジャンプ高度
     //[SerializeField] private float _gravity = -9.81f; // 重力加速度
 
@@ -40,8 +40,11 @@ public class PlayerMovement : NetworkBehaviour
     private void DoMove(PlayerNetworkInput input)
     {
         if (input.MoveDirection == Vector3.zero) return;
+        bool isRunning = input.RunPressed.IsSet(MyButtons.Run);
 
-        transform.position += input.MoveDirection * _moveSpeed * Runner.DeltaTime;
+        float currentSpeed = isRunning ? _moveSpeed * _runSpeedMultiplier : _moveSpeed;
+
+        transform.position += input.MoveDirection * currentSpeed * Runner.DeltaTime;
     }
 
     private void DoRotation(PlayerNetworkInput input)
