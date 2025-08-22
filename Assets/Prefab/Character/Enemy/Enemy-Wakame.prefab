@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _CurrentHealth: 0
-  _baseEnemy: {fileID: 3029952727810328984}
+  _baseEnemy: {fileID: 279985919380735688}
   _maxHealth: 10
 --- !u!1 &5107852061944549873
 GameObject:
@@ -269,11 +269,11 @@ GameObject:
   - component: {fileID: 7485556648574015835}
   - component: {fileID: 7567749771549673268}
   - component: {fileID: 2940687782619106103}
-  - component: {fileID: 7902729651752345819}
-  - component: {fileID: 3029952727810328984}
   - component: {fileID: 544982912752670805}
+  - component: {fileID: 279985919380735688}
+  - component: {fileID: 520800902836600693}
   m_Layer: 10
-  m_Name: Enemy
+  m_Name: Enemy-Wakame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -307,14 +307,15 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 992510888
+  SortKey: 3762642380
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 2940687782619106103}
-  - {fileID: 3029952727810328984}
   - {fileID: 544982912752670805}
+  - {fileID: 279985919380735688}
+  - {fileID: 520800902836600693}
   - {fileID: 6031194110917087923}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &2940687782619106103
@@ -334,54 +335,6 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
---- !u!54 &7902729651752345819
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8454916628943931070}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 80
-  m_CollisionDetection: 0
---- !u!114 &3029952727810328984
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8454916628943931070}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6dea0b82679a0c48bfddd352757d16b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _maxHealth: 100
-  _moveSpeed: 3
-  _attackDamage: 10
-  _IsAlive: 0
-  _targetMask:
-    serializedVersion: 2
-    m_Bits: 512
-  _bulletPrefab: {fileID: -3978404706333264883, guid: f8c50f13389450e4da404e8044ab9fcd, type: 3}
-  _fireRate: 2
 --- !u!114 &544982912752670805
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,3 +353,39 @@ MonoBehaviour:
   GizmosColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   Hitboxes:
   - {fileID: 2931661975613902088}
+--- !u!114 &279985919380735688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8454916628943931070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 800646a4f3fd8c44791f908cab06779d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHealth: 100
+  _moveSpeed: 3
+  _attackDamage: 10
+  _visionRange: 20
+  _attackRange: 6
+  _targetMask:
+    serializedVersion: 2
+    m_Bits: 512
+  _IsAlive: 0
+  _bulletPrefab: {fileID: -3978404706333264883, guid: f8c50f13389450e4da404e8044ab9fcd, type: 3}
+  _fireRate: 1
+--- !u!114 &520800902836600693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8454916628943931070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2178d668d6ef5b3418f0669e4b162865, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _State: 0

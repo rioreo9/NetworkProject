@@ -89,3 +89,6 @@ crashlytics-build.properties
 /.vscode
 /Assets/.vscode
 /Assets/.cursor
+Assets/Scripts/Character/Input/GameInput.cs
+Assets/Scripts/Character/Input/GameInput.cs.meta
+Assets/Scripts/Character/Input.meta
