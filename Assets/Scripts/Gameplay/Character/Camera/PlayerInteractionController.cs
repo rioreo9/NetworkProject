@@ -10,6 +10,7 @@ public class PlayerInteractionController : NetworkBehaviour
     [Header("インタラクト設定")]
     [SerializeField] private LayerMask _interactableLayerMask;
     [SerializeField] private float _interactRange = 5.0f;
+    [SerializeField] private PlayerStatus _playerStatus; // プレイヤーステータス
 
     private readonly RaycastHit[] _raycastResults = new RaycastHit[8]; // GC削減用配列
 
@@ -121,11 +122,22 @@ public class PlayerInteractionController : NetworkBehaviour
     /// </summary>
     private bool TryInteractWithGunEmplacement(Collider collider)
     {
-        if (!collider.TryGetComponent(out GunEmplacementController gunEmplacementController))
-            return false;
 
-        gunEmplacementController.Object.RequestStateAuthority();
-        gunEmplacementController.SetPlayerRef(Object.InputAuthority);
+        collider.TryGetComponent(out GunEmplacementController gunEmplacementController);
+        collider.TryGetComponent(out BaseInteractContObject baseInteractCont);
+
+        if(gunEmplacementController == null && baseInteractCont == null) return false;
+
+        if (gunEmplacementController != null)
+        {
+            gunEmplacementController.Object.RequestStateAuthority();
+            gunEmplacementController.SetPlayerRef(Object.InputAuthority);
+        }
+
+        if(baseInteractCont != null)
+        {
+            baseInteractCont.Access(_playerStatus);
+        }
         return true;
     }
 }

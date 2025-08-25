@@ -1,5 +1,6 @@
 using Fusion;
 using UnityEngine;
+using R3;
 
 public class PlayerMovement : NetworkBehaviour
 {
@@ -14,18 +15,26 @@ public class PlayerMovement : NetworkBehaviour
     //[SerializeField] private float _groundCheckDistance = 0.1f; // 地面チェック距離
     [SerializeField] private Vector3 _groundCheckOffset = new Vector3(0, 0.1f, 0); // 地面チェック開始位置オフセット
 
+    [Header("状態データ")]
+    [SerializeField, Required]
+    private PlayerStatus _playerStatus; // プレイヤーステータス
+    private bool _isInteracting = false; // インタラクション中かどうか
+
     [SerializeField, Required]
     private Transform _armTransform; // アームのGameObject
-
     [SerializeField, Required]
     private BulletMove _bulletPrefab; // 弾丸プレハブ
     public override void Spawned()
     {
-
+        _playerStatus?.IsControllerInteracting
+            .Subscribe(interact => _isInteracting = interact)
+            .AddTo(this);
     }
 
     public override void FixedUpdateNetwork()
     {
+        if (_isInteracting) return;
+
         if (!GetInput(out PlayerNetworkInput input)) return;
 
         DoMove(input);

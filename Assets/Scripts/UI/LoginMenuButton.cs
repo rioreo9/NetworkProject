@@ -5,12 +5,10 @@ using Fusion;
 using Unity.Cinemachine;
 using R3;
 using UnityEngine.UI;
+using System.Runtime.CompilerServices;
 
-public class LoginMenuButton : NetworkBehaviour
+public class LoginMenuButton : BaseInteractContObject
 {
-    [Networked, OnChangedRender(nameof(UpDateButton))]
-    public bool IsLoginButtonEnabled { get; private set; } = true;
-
     [SerializeField, Required]
     private Button _loginButton;
     [SerializeField, Required]
@@ -22,6 +20,8 @@ public class LoginMenuButton : NetworkBehaviour
     [SerializeField, Required]
     private CinemachineCamera _cinemachineCamera;
 
+    private INoticePlayerInteract _playerInteractNotice;
+
     public override void Spawned()
     {
         if (_cinemachineCamera == null || _loginButton == null || _logoutButton == null)
@@ -30,6 +30,7 @@ public class LoginMenuButton : NetworkBehaviour
             return;
         }
         _logoutButton.interactable = false; // 初期状態ではログアウトボタンは無効
+        _loginButton.interactable = false; // 初期状態ではログインボタンは無効
 
         _loginButton?.OnClickAsObservable()
             .Subscribe(_ => OnLoginButtonClicked())
@@ -37,41 +38,42 @@ public class LoginMenuButton : NetworkBehaviour
 
         _logoutButton?.OnClickAsObservable()
             .Subscribe(_ => OnLogoutButtonClicked())
-            .AddTo(this);    
+            .AddTo(this);
+    }
+
+    public override void Access(INoticePlayerInteract notice)
+    {
+        if (HasInteractor) return;
+
+        _playerInteractNotice = notice;
+
+        SetAcceseStateLocal(true);
+
+        NetworkAuthorityHelper.ExecuteWithAuthority(
+             this,
+             directAction: RequestAccess,
+             rpcAction: RPC_RequestAccess
+             );
     }
 
     private void OnLoginButtonClicked()
     {
-        if (!IsLoginButtonEnabled) return;
 
-        _cinemachineCamera.Priority = _loginButtonPriority; // ログインメニュー用の優先度を設定
-        _logoutButton.interactable = true; // ログアウトボタンを有効化
-
-        NetworkAuthorityHelper.ExecuteWithAuthority(
-            this,
-            directAction : RequestLogin,
-            rpcAction : RPC_RequestLogin
-            );
     }
-    private void RequestLogin()
+    private void RequestAccess()
     {
-        IsLoginButtonEnabled = false;
-        _loginButton.interactable = false; // ログインボタンを無効化
+      SetAcceseStateRemote(true); // リモート側のインタラクション状態を設定
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    private void RPC_RequestLogin()
+    private void RPC_RequestAccess()
     {
-        RequestLogin();
+        RequestAccess();
     }
 
     private void OnLogoutButtonClicked()
     {
-        if (IsLoginButtonEnabled) return;
-
-        // ログアウト処理をここに実装
-        _cinemachineCamera.Priority = 0; // ログアウト時は優先度をリセット
-        _logoutButton.interactable = false; // ログアウトボタンを無効化
+        SetAcceseStateLocal(false);
 
         NetworkAuthorityHelper.ExecuteWithAuthority(
            this,
@@ -82,8 +84,7 @@ public class LoginMenuButton : NetworkBehaviour
 
     private void RequestLogout()
     {
-        IsLoginButtonEnabled = true;
-        _loginButton.interactable = true; // ログインボタンを再度有効化
+        SetAcceseStateRemote(false); // リモート側のインタラクション状態を設定
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -92,9 +93,17 @@ public class LoginMenuButton : NetworkBehaviour
         RequestLogout();
     }
 
-    private void UpDateButton()
+    private void SetAcceseStateLocal(bool isAccese)
     {
-        _loginButton.interactable = IsLoginButtonEnabled;
+        _loginButton.interactable = isAccese;// ログインボタンを有効化
+        _logoutButton.interactable = isAccese; // ログアウトボタンを有効化
+        _playerInteractNotice?.RPC_SetControllerInteracting(isAccese); // インタラクション状態を設定
+
+        _cinemachineCamera.Priority = isAccese ? _loginButtonPriority : 0; // ログイン時は優先度を設定、ログアウト時はリセット
     }
 
+    private void SetAcceseStateRemote(bool isAccese)
+    {
+        HasInteractor = isAccese; // インタラクション変更
+    }
 }
