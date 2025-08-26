@@ -4,37 +4,15 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using VitalRouter;
+using VitalRouter.VContainer;
 
 [Serializable]
-public struct PageEntry : ISerializationCallbackReceiver
+public struct PageEntry
 {
+    
     public PageId Id;
-    public BaseInteractContObject InteractCont;
-    public PageUIBase PageUI;
-
-    public void SetRoot(BaseInteractContObject go)
-    {
-        InteractCont = go;
-        PageUI = null;
-    }
-
-    public void SetPageUI(PageUIBase ui)
-    {
-        PageUI = ui;
-        InteractCont = null;
-    }
-
-    // Unityシリアライズ後の整合性維持（XOR）
-    void ISerializationCallbackReceiver.OnBeforeSerialize() { }
-
-    void ISerializationCallbackReceiver.OnAfterDeserialize()
-    {
-        if (InteractCont != null && PageUI != null)
-        {
-            // どちらかを優先（例: pageUIを優先）
-            InteractCont = null;
-        }
-    }
+   
+    public GameObject PageUI;   
 }
 
 [Routes]
@@ -52,31 +30,23 @@ public partial class UIPageRouter : MonoBehaviour
     public ReadOnlyReactiveProperty<PageId> CurrentPageId => _currentPageId;
 
     private readonly Dictionary<PageId, GameObject> _map = new();
+    private IDisposable _navigateSubscription;
 
     /// <summary>
     /// ページ定義から内部マップを構築し、初期状態では全ページを非表示にする。
     /// </summary>
-    private void Awake()
+    private void Start()
     {
         _map.Clear();
         foreach (PageEntry page in _pages)
         {
-            if (page.InteractCont == null && page.PageUI == null) continue;
-
-            if (page.PageUI != null)
-            {
-                SetDictionary(page, page.PageUI);
-            }
-            else if (page.InteractCont != null)
-            {
-                SetDictionary(page, page.InteractCont);
-            }         
+            if (page.PageUI != null) SetDictionary(page, page.PageUI);
         }
     }
 
-    private void SetDictionary(PageEntry page, Component obj)
+    private void SetDictionary(PageEntry page, GameObject obj)
     {
-        if (obj is IInjectPageRouter router) router.SetNavigate(Router.Default);
+        if (obj.TryGetComponent(out IInjectPageRouter router)) router.SetNavigate(Router.Default);
 
         _map[page.Id] = obj.gameObject;
 
@@ -106,6 +76,9 @@ public partial class UIPageRouter : MonoBehaviour
         }
         _currentPageId.Value = id;
     }
+
+    private void OnEnable() => _navigateSubscription = this.MapTo(Router.Default);
+    private void OnDisable() => _navigateSubscription?.Dispose();
 }
 
 public interface IInjectPageRouter

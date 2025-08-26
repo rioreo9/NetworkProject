@@ -11,11 +11,11 @@ public class ShopPageUI : PageUIBase
     [SerializeField, Required]
     private Button _buy;
 
-    private void Awake()
+    protected override void Initialize()
     {
         _hello.OnClickAsObservable()
-            .Subscribe(_ => PushHello())
-            .AddTo(this);
+           .Subscribe(_ => PushHello())
+           .AddTo(this);
 
         _buy.OnClickAsObservable()
             .Subscribe(_ => PushBuy())

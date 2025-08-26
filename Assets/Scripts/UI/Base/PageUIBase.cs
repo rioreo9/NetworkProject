@@ -25,7 +25,8 @@ public abstract class PageUIBase : MonoBehaviour, IInjectPageRouter
 
     private void Awake()
     {
-        foreach(ButtonEntry button in _buttons)
+        
+        foreach (ButtonEntry button in _buttons)
         {
             if (button.Button == null) continue;
 
@@ -33,7 +34,11 @@ public abstract class PageUIBase : MonoBehaviour, IInjectPageRouter
                 .Subscribe(_ => OnButtonClicked(button.TargetPageId))
                 .AddTo(this);
         }
+
+        Initialize();
     }
+
+    protected abstract void Initialize();
 
     private void OnButtonClicked(PageId targetPageId)
     {

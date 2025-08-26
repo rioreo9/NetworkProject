@@ -9,8 +9,6 @@ public class ProjectInstaller : LifetimeScope
     private GameFlowHandler _gameFlowHandler;
     [SerializeField, Required]
     private WaveHandler _enemyWaveHandler;
-    //[SerializeField, Required]
-    //private UIPageRouter _uiPageRouter;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -19,7 +17,6 @@ public class ProjectInstaller : LifetimeScope
         {
             //購読側（一元的にまとめるクラスが望ましい）
             routing.Map(_gameFlowHandler).As<IGameStateNotice>();
-            //routing.Map(_uiPageRouter);
         });
 
 
@@ -36,8 +33,5 @@ public class ProjectInstaller : LifetimeScope
         builder.RegisterComponentInHierarchy<ShipShieldSystem>();
         builder.RegisterComponentInHierarchy<ShipShieldDurability>();
         builder.RegisterComponentInHierarchy<ShipShieldVisualizer>();
-
-        //builder.RegisterComponentInHierarchy<UIPageRouter>();
-        //builder.RegisterComponentInHierarchy<LoginMenuButton>();
     }
 }
