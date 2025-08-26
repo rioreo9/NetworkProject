@@ -74,7 +74,7 @@ public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
 
         _playerInteractNotice = notice;
 
-        SetAcceseStateLocal(true);
+        SetAccessStateLocal(true);
 
         NetworkAuthorityHelper.ExecuteWithAuthority(
              this,
@@ -95,7 +95,7 @@ public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
     /// </summary>
     private void RequestAccess()
     {
-      SetAcceseStateRemote(true); // リモート側のインタラクション状態を設定
+      SetAccessStateRemote(true); // リモート側のインタラクション状態を設定
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -112,7 +112,7 @@ public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
     /// </summary>
     private void OnLogoutButtonClicked()
     {
-        SetAcceseStateLocal(false);
+        SetAccessStateLocal(false);
 
         NetworkAuthorityHelper.ExecuteWithAuthority(
            this,
@@ -126,7 +126,7 @@ public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
     /// </summary>
     private void RequestLogout()
     {
-        SetAcceseStateRemote(false); // リモート側のインタラクション状態を設定
+        SetAccessStateRemote(false); // リモート側のインタラクション状態を設定
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -141,21 +141,21 @@ public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
     /// <summary>
     /// ローカル側のアクセス状態を切り替える（UI有効化とカメラ優先度）。
     /// </summary>
-    /// <param name="isAccese">有効にするか</param>
-    private void SetAcceseStateLocal(bool isAccese)
+    /// <param name="isAccessActive">有効にするか</param>
+    private void SetAccessStateLocal(bool isAccessActive)
     {
-        _loginButton.interactable = isAccese;// ログインボタンを有効化
-        _logoutButton.interactable = isAccese; // ログアウトボタンを有効化
-        _playerInteractNotice?.RPC_SetControllerInteracting(isAccese); // インタラクション状態を設定
+        _loginButton.interactable = isAccessActive;// ログインボタンを有効化
+        _logoutButton.interactable = isAccessActive; // ログアウトボタンを有効化
+        _playerInteractNotice?.RPC_SetControllerInteracting(isAccessActive); // インタラクション状態を設定
 
-        _cinemachineCamera.Priority = isAccese ? _loginButtonPriority : 0; // ログイン時は優先度を設定、ログアウト時はリセット
+        _cinemachineCamera.Priority = isAccessActive ? _loginButtonPriority : 0; // ログイン時は優先度を設定、ログアウト時はリセット
     }
 
     /// <summary>
     /// リモート（共有）側のアクセス状態を切り替える。
     /// </summary>
     /// <param name="isAccese">有効にするか</param>
-    private void SetAcceseStateRemote(bool isAccese)
+    private void SetAccessStateRemote(bool isAccese)
     {
         HasInteractor = isAccese; // インタラクション変更
     }
