@@ -14,8 +14,11 @@ public class PlayerInteractionController : NetworkBehaviour
 
     private readonly RaycastHit[] _raycastResults = new RaycastHit[8]; // GC削減用配列
 
+    private Transform _cameraTransform;
+
     private PlayerCameraController _cameraController;
     private PlayerToolController _toolManager;
+    private CenterReticleUI _centerReticleUI;
 
     /// <summary>
     /// 初期化処理
@@ -24,6 +27,7 @@ public class PlayerInteractionController : NetworkBehaviour
     {
         _cameraController = cameraController;
         _toolManager = toolManager;
+        _cameraTransform = _cameraController.GetCameraTransform();
     }
 
     /// <summary>
@@ -46,13 +50,12 @@ public class PlayerInteractionController : NetworkBehaviour
     /// </summary>
     private void UseCurrentTool()
     {
-        Transform cameraTransform = _cameraController.GetCameraTransform();
-        if (cameraTransform == null) return;
+        if (_cameraTransform == null) return;
 
         // ツール専用のレイキャスト処理
         if (Physics.Raycast(
-            cameraTransform.position,
-            cameraTransform.forward,
+            _cameraTransform.position,
+            _cameraTransform.forward,
             out RaycastHit hit,
             _interactRange,
             _toolManager.CurrentTool.layerMask))
@@ -66,13 +69,12 @@ public class PlayerInteractionController : NetworkBehaviour
     /// </summary>
     private void ProcessInteractionTargets()
     {
-        Transform cameraTransform = _cameraController.GetCameraTransform();
-        if (cameraTransform == null) return;
+        if (_cameraTransform == null) return;
 
         // 距離制限付きレイキャスト（GC削減のため配列を再利用）
         int hitCount = Physics.RaycastNonAlloc(
-            cameraTransform.position,
-            cameraTransform.forward,
+            _cameraTransform.position,
+            _cameraTransform.forward,
             _raycastResults,
             _interactRange,
             _interactableLayerMask
@@ -140,4 +142,49 @@ public class PlayerInteractionController : NetworkBehaviour
         }
         return true;
     }
+
+    public void ProbeInteractionTarget()
+    {
+        if (_centerReticleUI == null) return;
+
+        if (_cameraTransform == null) return;
+
+        // 距離制限付きレイキャスト（GC削減のため配列を再利用）
+        int hitCount = Physics.RaycastNonAlloc(
+            _cameraTransform.position,
+            _cameraTransform.forward,
+            _raycastResults,
+            _interactRange,
+            _interactableLayerMask
+        );
+
+        // 最も近いヒットを処理
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = _raycastResults[i];
+            if (hit.collider == null) continue;
+            // インタラクションタイプ別処理
+            if (hit.collider.TryGetComponent<IInteractableButton>(out IInteractableButton button))
+            {
+               
+            }
+        }
+    }
+
+    //private bool TryGetMarkFromHit(RaycastHit hit, out ReticleType type)
+    //{
+    //    type = ReticleType.Default;
+
+    //    Collider collider = hit.collider;
+
+    //    if (collider.TryGetComponent<IInteractableButton>(out IInteractableButton button))
+    //    {
+    //        if (button.IsInteractable)
+    //        {
+    //            type = ReticleType.Button;
+    //            return true;
+    //        }
+    //    }
+    //}
+          
 }
