@@ -20,6 +20,8 @@ public class PlayerInteractionController : NetworkBehaviour
     private PlayerToolController _toolManager;
     private CenterReticleUI _centerReticleUI;
 
+    private Collider _currentMarkedCollider = null;
+
     /// <summary>
     /// 初期化処理
     /// </summary>
@@ -28,6 +30,8 @@ public class PlayerInteractionController : NetworkBehaviour
         _cameraController = cameraController;
         _toolManager = toolManager;
         _cameraTransform = _cameraController.GetCameraTransform();
+
+        _centerReticleUI = FindFirstObjectByType<CenterReticleUI>();
     }
 
     /// <summary>
@@ -128,7 +132,7 @@ public class PlayerInteractionController : NetworkBehaviour
         collider.TryGetComponent(out GunEmplacementController gunEmplacementController);
         collider.TryGetComponent(out BaseInteractContObject baseInteractCont);
 
-        if(gunEmplacementController == null && baseInteractCont == null) return false;
+        if (gunEmplacementController == null && baseInteractCont == null) return false;
 
         if (gunEmplacementController != null)
         {
@@ -136,7 +140,7 @@ public class PlayerInteractionController : NetworkBehaviour
             gunEmplacementController.SetPlayerRef(Object.InputAuthority);
         }
 
-        if(baseInteractCont != null)
+        if (baseInteractCont != null)
         {
             baseInteractCont.Access(_playerStatus);
         }
@@ -158,33 +162,42 @@ public class PlayerInteractionController : NetworkBehaviour
             _interactableLayerMask
         );
 
+        if (hitCount == 0)
+        {
+            _centerReticleUI.GetReticleIcon(null);
+            return;
+        }
+
         // 最も近いヒットを処理
         for (int i = 0; i < hitCount; i++)
         {
             RaycastHit hit = _raycastResults[i];
             if (hit.collider == null) continue;
+            if (hit.collider == _currentMarkedCollider) continue;
             // インタラクションタイプ別処理
-            if (hit.collider.TryGetComponent<IInteractableButton>(out IInteractableButton button))
-            {
-               
-            }
+            Debug.Log("Hit: " + hit.collider.name);
+            TryGetMarkFromHit(hit.collider);
         }
     }
 
-    //private bool TryGetMarkFromHit(RaycastHit hit, out ReticleType type)
-    //{
-    //    type = ReticleType.Default;
+    private void TryGetMarkFromHit(Collider hit)
+    {
+        if (hit == null) return;
 
-    //    Collider collider = hit.collider;
-
-    //    if (collider.TryGetComponent<IInteractableButton>(out IInteractableButton button))
-    //    {
-    //        if (button.IsInteractable)
-    //        {
-    //            type = ReticleType.Button;
-    //            return true;
-    //        }
-    //    }
-    //}
-          
+        if (hit.TryGetComponent<BaseInteractButtonObject>(out BaseInteractButtonObject button))
+        {
+            _centerReticleUI.GetReticleIcon(button);
+            _currentMarkedCollider = hit;
+        }
+        else if (hit.TryGetComponent<BaseInteractContObject>(out BaseInteractContObject cont))
+        {
+            _centerReticleUI.GetReticleIcon(cont);
+            _currentMarkedCollider = hit;
+        }
+        else if (hit.TryGetComponent<BasePickUpToolObject>(out BasePickUpToolObject tool))
+        {
+            _centerReticleUI.GetReticleIcon(tool);
+            _currentMarkedCollider = hit;
+        }
+    }
 }

@@ -13,7 +13,6 @@ public enum ReticleType
 
 public class CenterReticleUI : MonoBehaviour
 {
-    [SerializeField, Required] private CanvasGroup _canvasGroup;
     [SerializeField, Required] private Image _reticleImage;
 
     [Header("レティクルアイコン")]
@@ -21,30 +20,34 @@ public class CenterReticleUI : MonoBehaviour
     [SerializeField, Required]  private Sprite _buttonSprite;
     [SerializeField, Required] private Sprite _gunSprite;
     [SerializeField, Required] private Sprite _toolSprite;
-    [SerializeField, Required] private Sprite _moniterSprite;
+    //[SerializeField, Required] private Sprite _moniterSprite;
 
     [SerializeField] private Color _defaultColor = Color.white;
 
-    public void ShowReticle(ReticleType type)
+    private void ShowReticle(Sprite sprite)
     {
-
+        if (_reticleImage == null) return;
+        _reticleImage.sprite = sprite;
     }
 
-    public void HideReticle()
+    public void GetReticleIcon(Component type)
     {
-        _canvasGroup.alpha = 0;
-    }
+        Sprite sprite = null;
 
-    public Sprite GetReticleIcon(ReticleType type)
-    {
-        return type switch
+        switch (type)
         {
-            ReticleType.Default => _defaultReticleSprite,
-            ReticleType.Button => _buttonSprite,
-            ReticleType.Gun => _gunSprite,
-            ReticleType.Tool => _toolSprite,
-            ReticleType.Monitor => _moniterSprite,
-            _ => _defaultReticleSprite
-        };
+            case  BaseInteractButtonObject t :
+                sprite = _buttonSprite;
+                break;
+            case BaseInteractContObject t:
+                sprite = _gunSprite;
+                break;
+            case BasePickUpToolObject t:
+                sprite = _toolSprite;
+                break;
+        }
+        if(sprite == null) sprite = _defaultReticleSprite;
+
+        ShowReticle(sprite);
     }
 }
