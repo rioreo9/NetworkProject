@@ -48,6 +48,8 @@ public class PlayerAvatarView : NetworkBehaviour
         // カメラ回転処理
         _cameraController.HandleCameraRotation(input.LookInput);
 
+        _interactionController.ProbeInteractionTarget();
+
         // インタラクション処理
         if (input.InteractPressed.IsSet(MyButtons.Interact))
         {

@@ -14,8 +14,13 @@ public class PlayerInteractionController : NetworkBehaviour
 
     private readonly RaycastHit[] _raycastResults = new RaycastHit[8]; // GC削減用配列
 
+    private Transform _cameraTransform;
+
     private PlayerCameraController _cameraController;
     private PlayerToolController _toolManager;
+    private CenterReticleUI _centerReticleUI;
+
+    private Collider _currentMarkedCollider = null;
 
     /// <summary>
     /// 初期化処理
@@ -24,6 +29,9 @@ public class PlayerInteractionController : NetworkBehaviour
     {
         _cameraController = cameraController;
         _toolManager = toolManager;
+        _cameraTransform = _cameraController.GetCameraTransform();
+
+        _centerReticleUI = FindFirstObjectByType<CenterReticleUI>();
     }
 
     /// <summary>
@@ -46,13 +54,12 @@ public class PlayerInteractionController : NetworkBehaviour
     /// </summary>
     private void UseCurrentTool()
     {
-        Transform cameraTransform = _cameraController.GetCameraTransform();
-        if (cameraTransform == null) return;
+        if (_cameraTransform == null) return;
 
         // ツール専用のレイキャスト処理
         if (Physics.Raycast(
-            cameraTransform.position,
-            cameraTransform.forward,
+            _cameraTransform.position,
+            _cameraTransform.forward,
             out RaycastHit hit,
             _interactRange,
             _toolManager.CurrentTool.layerMask))
@@ -66,13 +73,12 @@ public class PlayerInteractionController : NetworkBehaviour
     /// </summary>
     private void ProcessInteractionTargets()
     {
-        Transform cameraTransform = _cameraController.GetCameraTransform();
-        if (cameraTransform == null) return;
+        if (_cameraTransform == null) return;
 
         // 距離制限付きレイキャスト（GC削減のため配列を再利用）
         int hitCount = Physics.RaycastNonAlloc(
-            cameraTransform.position,
-            cameraTransform.forward,
+            _cameraTransform.position,
+            _cameraTransform.forward,
             _raycastResults,
             _interactRange,
             _interactableLayerMask
@@ -126,7 +132,7 @@ public class PlayerInteractionController : NetworkBehaviour
         collider.TryGetComponent(out GunEmplacementController gunEmplacementController);
         collider.TryGetComponent(out BaseInteractContObject baseInteractCont);
 
-        if(gunEmplacementController == null && baseInteractCont == null) return false;
+        if (gunEmplacementController == null && baseInteractCont == null) return false;
 
         if (gunEmplacementController != null)
         {
@@ -134,10 +140,69 @@ public class PlayerInteractionController : NetworkBehaviour
             gunEmplacementController.SetPlayerRef(Object.InputAuthority);
         }
 
-        if(baseInteractCont != null)
+        if (baseInteractCont != null)
         {
             baseInteractCont.Access(_playerStatus);
         }
         return true;
+    }
+
+    public void ProbeInteractionTarget()
+    {
+        if (_centerReticleUI == null) return;
+
+        if (_cameraTransform == null) return;
+
+        // 距離制限付きレイキャスト（GC削減のため配列を再利用）
+        int hitCount = Physics.RaycastNonAlloc(
+            _cameraTransform.position,
+            _cameraTransform.forward,
+            _raycastResults,
+            _interactRange,
+            _interactableLayerMask
+        );
+
+        if (hitCount == 0)
+        {
+            _centerReticleUI.GetReticleIcon(null);
+            _currentMarkedCollider = null;
+            return;
+        }
+
+        // 最も近いヒットを処理
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = _raycastResults[i];
+            if (hit.collider == null) continue;
+            if (hit.collider == _currentMarkedCollider) continue;
+            // インタラクションタイプ別処理
+            
+            TryGetMarkFromHit(hit.collider);
+        }
+    }
+
+    /// <summary>
+    /// ヒットからマークを取得
+    /// </summary>
+    /// <param name="hit"></param>
+    private void TryGetMarkFromHit(Collider hit)
+    {
+        if (hit == null) return;
+
+        if (hit.TryGetComponent<BaseInteractButtonObject>(out BaseInteractButtonObject button))
+        {
+            _centerReticleUI.GetReticleIcon(button);
+            _currentMarkedCollider = hit;
+        }
+        else if (hit.TryGetComponent<BaseInteractContObject>(out BaseInteractContObject cont))
+        {
+            _centerReticleUI.GetReticleIcon(cont);
+            _currentMarkedCollider = hit;
+        }
+        else if (hit.TryGetComponent<BasePickUpToolObject>(out BasePickUpToolObject tool))
+        {
+            _centerReticleUI.GetReticleIcon(tool);
+            _currentMarkedCollider = hit;
+        }
     }
 }
