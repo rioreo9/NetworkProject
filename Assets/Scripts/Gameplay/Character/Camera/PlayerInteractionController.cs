@@ -165,6 +165,7 @@ public class PlayerInteractionController : NetworkBehaviour
         if (hitCount == 0)
         {
             _centerReticleUI.GetReticleIcon(null);
+            _currentMarkedCollider = null;
             return;
         }
 
@@ -175,11 +176,15 @@ public class PlayerInteractionController : NetworkBehaviour
             if (hit.collider == null) continue;
             if (hit.collider == _currentMarkedCollider) continue;
             // インタラクションタイプ別処理
-            Debug.Log("Hit: " + hit.collider.name);
+            
             TryGetMarkFromHit(hit.collider);
         }
     }
 
+    /// <summary>
+    /// ヒットからマークを取得
+    /// </summary>
+    /// <param name="hit"></param>
     private void TryGetMarkFromHit(Collider hit)
     {
         if (hit == null) return;
