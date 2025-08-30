@@ -6,34 +6,67 @@ using UnityEngine;
 public class InteractiveSensor : BaseInteractButtonObject
 {
     [SerializeField, Required]
-    private NetworkMecanimAnimator _animator; // スイッチのアニメーター
-    [SerializeField]
-    private LayerMask _playerLayer = 1; // 地面レイヤー
-    [SerializeField]
-    private Vector3 _checkSnesorRange = new Vector3(0.3f, 0.1f, 0.3f);
+    private Animator _animator; // スイッチのアニメーター
     [SerializeField]
     private bool _autoClose = true; // プレイヤーが範囲外に出た時に自動で閉じるか
-
-    private readonly Collider[] _detectedPlayers = new Collider[4]; // 検知されたプレイヤー配列
+    [SerializeField]
+    private float _autoCloseDelay = 2.0f;
 
     [Networked, OnChangedRender(nameof(DoAction))]
     public bool IsActive { private set; get; }
 
-    private const string MOVE_ON_PARAM = "MoveOn"; // アニメーションパラメータ名
+    [Networked]
+    public int PlayersInRange { private set; get; }
+
+    private TickTimer _autoCloseTimer;
+    private const string MOVE_ON_PARAM = "IsOpen"; // アニメーションパラメータ名
 
 
+
+    // OnTriggerEnter/Exitを使用した軽量な実装
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!Object.HasStateAuthority) return;
+        if (!other.CompareTag("Player")) return;
+
+        PlayersInRange++;
+        
+        if (!IsActive)
+        {
+            ToggleSwitch();
+        }
+        
+        if (_autoCloseTimer.IsRunning)
+        {
+            _autoCloseTimer = TickTimer.None;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        Debug.Log("OnTriggerExit");
+
+        if (!Object.HasStateAuthority) return;
+        if (!other.CompareTag("Player")) return;
+
+        PlayersInRange = Mathf.Max(0, PlayersInRange - 1);
+        
+        if (_autoClose && PlayersInRange == 0 && IsActive)
+        {
+            _autoCloseTimer = TickTimer.CreateFromSeconds(Runner, _autoCloseDelay);
+        }
+    }
 
     public override void FixedUpdateNetwork()
     {
-       Physics.BoxCastNonAlloc(
-            transform.position,
-            _checkSnesorRange,
-            Vector3.forward,
-            Array.Empty<RaycastHit>(),
-            Quaternion.identity,
-            0.1f,
-            _playerLayer
-        );
+        if (!Object.HasStateAuthority) return;
+        
+        // 自動で閉じる処理のみ
+        if (_autoCloseTimer.Expired(Runner))
+        {
+            ToggleSwitch();
+            _autoCloseTimer = TickTimer.None;
+        }
     }
 
     /// <summary>
@@ -72,6 +105,6 @@ public class InteractiveSensor : BaseInteractButtonObject
 
     private void DoAction()
     {
-        _animator.SetTrigger(MOVE_ON_PARAM);
+        _animator.SetBool(MOVE_ON_PARAM, IsActive);
     }
 }
