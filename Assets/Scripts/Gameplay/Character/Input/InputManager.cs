@@ -87,7 +87,6 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     {
         _jumpPressed = false;
         _interactPressed = false;
-        _isAttackPressed = false;
         _isDropPressed = false; // ドロップボタンのリセット
     }
 
@@ -141,9 +140,15 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     /// <summary>攻撃入力コールバック（左クリック、RTトリガー）</summary>
     public void OnAttack(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.started || context.performed)
         {
+            // ボタンが押された瞬間、または押し続けている間
             _isAttackPressed = true;
+        }
+        else if (context.canceled)
+        {
+            // ボタンが離された瞬間
+            _isAttackPressed = false;
         }
     }
 
