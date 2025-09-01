@@ -6,20 +6,15 @@ using Fusion;
 /// </summary>
 public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractableControllable
 {
-    // インタラクトできるかどうかのフラグ
-    protected bool _isInteractable = false;
-
+    [Networked]
     /// <summary>
     /// インタラクトできるかどうかのフラグ
     /// </summary>
-    public bool IsInteractable { get => _isInteractable; set => _isInteractable = value; }
+    public bool IsInteractable { get; protected set; } = false;
 
     /// <summary>
     /// そのオブジェクトをコントロールするためのメソッド
     /// </summary>
     /// <param name="networkInput">Networkに対応したInput</param>
-    public abstract void ControlObject();
-
-   
+    public abstract void AccesObject(PlayerRef player, INoticePlayerInteract status);
 }
-
