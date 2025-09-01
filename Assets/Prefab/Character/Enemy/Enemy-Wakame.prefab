@@ -368,8 +368,8 @@ MonoBehaviour:
   _maxHealth: 100
   _moveSpeed: 3
   _attackDamage: 10
-  _visionRange: 20
-  _attackRange: 6
+  _visionRange: 1000
+  _attackRange: 1000
   _targetMask:
     serializedVersion: 2
     m_Bits: 512
