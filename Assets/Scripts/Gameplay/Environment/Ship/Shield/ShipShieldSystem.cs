@@ -17,7 +17,7 @@ public enum ShieldState
 
 public class ShipShieldSystem : NetworkBehaviour, IShieldBreakable
 {
-    [SerializeField]
+    [SerializeField,Required]
     private GameObject _shieldVisual; // シールドのビジュアルオブジェクト
 
     [Networked, OnChangedRender(nameof(UpdateShieldActive))]
@@ -33,11 +33,19 @@ public class ShipShieldSystem : NetworkBehaviour, IShieldBreakable
     {
         if (!Object.HasStateAuthority || CurrentShieldState == ShieldState.Broken)
         {
-            return; // サーバー権限がない場合は何もしない
+            RPC_ToggleShield();
         }
-
-      CurrentShieldState = CurrentShieldState ==
+        else
+        {
+            CurrentShieldState = CurrentShieldState ==
             ShieldState.Active ? ShieldState.Inactive : ShieldState.Active;
+        }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_ToggleShield()
+    {
+        ToggleShield();
     }
 
     public void BreakShield()

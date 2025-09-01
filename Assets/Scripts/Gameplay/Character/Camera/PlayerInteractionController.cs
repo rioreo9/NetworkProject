@@ -1,4 +1,5 @@
 using Fusion;
+
 using UnityEngine;
 
 /// <summary>
@@ -129,15 +130,15 @@ public class PlayerInteractionController : NetworkBehaviour
     private bool TryInteractWithGunEmplacement(Collider collider)
     {
 
-        collider.TryGetComponent(out GunEmplacementController gunEmplacementController);
+        collider.TryGetComponent(out GunSystem gunSystem);
         collider.TryGetComponent(out BaseInteractContObject baseInteractCont);
 
-        if (gunEmplacementController == null && baseInteractCont == null) return false;
+        if (gunSystem == null && baseInteractCont == null) return false;
 
-        if (gunEmplacementController != null)
+        if (gunSystem != null)
         {
-            gunEmplacementController.Object.RequestStateAuthority();
-            gunEmplacementController.SetPlayerRef(Object.InputAuthority);
+            gunSystem.Object.RequestStateAuthority();
+            gunSystem.AccesObject(Object.InputAuthority, _playerStatus);
         }
 
         if (baseInteractCont != null)
@@ -176,7 +177,7 @@ public class PlayerInteractionController : NetworkBehaviour
             if (hit.collider == null) continue;
             if (hit.collider == _currentMarkedCollider) continue;
             // インタラクションタイプ別処理
-            
+
             TryGetMarkFromHit(hit.collider);
         }
     }

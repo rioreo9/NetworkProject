@@ -19,7 +19,9 @@ public enum ChangeStateType
     PreparationEnd,
     WavePhaseEnd,
     WavePhaseComplete,
-    UpgradePhaseEnd,  
+    UpgradePhaseEnd,
+    GameOverStart,
+    VictoryStart
 }
 
 public readonly struct GameStateChangeCommand : ICommand
@@ -60,6 +62,8 @@ public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
     private void UpdateGameState()
     {
         _gameStateRP.Value = CurrentGameState;
+
+        Debug.Log($"[GameFlowHandler] Game state changed to: {CurrentGameState}");
     }
 
     /// <summary>
@@ -78,6 +82,12 @@ public partial class GameFlowHandler : NetworkBehaviour, IGameStateNotice
                 break;
             case ChangeStateType.UpgradePhaseEnd:
                 RPC_SetGameState(GameState.WaveAction);
+                break;
+            case ChangeStateType.GameOverStart:
+                RPC_SetGameState(GameState.GameOver);
+                break;
+            case ChangeStateType.VictoryStart:
+                RPC_SetGameState(GameState.Victory);
                 break;
         }
     }

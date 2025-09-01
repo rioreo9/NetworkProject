@@ -1,25 +1,35 @@
 using Fusion;
+
 using UnityEngine;
 
-public class GunEmplacementController : NetworkBehaviour
+public class GunSystem : BaseInteractControlObject
 {
+    [SerializeField, Required]
+    private GunEmplacementController _gunEmplacementController = default;
+
+    [SerializeField, Required]
+    private GunFireControl _gunFireControl = default;
+
     public override void FixedUpdateNetwork()
     {
         if (!GetInput(out PlayerNetworkInput input)) return;
-       
-        DoRotation(input);
+
+        _gunEmplacementController.DoRotation(input);
+
+        // 修正: AttackPressed.IsPressed → AttackPressed.IsSet(0) など、ボタンが押されているか判定
+        _gunFireControl.Fire(_gunEmplacementController.transform, input.AttackPressed.IsSet(MyButtons.Attack));
     }
 
     /// <summary>
     /// プレイヤーの操作を挿入設定するメソッド
     /// </summary>
     /// <param name="player"></param>
-    public void SetPlayerRef(PlayerRef player)
+    public override void AccesObject(PlayerRef player, INoticePlayerInteract status)
     {
         //変更権限の有無
         if (Object.HasStateAuthority)
         {
-            SetPlayerInputForce(player);    
+            SetPlayerInputForce(player);
         }
         else
         {
@@ -42,14 +52,5 @@ public class GunEmplacementController : NetworkBehaviour
         // 権限がある場合は直接設定
         Object.AssignInputAuthority(player);
     }
-
-    private void DoRotation(PlayerNetworkInput input)
-    {
-        Vector3 cameraDirection = input.CameraForwardDirection;
-
-        // 正規化してからキャラクターの回転を設定
-        cameraDirection.Normalize();
-
-        transform.rotation = Quaternion.LookRotation(cameraDirection);
-    }
 }
+

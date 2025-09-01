@@ -26,6 +26,8 @@ public class ProjectInstaller : LifetimeScope
         {
             builder.RegisterComponent(_enemyWaveHandler);
         }
+        builder.RegisterComponentInHierarchy<ShipController>();
+
         builder.RegisterComponentInHierarchy<UpgradePhaseEndButton>();
         builder.RegisterComponentInHierarchy<PreparationEndButton>();
 
