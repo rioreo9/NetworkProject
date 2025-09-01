@@ -106,6 +106,10 @@ public class WaveHandler : NetworkBehaviour
         if (_currentWaveIndex >= _waveConfiguration.Waves.Length)
         {
             Debug.Log("All waves cleared! Victory!");
+
+            // ゲームの勝利状態へ移行
+            _publisher.PublishAsync
+                (new GameStateChangeCommand(ChangeStateType.VictoryStart));
         }
         else
         {

@@ -16,6 +16,8 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField, Required]
     private NetworkPrefabRef _player;
     [SerializeField, Required]
+    private Transform _shipTransform = default;
+    [SerializeField, Required]
     private InputManager _inputManager;
     [SerializeField, Required]
     private string _sesionName = "Test";
@@ -114,6 +116,7 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
         {
             // 自分自身のアバターをスポーンする
             var spawnedObject = runner.Spawn(_player, spawnPosition, Quaternion.identity, player);
+            spawnedObject.transform.SetParent(_shipTransform, true);
 
             // プレイヤー（PlayerRef）とアバター（spawnedObject）を関連付ける
             runner.SetPlayerObject(player, spawnedObject);

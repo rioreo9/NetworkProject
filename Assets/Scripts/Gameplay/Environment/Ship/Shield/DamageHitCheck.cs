@@ -4,6 +4,12 @@ using UnityEngine;
 
 public interface IDamageNotifiable
 {
+    /// <summary>
+    /// ダメージを受け取る
+    /// </summary>
+    /// <param name="damage"></param>
+    /// <param name="hitPoint"></param>
+    /// <param name="hitDirection"></param>
     void TakeDamage(float damage, Vector3 hitPoint, Vector3 hitDirection);
 }
 
