@@ -6272,6 +6272,7 @@ GameObject:
   - component: {fileID: 8963225229369451650}
   - component: {fileID: 1002973392250817858}
   - component: {fileID: 2191021062897394679}
+  - component: {fileID: 6060416070122051560}
   m_Layer: 0
   m_Name: Wall_Door_Small_02
   m_TagString: Untagged
@@ -6416,6 +6417,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1.7, z: 3}
   m_Center: {x: -0.5, y: 5.2, z: 1.5}
+--- !u!95 &6060416070122051560
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3313376127805867575}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 736741fd4f0102348a52617d41860fdc, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &3494569531945764189
 GameObject:
   m_ObjectHideFlags: 0
@@ -6538,6 +6561,7 @@ GameObject:
   - component: {fileID: 8216596233023641027}
   - component: {fileID: 2655111365820042601}
   - component: {fileID: 952275836308579451}
+  - component: {fileID: 6175605410244482012}
   m_Layer: 0
   m_Name: Wall_Door_Small_02 (1)
   m_TagString: Untagged
@@ -6682,6 +6706,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1.7, z: 3}
   m_Center: {x: -0.5, y: 5.2, z: 1.5}
+--- !u!95 &6175605410244482012
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3610186210793750482}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 736741fd4f0102348a52617d41860fdc, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &3630430638093025752
 GameObject:
   m_ObjectHideFlags: 0
@@ -9436,6 +9482,7 @@ GameObject:
   - component: {fileID: 2159211208125588680}
   - component: {fileID: 8835920157854359999}
   - component: {fileID: 375149777540792502}
+  - component: {fileID: 9185100582954816664}
   m_Layer: 0
   m_Name: Wall_Door_Small_02 (2)
   m_TagString: Untagged
@@ -9580,6 +9627,28 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1.7, z: 3}
   m_Center: {x: -0.5, y: 5.2, z: 1.5}
+--- !u!95 &9185100582954816664
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5151096386936878087}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 736741fd4f0102348a52617d41860fdc, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &5167466128139365429
 GameObject:
   m_ObjectHideFlags: 0
