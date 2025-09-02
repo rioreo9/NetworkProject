@@ -144,7 +144,6 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 6974525430060570663}
   - {fileID: 3927672070602665715}
   - {fileID: -8184554788746790047}
   - {fileID: 2837158426747064529}
@@ -178,6 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0559d3898fd24140bb3bda8848e014d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _IsInteractable: 0
   _gunEmplacementController: {fileID: 6974525430060570663}
   _gunFireControl: {fileID: 2837158426747064529}
 --- !u!114 &2837158426747064529

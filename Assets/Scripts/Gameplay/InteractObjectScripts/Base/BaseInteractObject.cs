@@ -17,4 +17,6 @@ public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractabl
     /// </summary>
     /// <param name="networkInput">Networkに対応したInput</param>
     public abstract void AccesObject(PlayerRef player, INoticePlayerInteract status);
+
+    protected abstract void ReleseObject(INoticePlayerInteract status);
 }
