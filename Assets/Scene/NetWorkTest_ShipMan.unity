@@ -1720,9 +1720,7 @@ MonoBehaviour:
   - Button: {fileID: 987987926}
     TargetPageId: 4
   _wakame: {fileID: 1954207293}
-  _wakamePoint: {fileID: 954844441}
   _seaWeed: {fileID: 188084216}
-  _seaWeedPoint: {fileID: 1751393237}
   _shipHandle:
     _reference: {fileID: 2141466669}
 --- !u!1 &718314545
@@ -7425,6 +7423,7 @@ MonoBehaviour:
   rotationSpeed: 10
   waypointReachDistance: 0.5
   rotationThreshold: 1
+  __currentWaypoint: {x: 0, y: 0, z: 0}
 --- !u!114 &2141466669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7437,6 +7436,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bab7f8c51258a7f4485605f1e0198c9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _availableWaypoints:
+  - {fileID: 954844441}
+  - {fileID: 1751393237}
   _ShipHealth: 100
   _IsDestroyed: 0
 --- !u!114 &2141466670

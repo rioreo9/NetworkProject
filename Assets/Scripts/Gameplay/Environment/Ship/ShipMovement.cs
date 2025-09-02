@@ -18,8 +18,8 @@ public class ShipMovement : NetworkBehaviour
     private bool _isMoving = false;
     private bool _isRotating = false;
 
-    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_SetWayPoint(Vector3 nextPoint)
+    // 次の目標地点を設定するRPC
+    public void SetWayPoint(Vector3 nextPoint)
     {
         _currentWaypoint = nextPoint;
         _isMoving = true;
@@ -28,7 +28,7 @@ public class ShipMovement : NetworkBehaviour
 
     public void DoMove()
     {
-        if (_currentWaypoint == null || !_isMoving) return;
+        if (_currentWaypoint == Vector3.zero || !_isMoving) return;
 
         // 目標地点への方向を計算
         Vector3 directionToWaypoint = (_currentWaypoint - transform.position).normalized;
@@ -74,7 +74,7 @@ public class ShipMovement : NetworkBehaviour
     // 目標地点までの距離を取得
     public float GetDistanceToWaypoint()
     {
-        if (_currentWaypoint == null) return float.MaxValue;
+        if (_currentWaypoint == Vector3.zero) return float.MaxValue;
         return Vector3.Distance(transform.position, _currentWaypoint);
     }
 

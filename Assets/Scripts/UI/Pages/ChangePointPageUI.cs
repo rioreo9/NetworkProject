@@ -8,13 +8,9 @@ public class ChangePointPageUI : PageUIBase
     [Header("目的地")]
     [SerializeField, Required]
     private Button _wakame;
-    [SerializeField, Required]
-    private Transform _wakamePoint;
 
     [SerializeField, Required]
     private Button _seaWeed;
-    [SerializeField, Required]
-    private Transform _seaWeedPoint;
 
     [SerializeField, Required]
     private InterfaceReference<IShipWaypointHandler> _shipHandle;
@@ -34,10 +30,10 @@ public class ChangePointPageUI : PageUIBase
 
     private void PushWakame()
     {
-        _shipHandle.Value?.SetNextWaypoint(_wakamePoint);
+        _shipHandle.Value?.RPC_SetNextWaypoint();
     }
     private void PushSeaWeed()
     {
-        _shipHandle.Value?.SetNextWaypoint(_seaWeedPoint);
+        _shipHandle.Value?.RPC_SetNextWaypoint();
     }
 }

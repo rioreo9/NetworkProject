@@ -1,13 +1,20 @@
-using System;
-using UnityEngine;
 using Fusion;
 using R3;
+using System.Collections.Generic;
+using UnityEngine;
 using VContainer;
 using VitalRouter;
 
 [RequireComponent(typeof(ShipMovement))]
 public class ShipController : NetworkBehaviour, IDamageNotifiable, IShipWaypointHandler
 {
+    [Header("目的地管理")]
+    [SerializeField]
+    private List<Transform> _availableWaypoints = new();
+
+    [Networked]
+    public int CurrentWaypointIndex { get; private set; } = 0;
+
     /// <summary>
     /// 戦艦のHP
     /// </summary>
@@ -20,7 +27,7 @@ public class ShipController : NetworkBehaviour, IDamageNotifiable, IShipWaypoint
     [Networked]
     public bool IsDestroyed { get; private set; } = false;
 
-   
+
 
     /// <summary>
     /// HPのReactiveProperty
@@ -61,9 +68,13 @@ public class ShipController : NetworkBehaviour, IDamageNotifiable, IShipWaypoint
         _shipMovement?.DoMove();
     }
 
-    public void SetNextWaypoint(Transform nextWaypoint)
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_SetNextWaypoint()
     {
-        _shipMovement?.RPC_SetWayPoint(nextWaypoint.position);
+        if (!HasStateAuthority || _availableWaypoints.Count == 0) return;
+
+        _shipMovement?.SetWayPoint(_availableWaypoints[CurrentWaypointIndex].position);
+        CurrentWaypointIndex = (CurrentWaypointIndex + 1) % _availableWaypoints.Count;
     }
 
     public void TakeDamage(float damage, Vector3 hitPoint, Vector3 hitDirection)
