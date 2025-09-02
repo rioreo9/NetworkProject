@@ -19,7 +19,7 @@ public class InteractiveSensor : BaseInteractButtonObject
     public int PlayersInRange { private set; get; }
 
     private TickTimer _autoCloseTimer;
-    private const string MOVE_ON_PARAM = "IsOpen"; // アニメーションパラメータ名
+    private const string MOVE_ON_PARAM = "isOpen"; // アニメーションパラメータ名
 
 
 
