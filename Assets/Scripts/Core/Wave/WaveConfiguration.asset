@@ -22,7 +22,7 @@ MonoBehaviour:
     - {fileID: 279985919380735688, guid: c5d85d53c4b9b8945a39f020f3884db5, type: 3}
     - {fileID: 279985919380735688, guid: c5d85d53c4b9b8945a39f020f3884db5, type: 3}
     - {fileID: 279985919380735688, guid: c5d85d53c4b9b8945a39f020f3884db5, type: 3}
-    _waveDuration: 30
+    _waveDuration: 100
   - _waveIndex: 0
     _enemyCount: 0
     _spawnInterval: 0
