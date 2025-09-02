@@ -6,6 +6,8 @@ public enum PageId
     None,
     Shop,
     Menu,
+    ChangePoint,
+    SelectMenu
 }
 
 public readonly struct NavigateToPageCommand : ICommand
