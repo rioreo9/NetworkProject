@@ -12,6 +12,8 @@ public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractabl
     /// </summary>
     public bool IsInteractable { get; protected set; } = false;
 
+   
+
     /// <summary>
     /// そのオブジェクトをコントロールするためのメソッド
     /// </summary>

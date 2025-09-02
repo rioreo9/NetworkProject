@@ -28,6 +28,11 @@ public class GunSystem : BaseInteractControlObject
     // 現在操作しているプレイヤーの状態を保持する変数
     private INoticePlayerInteract _currentPlayerStatus = null;
 
+    public override void Spawned()
+    {
+        IsInteractable = true; // 初期状態ではインタラクト可能
+    }
+
     /// <summary>
     /// ネットワーク固定更新処理
     /// プレイヤーの入力を受け取り、砲塔の回転と射撃を制御
@@ -40,15 +45,17 @@ public class GunSystem : BaseInteractControlObject
             return;
         }
 
+        Debug.Log(IsInteractable);
+
         // インタラクトボタンが押された場合は操作を終了
-        if (input.InteractPressed.IsSet(MyButtons.Interact))
+        if (!IsInteractable && input.InteractPressed.IsSet(MyButtons.Interact))
         {
             ReleseObject(_currentPlayerStatus);
             return;
         }
 
         // 砲塔の回転処理
-        //_gunEmplacementController.DoRotation(input);
+        _gunEmplacementController.DoRotation(input);
 
         // 射撃処理 - 攻撃ボタンの状態に基づいて発砲
         _gunFireControl.Fire(_gunEmplacementController.transform, input.AttackPressed.IsSet(MyButtons.Attack));
@@ -62,11 +69,13 @@ public class GunSystem : BaseInteractControlObject
     /// <param name="status">プレイヤーの状態通知インターフェース</param>
     public override void AccesObject(PlayerRef player, INoticePlayerInteract status)
     {
+        Debug.Log("アサイン");
         // ネットワーク権限の有無で処理を分岐
         if (Object.HasStateAuthority)
         {
             // 権限がある場合は直接設定
             SetPlayerInputForce(player);
+            
         }
         else
         {
@@ -74,10 +83,14 @@ public class GunSystem : BaseInteractControlObject
             RPC_RequestOperation(player);
         }
 
+        Debug.Log(_currentPlayerStatus);
+
         // プレイヤーに操作中状態を通知
         status.RPC_SetControllerInteracting(true);
         _currentPlayerStatus = status;
         _cinemachineCamera.Priority = 5;
+
+
     }
 
     /// <summary>
@@ -87,11 +100,14 @@ public class GunSystem : BaseInteractControlObject
     /// <param name="status">プレイヤーの状態通知インターフェース</param>
     protected override void ReleseObject(INoticePlayerInteract status)
     {
+
+
         // ネットワーク権限の有無で処理を分岐
         if (Object.HasStateAuthority)
         {
             // 権限がある場合は直接解除
             ReleasePlayerInputForce();
+            
         }
         else
         {
@@ -102,7 +118,10 @@ public class GunSystem : BaseInteractControlObject
         // プレイヤーに操作終了状態を通知
         status.RPC_SetControllerInteracting(false);
         _currentPlayerStatus = null;
+        Debug.Log(_currentPlayerStatus);
         _cinemachineCamera.Priority = 0;
+
+
     }
 
     /// <summary>
@@ -114,6 +133,7 @@ public class GunSystem : BaseInteractControlObject
     private void RPC_RequestOperation(PlayerRef player)
     {
         SetPlayerInputForce(player);
+        
     }
 
     /// <summary>
@@ -135,6 +155,7 @@ public class GunSystem : BaseInteractControlObject
     {
         // NetworkObjectに入力権限を割り当て
         Object.AssignInputAuthority(player);
+        IsInteractable = false;
     }
 
     /// <summary>
@@ -145,6 +166,7 @@ public class GunSystem : BaseInteractControlObject
     {
         // NetworkObjectから入力権限を削除
         Object.RemoveInputAuthority();
+        IsInteractable = true;
     }
 }
 
