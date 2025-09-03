@@ -43,7 +43,7 @@ public class PlayerAvatarView : NetworkBehaviour
         if (!Object.HasInputAuthority) return;
 
         // ネットワーク入力を取得
-        if (!GetInput(out PlayerNetworkInput input)) return;
+        if (!GetInput(out PlayerNetworkInput input)|| Runner.IsResimulation) return;
 
         // カメラ回転処理
         _cameraController.HandleCameraRotation(input.LookInput);

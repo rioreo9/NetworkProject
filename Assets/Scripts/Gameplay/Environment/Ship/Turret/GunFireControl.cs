@@ -1,21 +1,41 @@
 using Fusion;
 using UnityEngine;
-using Unity.Cinemachine;
 public class GunFireControl : BaseTurret
 {
-    public override void Fire(Transform shotPosition,bool isShot)
+    /// <summary>
+    /// 弾を発射するメソッド
+    /// </summary>
+    /// <param name="shotPosition">発射するPosition</param>
+    /// <param name="isShot">ボタンを押しているかのBool</param>
+    /// <returns>発射できたかどうか</returns>
+    public override bool Fire(Transform shotPosition, bool isShot)
     {
-        if(!isShot) return;
-        Vector3 bulletSpawnPosition = transform.position + shotPosition.forward * 0.5f;
+        if (!isShot)
+        {
+            return false;
+        }
+
+        if (Runner.SimulationTime < _lastFireTime + _fireRate)
+        {
+            return false;
+        }
+
+        // 発射時間を更新
+        _lastFireTime = (float)Runner.SimulationTime;
+
+        Vector3 bulletSpawnPosition = shotPosition.position + shotPosition.forward * 0.5f;
         // 弾丸を生成
         BulletMove bullet = Runner.Spawn(_bulletPrefab, bulletSpawnPosition, Quaternion.identity);
 
         // 弾丸の初期化
-        bullet.Init(_shotPosition.forward);
+        bullet.Init(shotPosition.forward);
+
+        // 発射できたらTrueを返す
+        return true;
     }
 }
 
-public abstract class BaseTurret : NetworkBehaviour, IFireTurret
+public abstract class BaseTurret : NetworkBehaviour
 {
     // アームのGameObject
     [SerializeField, Required]
@@ -25,15 +45,11 @@ public abstract class BaseTurret : NetworkBehaviour, IFireTurret
     [SerializeField, Required]
     protected BulletMove _bulletPrefab = default;
 
-    //シネマシーンカメラ
-    [SerializeField, Required]
-    protected CinemachineCamera _camera = default;
+    // 発射レート（秒)
+    [SerializeField]
+    protected float _fireRate = 0.5f;
 
-    public abstract void Fire(Transform shotPosition,bool isShot);
-}
+    protected float _lastFireTime = 0f;
 
-
-public interface IFireTurret
-{
-    public void Fire(Transform shotPosition,bool isShot);
+    public abstract bool Fire(Transform shotPosition, bool isShot);
 }
