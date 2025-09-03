@@ -24,9 +24,12 @@ public class GunSystem : BaseInteractControlObject
     [SerializeField, Required]
     private CinemachineCamera _cinemachineCamera = default;
 
-
+  
     // 現在操作しているプレイヤーの状態を保持する変数
     private INoticePlayerInteract _currentPlayerStatus = null;
+
+    // 追加: ローカル多重要求防止
+    private bool _localAccessPending = false;
 
     public override void Spawned()
     {
@@ -40,16 +43,15 @@ public class GunSystem : BaseInteractControlObject
     public override void FixedUpdateNetwork()
     {
         // ネットワーク入力の取得に失敗した場合は処理を終了
-        if (!GetInput(out PlayerNetworkInput input))
+        if (!GetInput(out PlayerNetworkInput input) || Runner.IsResimulation)
         {
             return;
         }
 
-        Debug.Log(IsInteractable);
-
-        // インタラクトボタンが押された場合は操作を終了
-        if (!IsInteractable && input.InteractPressed.IsSet(MyButtons.Interact))
+        // 押下エッジでのみ解除するように変更（多重解除防止）
+        if (_currentPlayerStatus != null && !IsInteractable && input.InteractPressed.IsSet(MyButtons.Interact))
         {
+            Debug.Log("操作終了");
             ReleseObject(_currentPlayerStatus);
             return;
         }
@@ -69,28 +71,29 @@ public class GunSystem : BaseInteractControlObject
     /// <param name="status">プレイヤーの状態通知インターフェース</param>
     public override void AccesObject(PlayerRef player, INoticePlayerInteract status)
     {
-        Debug.Log("アサイン");
+        Debug.Log($"アクセス要求:{status}");
+
+        // 追加: ローカル多重要求防止（同一押下内の連打・多重呼び出しをブロック）
+        if (_localAccessPending) return;
+        _localAccessPending = true;
+
+        _currentPlayerStatus = status;
+
         // ネットワーク権限の有無で処理を分岐
         if (Object.HasStateAuthority)
         {
+            Debug.Log("Host");
             // 権限がある場合は直接設定
             SetPlayerInputForce(player);
-            
         }
         else
         {
+            Debug.Log("Client");
             // 権限がない場合はRPCを使用してサーバーに要求
             RPC_RequestOperation(player);
         }
-
-        Debug.Log(_currentPlayerStatus);
-
-        // プレイヤーに操作中状態を通知
-        status.RPC_SetControllerInteracting(true);
-        _currentPlayerStatus = status;
         _cinemachineCamera.Priority = 5;
-
-
+        _currentPlayerStatus.RPC_SetControllerInteracting(true);
     }
 
     /// <summary>
@@ -100,14 +103,13 @@ public class GunSystem : BaseInteractControlObject
     /// <param name="status">プレイヤーの状態通知インターフェース</param>
     protected override void ReleseObject(INoticePlayerInteract status)
     {
-
+        Debug.Log($"リリース要求:{_currentPlayerStatus}");
 
         // ネットワーク権限の有無で処理を分岐
         if (Object.HasStateAuthority)
         {
-            // 権限がある場合は直接解除
+            // 権限がある場合は直接解除 
             ReleasePlayerInputForce();
-            
         }
         else
         {
@@ -117,11 +119,11 @@ public class GunSystem : BaseInteractControlObject
 
         // プレイヤーに操作終了状態を通知
         status.RPC_SetControllerInteracting(false);
-        _currentPlayerStatus = null;
-        Debug.Log(_currentPlayerStatus);
         _cinemachineCamera.Priority = 0;
 
-
+        // 追加: 要求中フラグ解除
+        _localAccessPending = false;
+        _currentPlayerStatus = null;
     }
 
     /// <summary>
@@ -133,7 +135,6 @@ public class GunSystem : BaseInteractControlObject
     private void RPC_RequestOperation(PlayerRef player)
     {
         SetPlayerInputForce(player);
-        
     }
 
     /// <summary>
@@ -153,9 +154,11 @@ public class GunSystem : BaseInteractControlObject
     /// <param name="player">権限を付与するプレイヤー</param>
     private void SetPlayerInputForce(PlayerRef player)
     {
+
         // NetworkObjectに入力権限を割り当て
         Object.AssignInputAuthority(player);
         IsInteractable = false;
+       
     }
 
     /// <summary>

@@ -6,14 +6,21 @@ using Fusion;
 /// </summary>
 public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractableControllable
 {
-    [Networked]
+    [Networked, OnChangedRender(nameof(UpdateLocalInteractableFlag))]
     /// <summary>
     /// インタラクトできるかどうかのフラグ
     /// </summary>
     public bool IsInteractable { get; protected set; } = false;
 
-   
 
+
+    protected bool _isInteractable = true;
+
+    private void UpdateLocalInteractableFlag()
+    {
+        _isInteractable = IsInteractable;
+    }
+     
     /// <summary>
     /// そのオブジェクトをコントロールするためのメソッド
     /// </summary>
