@@ -6879,9 +6879,9 @@ MonoBehaviour:
   Animator: {fileID: 2079981810}
   ApplyTiming: 2
   SyncSettings: 79
-  StateHashes: 0000000013fbd72a41a1a803
+  StateHashes: 00000000d4d2bdeace438700a93d4a4342fec2be
   TriggerHashes: 00000000
-  TotalWords: 0
+  TotalWords: 1
 --- !u!114 &2079981812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7439,6 +7439,7 @@ MonoBehaviour:
   _availableWaypoints:
   - {fileID: 954844441}
   - {fileID: 1751393237}
+  _CurrentWaypointIndex: 0
   _ShipHealth: 100
   _IsDestroyed: 0
 --- !u!114 &2141466670
