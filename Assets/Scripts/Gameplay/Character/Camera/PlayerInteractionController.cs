@@ -135,7 +135,7 @@ public class PlayerInteractionController : NetworkBehaviour
 
         if (gunSystem == null && baseInteractCont == null) return false;
 
-        if (gunSystem != null)
+        if (gunSystem != null && gunSystem.IsInteractable)
         {
             gunSystem.Object.RequestStateAuthority();
             gunSystem.AccesObject(Object.InputAuthority, _playerStatus);

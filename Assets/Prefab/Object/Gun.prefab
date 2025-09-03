@@ -178,8 +178,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0559d3898fd24140bb3bda8848e014d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _IsInteractable: 0
   _gunEmplacementController: {fileID: 6974525430060570663}
   _gunFireControl: {fileID: 2837158426747064529}
+  _cinemachineCamera: {fileID: 0}
 --- !u!114 &2837158426747064529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -194,7 +196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _shotPosition: {fileID: 1060751092467940474}
   _bulletPrefab: {fileID: -3978404706333264883, guid: c5ed3919cc67b11489493151c84eca0f, type: 3}
-  _camera: {fileID: 0}
+  _fireRate: 0.5
 --- !u!1 &2624167838092207359
 GameObject:
   m_ObjectHideFlags: 0

@@ -22,8 +22,7 @@ public class PlayerMovement : NetworkBehaviour
 
     [SerializeField, Required]
     private Transform _armTransform; // アームのGameObject
-    [SerializeField, Required]
-    private BulletMove _bulletPrefab; // 弾丸プレハブ
+
     public override void Spawned()
     {
         _playerStatus?.IsControllerInteracting
@@ -39,11 +38,6 @@ public class PlayerMovement : NetworkBehaviour
 
         DoMove(input);
         DoRotation(input);
-
-        if (input.AttackPressed.IsSet(MyButtons.Attack))
-        {
-            ShotBullet();
-        }
     }
 
     private void DoMove(PlayerNetworkInput input)
@@ -75,31 +69,5 @@ public class PlayerMovement : NetworkBehaviour
         _armTransform.rotation = Quaternion.LookRotation(armDirection);
     }
 
-    /// <summary>
-    /// TODO: 一時的な実装。後で削除予定。
-    /// </summary>
-    private void ShotBullet()
-    {
-        if (!Object.HasStateAuthority)
-        {
-            // クライアントはサーバーに弾丸発射を要求
-            RPC_RequestShotBullet();
-            return;
-        }
-
-        // 弾丸の発射位置をアームの先端に設定
-        Vector3 bulletSpawnPosition = _armTransform.position + _armTransform.forward * 0.5f;
-        // 弾丸を生成
-        BulletMove bullet = Runner.Spawn(_bulletPrefab, bulletSpawnPosition, Quaternion.identity);
-
-        // 弾丸の初期化
-        bullet.Init(_armTransform.forward);
-    }
-
-    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    private void RPC_RequestShotBullet()
-    {
-        // サーバーに弾丸発射を要求するRPC
-        ShotBullet();
-    }
+    
 }
