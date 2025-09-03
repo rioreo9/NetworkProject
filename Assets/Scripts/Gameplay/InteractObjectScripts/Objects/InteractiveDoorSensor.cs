@@ -1,9 +1,9 @@
 using Core.Utils;
 using Fusion;
-using System;
 using UnityEngine;
+using VitalRouter;
 
-public class InteractiveSensor : BaseInteractButtonObject
+public class InteractiveDoorSensor : BaseInteractButtonObject
 {
     [SerializeField, Required]
     private Animator _animator; // スイッチのアニメーター
@@ -21,7 +21,12 @@ public class InteractiveSensor : BaseInteractButtonObject
     private TickTimer _autoCloseTimer;
     private const string MOVE_ON_PARAM = "isOpen"; // アニメーションパラメータ名
 
+    private ICommandPublisher _soundCommand;
 
+    private void Start()
+    {
+        _soundCommand = Router.Default;
+    }
 
     // OnTriggerEnter/Exitを使用した軽量な実装
     private void OnTriggerEnter(Collider other)
@@ -106,5 +111,6 @@ public class InteractiveSensor : BaseInteractButtonObject
     private void DoAction()
     {
         _animator.SetBool(MOVE_ON_PARAM, IsActive);
+        _soundCommand?.PublishAsync(new PlaySoundCommand(SoundType.DoorPump, transform.position, 0.5f));
     }
 }

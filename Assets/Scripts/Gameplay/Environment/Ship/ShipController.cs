@@ -21,6 +21,7 @@ public class ShipController : NetworkBehaviour, IDamageNotifiable, IShipWaypoint
     [Networked, OnChangedRender(nameof(UpdateHp))]
     public int ShipHealth { get; private set; } = 100;
 
+
     /// <summary>
     /// 戦艦が破壊されたかどうか
     /// </summary>
