@@ -9,37 +9,58 @@ using System.Collections.Generic;
 
 public class GoogleDriveAudioDownloader : EditorWindow
 {
+    // 設定関連定数
     private const string EditorPrefsKey = "GoogleDrive.PackageSaveDir";
     private const string EditorPrefsKeyIsRelative = "GoogleDrive.IsRelativePath";
-    private const string EditorPrefsKeyLocalFolder = "GoogleDrive.LocalImportFolder"; // deprecated
-    private const string EditorPrefsKeyLocalRecursive = "GoogleDrive.LocalImportRecursive"; // deprecated
-    private const string EditorPrefsKeySequential = "GoogleDrive.SequentialImport";
     private const double SequentialImportTimeoutSeconds = 12.0;
-
+    private const int DownloadTimeoutSeconds = 600;
+    private const int ProgressBarUpdateInterval = 50;
+    private const int HtmlDetectionByteLimit = 512;
+    
+    // UI状態
     private string _fileUrlOrId = string.Empty;
     private string _multiUrls = string.Empty;
     private string _targetFolder = string.Empty;
     private bool _isRelativePath = true;
     private bool _overwrite = false;
     private bool _importInteractive = true;
-    private bool _sequentialImport = true;
     private bool _deleteAfterImport = true;
     private string _lastMessage = string.Empty;
     private Vector2 _scrollPosition;
 
-    // (ローカル一括インポート機能は削除)
+    // 順次処理状態
+    private readonly Queue<string> _processingQueue = new Queue<string>();
+    private SequentialImportState _importState = new SequentialImportState();
 
-    // ===== 一括インポート順次処理用 =====
-    private readonly Queue<string> _sequentialQueue = new Queue<string>();
-    private readonly Queue<string> _sequentialInputQueue = new Queue<string>();
-    private bool _isSequentialRunning = false;
-    private int _sequentialTotal = 0;
-    private int _sequentialImported = 0;
-    private bool _awaitingSequentialImport = false;
-    private string _currentSequentialFile = null;
-    private bool _waitingForUserNext = false;
-    private double _sequentialWaitStartTime = 0.0;
-    private bool _sequentialManualAdvance = true;
+    // 順次処理の状態管理構造体
+    private struct SequentialImportState
+    {
+        public bool IsRunning;
+        public int Total;
+        public int Imported;
+        public bool AwaitingImport;
+        public string CurrentFile;
+        public bool WaitingForUserNext;
+        public double WaitStartTime;
+        
+        public void Reset()
+        {
+            IsRunning = false;
+            Total = 0;
+            Imported = 0;
+            AwaitingImport = false;
+            CurrentFile = null;
+            WaitingForUserNext = false;
+            WaitStartTime = 0.0;
+        }
+        
+        public void StartProcessing(int totalCount)
+        {
+            Reset();
+            IsRunning = true;
+            Total = totalCount;
+        }
+    }
 
     [MenuItem("Tools/Packages/Import .unitypackage from Drive...")]
     public static void ShowWindow()
@@ -50,27 +71,31 @@ public class GoogleDriveAudioDownloader : EditorWindow
 
     private void OnEnable()
     {
-        // 保存先の復元とデフォルト設定
+        InitializeSettings();
+        SubscribeToImportEvents();
+    }
+
+    private void OnDisable()
+    {
+        SaveSettings();
+        CleanupEvents();
+    }
+
+    private void InitializeSettings()
+    {
         var saved = EditorPrefs.GetString(EditorPrefsKey, string.Empty);
         _isRelativePath = EditorPrefs.GetBool(EditorPrefsKeyIsRelative, true);
         
-        // 一括インポート時は常に順次処理（固定設定）
-        _sequentialImport = true;
-        _sequentialManualAdvance = true;
-        
-        if (!string.IsNullOrEmpty(saved))
-            _targetFolder = saved;
-
+        _targetFolder = string.IsNullOrEmpty(saved) ? "DownloadedUnityPackages" : saved;
         if (string.IsNullOrEmpty(_targetFolder))
         {
-            // デフォルトは相対パス
             _targetFolder = "DownloadedUnityPackages";
             _isRelativePath = true;
         }
+    }
 
-        // ローカル一括インポート関連は削除
-
-        // 順次インポート用イベント購読をセット
+    private void SubscribeToImportEvents()
+    {
         AssetDatabase.importPackageCompleted -= OnPackageCompleted;
         AssetDatabase.importPackageCancelled -= OnPackageCancelled;
         AssetDatabase.importPackageFailed -= OnPackageFailed;
@@ -79,14 +104,15 @@ public class GoogleDriveAudioDownloader : EditorWindow
         AssetDatabase.importPackageFailed += OnPackageFailed;
     }
 
-    private void OnDisable()
+    private void SaveSettings()
     {
         EditorPrefs.SetString(EditorPrefsKey, _targetFolder ?? string.Empty);
         EditorPrefs.SetBool(EditorPrefsKeyIsRelative, _isRelativePath);
+    }
 
-        // クリーンアップ
-        EditorApplication.update -= ProcessSequentialInteractiveImport;
-        EditorApplication.update -= ProcessSequentialQueue;
+    private void CleanupEvents()
+    {
+        EditorApplication.update -= ProcessSequentialImport;
         AssetDatabase.importPackageCompleted -= OnPackageCompleted;
         AssetDatabase.importPackageCancelled -= OnPackageCancelled;
         AssetDatabase.importPackageFailed -= OnPackageFailed;
@@ -174,9 +200,6 @@ public class GoogleDriveAudioDownloader : EditorWindow
         _overwrite = EditorGUILayout.ToggleLeft("同名ファイルがあれば上書き", _overwrite);
         _importInteractive = EditorGUILayout.ToggleLeft("インポート時にダイアログを表示", _importInteractive);
         
-        // 一括インポート時は常に順次処理（デフォルト動作）
-        _sequentialImport = true;
-        _sequentialManualAdvance = true;
         _deleteAfterImport = EditorGUILayout.ToggleLeft("インポート後に .unitypackage を削除", _deleteAfterImport);
         
         EditorGUILayout.Space();
@@ -276,8 +299,8 @@ public class GoogleDriveAudioDownloader : EditorWindow
             EditorGUILayout.HelpBox(_lastMessage, MessageType.Info);
         }
 
-        // 手動進行ボタン（順次＋対話＋手動モード時、進行待ち or インポート待ちでも表示）
-        if (_importInteractive && _sequentialImport && (_waitingForUserNext || (_sequentialManualAdvance && _awaitingSequentialImport)))
+        // 手動進行ボタン
+        if (_importInteractive && (_importState.WaitingForUserNext || _importState.AwaitingImport))
         {
             EditorGUILayout.Space();
             using (new EditorGUILayout.HorizontalScope())
@@ -285,12 +308,11 @@ public class GoogleDriveAudioDownloader : EditorWindow
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("次へ", GUILayout.Width(120), GUILayout.Height(28)))
                 {
-                    // タイムアウトを待たずに次へ進む
-                    _waitingForUserNext = false;
-                    if (_awaitingSequentialImport)
+                    _importState.WaitingForUserNext = false;
+                    if (_importState.AwaitingImport)
                     {
-                        _awaitingSequentialImport = false;
-                        _sequentialWaitStartTime = 0.0;
+                        _importState.AwaitingImport = false;
+                        _importState.WaitStartTime = 0.0;
                         EditorUtility.ClearProgressBar();
                     }
                     Repaint();
@@ -305,51 +327,40 @@ public class GoogleDriveAudioDownloader : EditorWindow
     //================ 単一URL ==================
     private void DownloadSingleFile()
     {
+        if (!ValidateInput(_fileUrlOrId, "有効な共有リンク/ファイルID/直URL(.unitypackage)を入力してください。"))
+            return;
+
         try
         {
-            if (string.IsNullOrWhiteSpace(_fileUrlOrId))
-            {
-                EditorUtility.DisplayDialog("入力エラー", "有効な共有リンク/ファイルID/直URL(.unitypackage)を入力してください。", "OK");
-                return;
-            }
-
             EnsureTargetFolder();
-
-            string url;
-            string fallbackName;
-            BuildDownloadUrlAndFallback(_fileUrlOrId, out url, out fallbackName);
-
-            string fullPath = DownloadPackageToFile(url, fallbackName, 600);
-
-            AssetDatabase.ImportPackage(fullPath, _importInteractive);
-
-            if (_deleteAfterImport)
-            {
-                try 
-                { 
-                    File.Delete(fullPath); 
-                    Debug.Log($"[GoogleDrive] ファイル削除完了: {Path.GetFileName(fullPath)}");
-                } 
-                catch (Exception e) 
-                { 
-                    Debug.LogWarning($"[GoogleDrive] ファイル削除失敗: {Path.GetFileName(fullPath)} - {e.Message}");
-                }
-            }
-
-            _lastMessage = $"インポートしました: {Path.GetFileName(fullPath)}";
-            Debug.Log("[GoogleDrive] " + _lastMessage);
+            var fullPath = ProcessSingleDownload(_fileUrlOrId);
+            ImportAndCleanup(fullPath, Path.GetFileName(fullPath));
         }
         catch (OperationCanceledException)
         {
-            // スキップ
+            // ユーザーキャンセル - 何もしない
         }
         catch (Exception e)
         {
-            EditorUtility.ClearProgressBar();
-            Debug.LogError("[GoogleDrive] " + e);
-            EditorUtility.DisplayDialog("エラー", e.Message, "OK");
-            _lastMessage = e.Message;
+            HandleError(e, "単一ファイルのダウンロード中にエラーが発生しました。");
         }
+    }
+
+    private string ProcessSingleDownload(string input)
+    {
+        BuildDownloadUrlAndFallback(input, out string url, out string fallbackName);
+        return DownloadPackageToFile(url, fallbackName, DownloadTimeoutSeconds);
+    }
+
+    private void ImportAndCleanup(string fullPath, string displayName)
+    {
+        AssetDatabase.ImportPackage(fullPath, _importInteractive);
+        
+        if (_deleteAfterImport)
+            DeleteFile(fullPath);
+
+        _lastMessage = $"インポートしました: {displayName}";
+        Debug.Log("[GoogleDrive] " + _lastMessage);
     }
 
     //================ URLファイル管理 ==================
@@ -498,259 +509,207 @@ public class GoogleDriveAudioDownloader : EditorWindow
     //================ 複数URL一括 ==================
     private void ImportMultiple()
     {
-        try
+        var validUrls = ParseValidUrls(_multiUrls);
+        if (validUrls.Length == 0)
         {
-            EnsureTargetFolder();
-
-            var allLines = string.IsNullOrWhiteSpace(_multiUrls)
-                ? Array.Empty<string>()
-                : _multiUrls.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-
-            // コメント行と空行を除外
-            var validLines = allLines
-                .Select(line => line.Trim())
-                .Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("#"))
-                .ToArray();
-
-            if (validLines.Length == 0)
-            {
-                EditorUtility.DisplayDialog("入力エラー", "有効なURL/IDが見つかりません。コメント行（#）以外の行を入力してください。", "OK");
-                return;
-            }
-
-            // 対話 + 順次 の場合は「1件ずつダウンロード→即インポート」
-            if (_importInteractive && _sequentialImport)
-            {
-                // 完全同期: URLをキューに積んで、1件ずつ「DL→インポート→完了待ち」
-                _sequentialInputQueue.Clear();
-                foreach (var l in validLines) _sequentialInputQueue.Enqueue(l);
-                _sequentialTotal = _sequentialInputQueue.Count;
-                _sequentialImported = 0;
-                _isSequentialRunning = true;
-                _awaitingSequentialImport = false;
-                _currentSequentialFile = null;
-                EditorApplication.update -= ProcessSequentialInteractiveImport;
-                EditorApplication.update += ProcessSequentialInteractiveImport;
-                _lastMessage = $"順次インポートを開始します（{_sequentialTotal} 件）";
-                Debug.Log("[GoogleDrive] " + _lastMessage);
-                return;
-            }
-
-            // ダウンロード済みファイルのリスト（非対話 もしくは 非順次）
-            var downloadedFiles = new List<string>();
-
-            // まず全ファイルをダウンロード
-            for (int i = 0; i < validLines.Length; i++)
-            {
-                string input = validLines[i];
-
-                try
-                {
-                    EditorUtility.DisplayProgressBar("Google Drive", $"ダウンロード中 ({i + 1}/{validLines.Length}) {input}", (float)i / validLines.Length);
-                    string url;
-                    string fallbackName;
-                    BuildDownloadUrlAndFallback(input, out url, out fallbackName);
-
-                    string fullPath = DownloadPackageToFile(url, fallbackName, 600);
-                    downloadedFiles.Add(fullPath);
-                }
-                catch (OperationCanceledException)
-                {
-                    // ユーザーがスキップ
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"[GoogleDrive] ダウンロード失敗 {input}: {e.Message}");
-                }
-            }
-
-            // 次にインポート
-            if (_importInteractive && _sequentialImport)
-            {
-                // 対話＋順次: キューに積んで Update で1つずつ ImportPackage ダイアログを出す
-                _sequentialQueue.Clear();
-                foreach (var f in downloadedFiles) _sequentialQueue.Enqueue(f);
-                _sequentialTotal = _sequentialQueue.Count;
-                _sequentialImported = 0;
-                _isSequentialRunning = true;
-                EditorApplication.update -= ProcessSequentialQueue;
-                EditorApplication.update += ProcessSequentialQueue;
-                _lastMessage = $"順次インポートを開始します（{_sequentialTotal} 件）";
-                Debug.Log("[GoogleDrive] " + _lastMessage);
-            }
-            else
-            {
-                // 非対話 or 非順次: 従来通りループで実行
-                for (int i = 0; i < downloadedFiles.Count; i++)
-                {
-                    var filePath = downloadedFiles[i];
-                    var fileName = Path.GetFileName(filePath);
-                    try
-                    {
-                        if (_importInteractive)
-                        {
-                            EditorUtility.ClearProgressBar();
-                        }
-                        else
-                        {
-                            EditorUtility.DisplayProgressBar("Google Drive", $"インポート中 ({i + 1}/{downloadedFiles.Count}) {fileName}", (float)i / downloadedFiles.Count);
-                        }
-                        AssetDatabase.ImportPackage(filePath, _importInteractive);
-                        AssetDatabase.Refresh();
-                        System.Threading.Thread.Sleep(1000);
-                        if (_deleteAfterImport) 
-                        { 
-                            try 
-                            { 
-                                File.Delete(filePath); 
-                                Debug.Log($"[GoogleDrive] ファイル削除完了: {Path.GetFileName(filePath)}");
-                            } 
-                            catch (Exception e) 
-                            { 
-                                Debug.LogWarning($"[GoogleDrive] ファイル削除失敗: {Path.GetFileName(filePath)} - {e.Message}");
-                            }
-                        }
-                        Debug.Log($"[GoogleDrive] インポート完了: {fileName}");
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError($"[GoogleDrive] インポート失敗 {fileName}: {e.Message}");
-                    }
-                }
-                EditorUtility.ClearProgressBar();
-                _lastMessage = $"一括インポートが完了しました。成功: {downloadedFiles.Count}個";
-                Debug.Log("[GoogleDrive] " + _lastMessage);
-            }
-        }
-        catch (Exception e)
-        {
-            EditorUtility.ClearProgressBar();
-            Debug.LogError("[GoogleDrive] " + e);
-            EditorUtility.DisplayDialog("エラー", e.Message, "OK");
-            _lastMessage = e.Message;
-        }
-    }
-
-    private void ProcessSequentialQueue()
-    {
-        if (!_isSequentialRunning) return;
-
-        // すでにダイアログが開いていそうなフレームはスキップ
-        if (EditorApplication.isCompiling || EditorApplication.isUpdating) return;
-
-        try
-        {
-            if (_sequentialQueue.Count == 0)
-            {
-                // 完了
-                _isSequentialRunning = false;
-                EditorApplication.update -= ProcessSequentialQueue;
-                EditorUtility.ClearProgressBar();
-                _lastMessage = $"一括インポートが完了しました。成功: {_sequentialImported}個";
-                Debug.Log("[GoogleDrive] " + _lastMessage);
-                Repaint();
-                return;
-            }
-
-            var filePath = _sequentialQueue.Dequeue();
-            var fileName = Path.GetFileName(filePath);
-
-            // 対話型ダイアログを確実に出すため、ここでインポート（1フレームに1件）
-            EditorUtility.ClearProgressBar();
-            AssetDatabase.ImportPackage(filePath, true);
-            AssetDatabase.Refresh();
-            System.Threading.Thread.Sleep(200);
-            if (_deleteAfterImport) 
-            { 
-                try 
-                { 
-                    File.Delete(filePath); 
-                    Debug.Log($"[GoogleDrive] ファイル削除完了: {Path.GetFileName(filePath)}");
-                } 
-                catch (Exception e) 
-                { 
-                    Debug.LogWarning($"[GoogleDrive] ファイル削除失敗: {Path.GetFileName(filePath)} - {e.Message}");
-                }
-            }
-            _sequentialImported++;
-            Debug.Log($"[GoogleDrive] インポート完了: {fileName} ({_sequentialImported}/{_sequentialTotal})");
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("[GoogleDrive] 順次インポート中のエラー: " + e.Message);
-        }
-    }
-
-    // 完全同期の対話型順次: URLキューを1件ずつDL→Import→完了イベント待ち
-    private void ProcessSequentialInteractiveImport()
-    {
-        if (!_isSequentialRunning) return;
-
-        // インポート待ち中は次へ進まない
-        if (_awaitingSequentialImport)
-        {
-            // タイムアウト監視（NothingImport対策）
-            var elapsed = EditorApplication.timeSinceStartup - _sequentialWaitStartTime;
-            if (elapsed > SequentialImportTimeoutSeconds)
-            {
-                Debug.LogWarning("[GoogleDrive] インポート完了イベント待ちがタイムアウトしました。ユーザー操作待ちに切り替えます。");
-                // NothingImportとみなし、ユーザーの「次へ」を待つ
-                _awaitingSequentialImport = false;
-                _sequentialWaitStartTime = 0.0;
-                _waitingForUserNext = true;
-                Repaint();
-            }
+            EditorUtility.DisplayDialog("入力エラー", "有効なURL/IDが見つかりません。コメント行（#）以外の行を入力してください。", "OK");
             return;
         }
 
         try
         {
-            if (_sequentialInputQueue.Count == 0)
+            EnsureTargetFolder();
+            
+            if (_importInteractive)
             {
-                _isSequentialRunning = false;
-                EditorApplication.update -= ProcessSequentialInteractiveImport;
-                EditorUtility.ClearProgressBar();
-                _lastMessage = $"一括インポートが完了しました。成功: {_sequentialImported}個";
-                Debug.Log("[GoogleDrive] " + _lastMessage);
-                Repaint();
-                return;
+                StartSequentialImport(validUrls);
             }
-
-            // 手動モードで「次へ」待ちの間は進まない
-            if (_sequentialManualAdvance && _waitingForUserNext)
+            else
             {
-                return;
+                ProcessBatchImport(validUrls);
             }
-
-            var input = _sequentialInputQueue.Dequeue();
-
-            // ダウンロード
-            string url;
-            string fallbackName;
-            EditorUtility.DisplayProgressBar("Google Drive", $"ダウンロード中 ({_sequentialImported + 1}/{_sequentialTotal}) {input}", (float)_sequentialImported / Math.Max(1, _sequentialTotal));
-            BuildDownloadUrlAndFallback(input, out url, out fallbackName);
-            var fullPath = DownloadPackageToFile(url, fallbackName, 600);
-
-            // 対話型インポート開始
-            EditorUtility.ClearProgressBar();
-            _currentSequentialFile = fullPath;
-            _awaitingSequentialImport = true;
-            _sequentialWaitStartTime = EditorApplication.timeSinceStartup;
-            AssetDatabase.ImportPackage(fullPath, true);
-        }
-        catch (OperationCanceledException)
-        {
-            EditorUtility.ClearProgressBar();
-            _awaitingSequentialImport = false;
-            _waitingForUserNext = false;
         }
         catch (Exception e)
         {
-            EditorUtility.ClearProgressBar();
-            Debug.LogError("[GoogleDrive] 順次DL/インポート中のエラー: " + e.Message);
-            _awaitingSequentialImport = false;
-            _waitingForUserNext = false;
+            HandleError(e, "一括インポート中にエラーが発生しました。");
         }
+    }
+
+    private string[] ParseValidUrls(string multiUrls)
+    {
+        if (string.IsNullOrWhiteSpace(multiUrls))
+            return Array.Empty<string>();
+
+        return multiUrls.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Trim())
+            .Where(line => !string.IsNullOrEmpty(line) && !line.StartsWith("#"))
+            .ToArray();
+    }
+
+    private void StartSequentialImport(string[] urls)
+    {
+        _processingQueue.Clear();
+        foreach (var url in urls) 
+            _processingQueue.Enqueue(url);
+            
+        _importState.StartProcessing(urls.Length);
+        EditorApplication.update -= ProcessSequentialImport;
+        EditorApplication.update += ProcessSequentialImport;
+        
+        _lastMessage = $"順次インポートを開始します（{_importState.Total} 件）";
+        Debug.Log("[GoogleDrive] " + _lastMessage);
+    }
+
+    private void ProcessBatchImport(string[] urls)
+    {
+        var downloadedFiles = DownloadAllFiles(urls);
+        ImportAllFiles(downloadedFiles);
+        
+        _lastMessage = $"一括インポートが完了しました。成功: {downloadedFiles.Count}個";
+        Debug.Log("[GoogleDrive] " + _lastMessage);
+    }
+
+    private List<string> DownloadAllFiles(string[] urls)
+    {
+        var downloadedFiles = new List<string>();
+        
+        for (int i = 0; i < urls.Length; i++)
+        {
+            try
+            {
+                EditorUtility.DisplayProgressBar("Google Drive", 
+                    $"ダウンロード中 ({i + 1}/{urls.Length}) {urls[i]}", 
+                    (float)i / urls.Length);
+                    
+                var fullPath = ProcessSingleDownload(urls[i]);
+                downloadedFiles.Add(fullPath);
+            }
+            catch (OperationCanceledException)
+            {
+                // ユーザーキャンセル - スキップ
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[GoogleDrive] ダウンロード失敗 {urls[i]}: {e.Message}");
+            }
+        }
+        
+        return downloadedFiles;
+    }
+
+    private void ImportAllFiles(List<string> filePaths)
+    {
+        for (int i = 0; i < filePaths.Count; i++)
+        {
+            var filePath = filePaths[i];
+            var fileName = Path.GetFileName(filePath);
+            
+            try
+            {
+                if (!_importInteractive)
+                {
+                    EditorUtility.DisplayProgressBar("Google Drive", 
+                        $"インポート中 ({i + 1}/{filePaths.Count}) {fileName}", 
+                        (float)i / filePaths.Count);
+                }
+                
+                AssetDatabase.ImportPackage(filePath, _importInteractive);
+                AssetDatabase.Refresh();
+                System.Threading.Thread.Sleep(1000);
+                
+                if (_deleteAfterImport)
+                    DeleteFile(filePath);
+                    
+                Debug.Log($"[GoogleDrive] インポート完了: {fileName}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[GoogleDrive] インポート失敗 {fileName}: {e.Message}");
+            }
+        }
+        
+        EditorUtility.ClearProgressBar();
+    }
+
+    private void ProcessSequentialImport()
+    {
+        if (!_importState.IsRunning || EditorApplication.isCompiling || EditorApplication.isUpdating) 
+            return;
+
+        // インポート完了待ち中のタイムアウト処理
+        if (_importState.AwaitingImport)
+        {
+            var elapsed = EditorApplication.timeSinceStartup - _importState.WaitStartTime;
+            if (elapsed > SequentialImportTimeoutSeconds)
+            {
+                Debug.LogWarning("[GoogleDrive] インポート完了イベント待ちがタイムアウトしました。ユーザー操作待ちに切り替えます。");
+                _importState.AwaitingImport = false;
+                _importState.WaitStartTime = 0.0;
+                _importState.WaitingForUserNext = true;
+                Repaint();
+            }
+            return;
+        }
+
+        // ユーザーの「次へ」待ち
+        if (_importState.WaitingForUserNext)
+            return;
+
+        try
+        {
+            if (_processingQueue.Count == 0)
+            {
+                CompleteSequentialImport();
+                return;
+            }
+
+            ProcessNextSequentialItem();
+        }
+        catch (OperationCanceledException)
+        {
+            HandleSequentialError("ユーザーによりキャンセルされました。");
+        }
+        catch (Exception e)
+        {
+            HandleSequentialError($"順次インポート中のエラー: {e.Message}");
+        }
+    }
+
+    private void CompleteSequentialImport()
+    {
+        _importState.Reset();
+        EditorApplication.update -= ProcessSequentialImport;
+        EditorUtility.ClearProgressBar();
+        _lastMessage = $"一括インポートが完了しました。成功: {_importState.Imported}個";
+        Debug.Log("[GoogleDrive] " + _lastMessage);
+        Repaint();
+    }
+
+    private void ProcessNextSequentialItem()
+    {
+        var input = _processingQueue.Dequeue();
+        
+        // ダウンロード処理
+        EditorUtility.DisplayProgressBar("Google Drive", 
+            $"ダウンロード中 ({_importState.Imported + 1}/{_importState.Total}) {input}", 
+            (float)_importState.Imported / Math.Max(1, _importState.Total));
+            
+        var fullPath = ProcessSingleDownload(input);
+
+        // インポート開始
+        EditorUtility.ClearProgressBar();
+        _importState.CurrentFile = fullPath;
+        _importState.AwaitingImport = true;
+        _importState.WaitStartTime = EditorApplication.timeSinceStartup;
+        AssetDatabase.ImportPackage(fullPath, true);
+    }
+
+    private void HandleSequentialError(string message)
+    {
+        EditorUtility.ClearProgressBar();
+        Debug.LogError("[GoogleDrive] " + message);
+        _importState.AwaitingImport = false;
+        _importState.WaitingForUserNext = false;
     }
 
     private void OnPackageCompleted(string packageName)
@@ -771,39 +730,28 @@ public class GoogleDriveAudioDownloader : EditorWindow
 
     private void HandlePackageFinish(bool success)
     {
-        if (!_awaitingSequentialImport) return;
+        if (!_importState.AwaitingImport) return;
 
         try
         {
             if (success)
             {
-                _sequentialImported++;
-                Debug.Log($"[GoogleDrive] インポート完了: {Path.GetFileName(_currentSequentialFile)} ({_sequentialImported}/{_sequentialTotal})");
+                _importState.Imported++;
+                Debug.Log($"[GoogleDrive] インポート完了: {Path.GetFileName(_importState.CurrentFile)} ({_importState.Imported}/{_importState.Total})");
             }
-            if (_deleteAfterImport && !string.IsNullOrEmpty(_currentSequentialFile))
+            
+            if (_deleteAfterImport && !string.IsNullOrEmpty(_importState.CurrentFile))
             {
-                try 
-                { 
-                    File.Delete(_currentSequentialFile); 
-                    Debug.Log($"[GoogleDrive] ファイル削除完了: {Path.GetFileName(_currentSequentialFile)}");
-                } 
-                catch (Exception e) 
-                { 
-                    Debug.LogWarning($"[GoogleDrive] ファイル削除失敗: {Path.GetFileName(_currentSequentialFile)} - {e.Message}");
-                }
+                DeleteFile(_importState.CurrentFile);
             }
         }
         finally
         {
-            _currentSequentialFile = null;
-            _awaitingSequentialImport = false;
-            _sequentialWaitStartTime = 0.0;
-            if (_sequentialManualAdvance)
-            {
-                // ユーザーの「次へ」操作待ち
-                _waitingForUserNext = true;
-                Repaint();
-            }
+            _importState.CurrentFile = null;
+            _importState.AwaitingImport = false;
+            _importState.WaitStartTime = 0.0;
+            _importState.WaitingForUserNext = true; // 次のユーザー操作を待つ
+            Repaint();
         }
     }
 
@@ -901,14 +849,17 @@ public class GoogleDriveAudioDownloader : EditorWindow
 
         Exception lastException = null;
 
-        foreach (var url in urls)
+        for (int i = 0; i < urls.Length; i++)
         {
             try
             {
-                EditorUtility.DisplayProgressBar("Google Drive", $"ダウンロード試行中... ({url})", 0.3f);
-                var bytes = DownloadBytes(url, timeoutSec);
+                EditorUtility.DisplayProgressBar("Google Drive", 
+                    $"ダウンロード試行中... ({i + 1}/{urls.Length})", 
+                    0.3f + (i * 0.2f));
+                    
+                var bytes = DownloadBytes(urls[i], timeoutSec);
                 
-                if (bytes != null && bytes.Length > 0 && !IsHtmlContent(bytes))
+                if (IsValidDownload(bytes))
                 {
                     return bytes;
                 }
@@ -916,11 +867,16 @@ public class GoogleDriveAudioDownloader : EditorWindow
             catch (Exception e)
             {
                 lastException = e;
-                Debug.LogWarning($"[GoogleDrive] URL失敗: {url} - {e.Message}");
+                Debug.LogWarning($"[GoogleDrive] URL失敗: {urls[i]} - {e.Message}");
             }
         }
 
         throw lastException ?? new Exception("すべてのダウンロード方法が失敗しました。");
+    }
+
+    private bool IsValidDownload(byte[] bytes)
+    {
+        return bytes != null && bytes.Length > 0 && !IsHtmlContent(bytes);
     }
 
     private string DownloadPackageToFile(string url, string fallbackFileName, int timeoutSec)
@@ -973,8 +929,7 @@ public class GoogleDriveAudioDownloader : EditorWindow
         
         try
         {
-            // 最初の数百バイトをテキストとして読み取り、HTMLタグを検索
-            var text = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, 512)).ToLower();
+            var text = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, HtmlDetectionByteLimit)).ToLower();
             return text.Contains("<html") || text.Contains("<!doctype") || text.Contains("<head") || text.Contains("<body");
         }
         catch
@@ -1008,29 +963,63 @@ public class GoogleDriveAudioDownloader : EditorWindow
     //================ HTTP Helper ==================
     private byte[] DownloadBytes(string url, int timeoutSec)
     {
-        var req = UnityWebRequest.Get(url);
-        req.timeout = timeoutSec;
-        req.downloadHandler = new DownloadHandlerBuffer();
-        var op = req.SendWebRequest();
-        float p = 0f;
-        while (!op.isDone)
+        using (var req = UnityWebRequest.Get(url))
         {
-            p = Mathf.Lerp(p, op.progress, 0.35f);
-            EditorUtility.DisplayProgressBar("Google Drive", "ダウンロード中...", Mathf.Clamp01(0.2f + p * 0.7f));
-            System.Threading.Thread.Sleep(50);
+            req.timeout = timeoutSec;
+            req.downloadHandler = new DownloadHandlerBuffer();
+            var op = req.SendWebRequest();
+            
+            float progress = 0f;
+            while (!op.isDone)
+            {
+                progress = Mathf.Lerp(progress, op.progress, 0.35f);
+                EditorUtility.DisplayProgressBar("Google Drive", "ダウンロード中...", 
+                    Mathf.Clamp01(0.2f + progress * 0.7f));
+                System.Threading.Thread.Sleep(ProgressBarUpdateInterval);
+            }
+            
+            EditorUtility.ClearProgressBar();
+
+            if (req.result != UnityWebRequest.Result.Success)
+            {
+                throw new Exception($"HTTP Error: {req.error}");
+            }
+
+            return req.downloadHandler.data;
         }
+    }
+
+    //================ ヘルパーメソッド ==================
+    private bool ValidateInput(string input, string errorMessage)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            EditorUtility.DisplayDialog("入力エラー", errorMessage, "OK");
+            return false;
+        }
+        return true;
+    }
+
+    private void HandleError(Exception e, string context)
+    {
         EditorUtility.ClearProgressBar();
+        var message = $"{context}\n{e.Message}";
+        Debug.LogError($"[GoogleDrive] {message}");
+        EditorUtility.DisplayDialog("エラー", e.Message, "OK");
+        _lastMessage = e.Message;
+    }
 
-        if (req.result != UnityWebRequest.Result.Success)
+    private void DeleteFile(string filePath)
+    {
+        try
         {
-            var err = req.error;
-            req.Dispose();
-            throw new Exception("HTTP Error: " + err);
+            File.Delete(filePath);
+            Debug.Log($"[GoogleDrive] ファイル削除完了: {Path.GetFileName(filePath)}");
         }
-
-        var data = req.downloadHandler.data;
-        req.Dispose();
-        return data;
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[GoogleDrive] ファイル削除失敗: {Path.GetFileName(filePath)} - {e.Message}");
+        }
     }
 
     //================ Utils ==================
