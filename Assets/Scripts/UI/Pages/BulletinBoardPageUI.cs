@@ -6,7 +6,7 @@ using UnityEngine;
 using VitalRouter;
 using R3;
 
-public class BulletinBoardPageUI : BaseInteractContObject
+public class BulletinBoardPageUI : BaseInteractMonitor
 {
     [Header("戻る")]
     [SerializeField,Required]
@@ -34,9 +34,9 @@ public class BulletinBoardPageUI : BaseInteractContObject
     /// プレイヤーのアクセス開始時に呼ばれる。ローカルUIを有効化し、権限に応じてリモート側も更新する。
     /// </summary>
     /// <param name="notice">アクセス通知インターフェース</param>
-    public override void Access(INoticePlayerInteract notice)
+    public override void AccesObject(PlayerRef player, INoticePlayerInteract notice)
     {
-        if (HasInteractor) return;
+        if (!IsInteractable) return;
 
         _playerInteractNotice = notice;
 
@@ -114,6 +114,6 @@ public class BulletinBoardPageUI : BaseInteractContObject
     /// <param name="isAccese">有効にするか</param>
     private void SetAccessStateRemote(bool isAccese)
     {
-        HasInteractor = isAccese; // インタラクション変更
+        IsInteractable = !isAccese; // インタラクション変更
     }
 }

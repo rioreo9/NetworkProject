@@ -4,15 +4,15 @@ using UnityEngine;
 
 public interface IInteractableTool
 {
-    public LayerMask layerMask { get;} // インタラクト可能なオブジェクトのレイヤーマスク
+    public LayerMask LayerMask { get; }
 
-    public bool CheckInteractableObject(RaycastHit hit); // インタラクト可能なオブジェクトをチェックするメソッド
+    public bool IsInteractable { get; }
 
-    public void SetCopyObj(GameObject networkObj);// インタラクト可能なオブジェクトのコピーを設定するメソッド
+    public void RPC_SetInteractable(bool interactable);
 
-    public void SetInteractable(bool interactable); // インタラクト可能状態を設定するRPCメソッド
-    public void SetINetItemPosition(Vector3 setItemPos); // インタラクト可能オブジェクトの位置を設定するRPCメソッド
+    public void LocalItemInteractable(bool interactable);
 
-    public bool CheckCopyObject();
-    public bool CheckInteractable();
+    public bool CheckInteractableObject(RaycastHit hit);
+
+    public void SetCopyItemPosition(Vector3 pos, Transform parent);
 }
