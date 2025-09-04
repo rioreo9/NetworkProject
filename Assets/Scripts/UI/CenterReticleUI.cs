@@ -39,7 +39,7 @@ public class CenterReticleUI : MonoBehaviour
             case  BaseInteractButtonObject t :
                 sprite = _buttonSprite;
                 break;
-            case BaseInteractContObject t:
+            case BaseInteractMonitor t:
                 sprite = _gunSprite;
                 break;
             case BasePickUpToolObject t:

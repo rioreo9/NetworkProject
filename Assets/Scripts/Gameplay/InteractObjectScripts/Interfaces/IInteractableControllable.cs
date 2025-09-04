@@ -11,6 +11,8 @@ public interface IInteractableControllable
     /// </summary>
     public bool IsInteractable { get;}
 
+    public NetworkObject Object { get; }
+
     /// <summary>
     /// コントロールするためのメソッド
     /// </summary>

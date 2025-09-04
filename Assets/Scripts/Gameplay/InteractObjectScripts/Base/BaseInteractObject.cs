@@ -12,7 +12,7 @@ public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractabl
     /// </summary>
     public bool IsInteractable { get; protected set; } = false;
 
-
+    public new NetworkObject Object => base.Object;
 
     protected bool _isInteractable = true;
 
@@ -20,7 +20,7 @@ public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractabl
     {
         _isInteractable = IsInteractable;
     }
-     
+
     /// <summary>
     /// そのオブジェクトをコントロールするためのメソッド
     /// </summary>

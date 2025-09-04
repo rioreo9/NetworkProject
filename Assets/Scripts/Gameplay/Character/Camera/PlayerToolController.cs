@@ -14,17 +14,17 @@ public class PlayerToolController : NetworkBehaviour
     [SerializeField, Required]
     private Transform _networkHandParent;
 
-    private BasePickUpToolObject _currentTool;
+    private IInteractableTool _currentTool;
 
     /// <summary>
     /// 現在のツールを取得
     /// </summary>
-    public BasePickUpToolObject CurrentTool => _currentTool;
+    public IInteractableTool CurrentTool => _currentTool;
 
     /// <summary>
     /// ツールを保持する
     /// </summary>
-    public void PickUpTool(BasePickUpToolObject tool, RaycastHit hit)
+    public void PickUpTool(IInteractableTool tool, RaycastHit hit)
     {
         // 元々所持しているツールがある場合は、インタラクト不可状態に設定
         _currentTool?.RPC_SetInteractable(false);

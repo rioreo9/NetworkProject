@@ -12,7 +12,7 @@ using VitalRouter;
 /// プレイヤーのアクセス開始/終了に応じてUI有効化とCinemachine優先度を制御し、
 /// Fusionの権限管理に従ってRPCでリモート状態も同期する。
 /// </summary>
-public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
+public class LoginMenuButton : BaseInteractMonitor, IInjectPageRouter
 {
     [Header("遷移先")]
     [SerializeField]
@@ -38,6 +38,8 @@ public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
     /// </summary>
     public override void Spawned()
     {
+        IsInteractable = true; // 初期状態ではインタラクト可能
+
         if (_cinemachineCamera == null || _loginButton == null || _logoutButton == null)
         {
             Debug.LogError("必要なコンポーネント（CinemachineCamera、LoginButton、LogoutButton）が設定されていません");
@@ -68,9 +70,13 @@ public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
     /// プレイヤーのアクセス開始時に呼ばれる。ローカルUIを有効化し、権限に応じてリモート側も更新する。
     /// </summary>
     /// <param name="notice">アクセス通知インターフェース</param>
-    public override void Access(INoticePlayerInteract notice)
+    public override void AccesObject(PlayerRef player, INoticePlayerInteract notice)
     {
-        if (HasInteractor) return;
+        Debug.Log($"AccesObject called by PlayerRef: {player}");
+
+        if (!IsInteractable) return;
+
+        Debug.Log("Access granted, enabling UI");
 
         _playerInteractNotice = notice;
 
@@ -157,6 +163,6 @@ public class LoginMenuButton : BaseInteractContObject, IInjectPageRouter
     /// <param name="isAccese">有効にするか</param>
     private void SetAccessStateRemote(bool isAccese)
     {
-        HasInteractor = isAccese; // インタラクション変更
+        IsInteractable = !isAccese; // インタラクション変更
     }
 }
