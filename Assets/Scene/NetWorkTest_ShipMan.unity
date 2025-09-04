@@ -5363,7 +5363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c77602ab5e91b614e86f0ee5e6268ab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _HasInteractor: 0
+  _IsInteractable: 0
   _backButton: {fileID: 1279647489}
   _loginButtonPriority: 2
   _cinemachineCamera: {fileID: 2048155805}
@@ -6443,7 +6443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54ba42937d5d76942a0e9a2fd1e3331c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _HasInteractor: 0
+  _IsInteractable: 0
   _targetPageId: 4
   _loginButton: {fileID: 1596962105}
   _logoutButton: {fileID: 1559788445}
