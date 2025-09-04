@@ -4,8 +4,8 @@ using DG.Tweening;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// ボタンアニメーションの制御
-/// テストのため、MonoBehaviour継承してます
+/// UIボタンのアニメーション
+/// 一旦MonoBehaviour継承中
 /// </summary>
 public class ButtonAnimation: MonoBehaviour, 
     IPointerClickHandler,
@@ -39,11 +39,7 @@ public class ButtonAnimation: MonoBehaviour,
         {
             return;
         }
-
-        transform.DOKill();
-        transform.localScale = Vector3.one;
-        transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 10, 1).SetLink(gameObject);
-        Debug.Log("クリック");
+        transform.DOScale(1.1f, 0.2f).SetLink(gameObject);
     }
 
     /// <summary>
@@ -58,8 +54,7 @@ public class ButtonAnimation: MonoBehaviour,
         }
         transform.DOKill();
         transform.localScale = Vector3.one;
-        transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 10, 1).SetLink(gameObject);
-        Debug.Log("クリックしたとき");
+        transform.DOPunchScale(Vector3.one * -0.2f, 0.2f, 10, 1).SetLink(gameObject);
     }
 
     /// <summary>
@@ -74,7 +69,6 @@ public class ButtonAnimation: MonoBehaviour,
         }
         transform.localScale = Vector3.one;
         transform.DOPunchScale(Vector3.one * -0.1f, 0.2f, 10, 1).SetLink(gameObject);
-        Debug.Log("クリックを辞めたとき");
     }
 
     /// <summary>
@@ -90,7 +84,6 @@ public class ButtonAnimation: MonoBehaviour,
         transform.DOScale(1.1f, 0.2f).SetLink(gameObject);
         _buttonImage.color = _buttonHighlightColor;
         _outlineImage.color = _outlineHighlightColor;
-        Debug.Log("マウスカーソルが乗ったとき");
     }
 
     /// <summary>
@@ -104,9 +97,8 @@ public class ButtonAnimation: MonoBehaviour,
             return;
         }
         transform.DOScale(1.0f, 0.2f).SetLink(gameObject);
-        _buttonImage.color = Color.white;
-        _outlineImage.color = Color.white;
-        Debug.Log("マウスカーソルが離れたとき");
+        _buttonImage.color = Color.clear;
+        _outlineImage.color = Color.clear;
     }
 
     /// <summary>
@@ -122,7 +114,6 @@ public class ButtonAnimation: MonoBehaviour,
         _buttonImage.color = _buttonHighlightColor;
         _outlineImage.color = _outlineHighlightColor;
         transform.DOScale(1.1f, 0.2f).SetLink(gameObject);
-        //Debug.Log("選択");
     }
 
     /// <summary>
@@ -135,10 +126,9 @@ public class ButtonAnimation: MonoBehaviour,
         {
             return;
         }
-        _outlineImage.color = Color.white;
-        _buttonImage.color = Color.white;
+        _buttonImage.color = Color.clear;
+        _outlineImage.color = Color.clear;
         transform.DOScale(1.0f, 0.2f).SetLink(gameObject);
-        Debug.Log("選択やめたとき");
     }
 
     /// <summary>
@@ -151,9 +141,6 @@ public class ButtonAnimation: MonoBehaviour,
         {
             return;
         }
-        transform.DOKill();
-        transform.localScale = Vector3.one;
-        transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 10, 1).SetLink(gameObject);
-        Debug.Log("決定");
+        transform.DOPunchScale(Vector3.one * -0.2f, 0.2f, 10, 1).SetLink(gameObject);
     }
 }
