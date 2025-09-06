@@ -6,20 +6,26 @@ using Fusion;
 /// </summary>
 public abstract class BaseInteractControlObject : NetworkBehaviour, IInteractableControllable
 {
-    // インタラクトできるかどうかのフラグ
-    protected bool _isInteractable = false;
-
+    [Networked, OnChangedRender(nameof(UpdateLocalInteractableFlag))]
     /// <summary>
     /// インタラクトできるかどうかのフラグ
     /// </summary>
-    public bool IsInteractable { get => _isInteractable; set => _isInteractable = value; }
+    public bool IsInteractable { get; protected set; } = false;
+
+    public new NetworkObject Object => base.Object;
+
+    protected bool _isInteractable = true;
+
+    private void UpdateLocalInteractableFlag()
+    {
+        _isInteractable = IsInteractable;
+    }
 
     /// <summary>
     /// そのオブジェクトをコントロールするためのメソッド
     /// </summary>
     /// <param name="networkInput">Networkに対応したInput</param>
-    public abstract void ControlObject();
+    public abstract void AccesObject(PlayerRef player, INoticePlayerInteract status);
 
-   
+    protected abstract void ReleseObject(INoticePlayerInteract status);
 }
-

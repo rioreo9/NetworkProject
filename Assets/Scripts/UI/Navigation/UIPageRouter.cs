@@ -81,11 +81,4 @@ public partial class UIPageRouter : MonoBehaviour
     private void OnDisable() => _navigateSubscription?.Dispose();
 }
 
-public interface IInjectPageRouter
-{
-    /// <summary>
-    /// ページ遷移コマンドの Publisher を注入する。
-    /// </summary>
-    /// <param name="cmd">コマンド Publisher</param>
-    public void SetNavigate(ICommandPublisher cmd);
-}
+

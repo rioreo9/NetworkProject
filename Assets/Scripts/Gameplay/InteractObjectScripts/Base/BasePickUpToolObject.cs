@@ -5,14 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(NetworkTransform))]
 
-public abstract class BasePickUpToolObject : NetworkBehaviour
+public abstract class BasePickUpToolObject : NetworkBehaviour, IInteractableTool
 {
     [Networked]
     public bool IsInteractable { get; private set; } // インタラクト中かどうか
 
     [SerializeField]
     protected LayerMask _layerMask;
-    public LayerMask layerMask => _layerMask; // インタラクト可能なオブジェクトのレイヤーマスク
+    public LayerMask LayerMask => _layerMask; // インタラクト可能なオブジェクトのレイヤーマスク
 
     protected Rigidbody _copyObj; // インタラクト可能なオブジェクトのコピー
     protected Collider _copyCollider; // コピーオブジェクトのコライダー

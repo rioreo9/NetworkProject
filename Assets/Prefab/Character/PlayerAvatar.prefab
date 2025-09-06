@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 7775733860546693326}
   m_Layer: 7
   m_Name: PlayerAvatar
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stateAuthorityChangeErrorCorrectionDelta: 0
   SyncScale: 0
-  SyncParent: 0
+  SyncParent: 1
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
 --- !u!114 &-6682744637866649649

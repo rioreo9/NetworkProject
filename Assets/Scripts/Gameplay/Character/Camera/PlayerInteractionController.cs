@@ -1,4 +1,5 @@
 using Fusion;
+
 using UnityEngine;
 
 /// <summary>
@@ -62,7 +63,7 @@ public class PlayerInteractionController : NetworkBehaviour
             _cameraTransform.forward,
             out RaycastHit hit,
             _interactRange,
-            _toolManager.CurrentTool.layerMask))
+            _toolManager.CurrentTool.LayerMask))
         {
             _toolManager.UseTool(hit);
         }
@@ -116,7 +117,7 @@ public class PlayerInteractionController : NetworkBehaviour
     /// </summary>
     private bool TryInteractWithTool(RaycastHit hit)
     {
-        if (!hit.collider.TryGetComponent<BasePickUpToolObject>(out BasePickUpToolObject tool)) return false;
+        if (!hit.collider.TryGetComponent<IInteractableTool>(out IInteractableTool tool)) return false;
         if (tool.IsInteractable) return false;
 
         _toolManager.PickUpTool(tool, hit);
@@ -128,21 +129,15 @@ public class PlayerInteractionController : NetworkBehaviour
     /// </summary>
     private bool TryInteractWithGunEmplacement(Collider collider)
     {
+        if(!collider.TryGetComponent(out IInteractableControllable interactableControllable)) return false;
 
-        collider.TryGetComponent(out GunEmplacementController gunEmplacementController);
-        collider.TryGetComponent(out BaseInteractContObject baseInteractCont);
-
-        if (gunEmplacementController == null && baseInteractCont == null) return false;
-
-        if (gunEmplacementController != null)
+        Debug.Log("砲台にアクセス");
+        Debug.Log($"IsInteractable: {interactableControllable.IsInteractable}");
+        if (interactableControllable.IsInteractable)
         {
-            gunEmplacementController.Object.RequestStateAuthority();
-            gunEmplacementController.SetPlayerRef(Object.InputAuthority);
-        }
-
-        if (baseInteractCont != null)
-        {
-            baseInteractCont.Access(_playerStatus);
+            Debug.Log("操作可能");
+            interactableControllable.Object?.RequestStateAuthority();
+            interactableControllable.AccesObject(Object.InputAuthority, _playerStatus);
         }
         return true;
     }
@@ -176,7 +171,7 @@ public class PlayerInteractionController : NetworkBehaviour
             if (hit.collider == null) continue;
             if (hit.collider == _currentMarkedCollider) continue;
             // インタラクションタイプ別処理
-            
+
             TryGetMarkFromHit(hit.collider);
         }
     }
@@ -194,7 +189,7 @@ public class PlayerInteractionController : NetworkBehaviour
             _centerReticleUI.GetReticleIcon(button);
             _currentMarkedCollider = hit;
         }
-        else if (hit.TryGetComponent<BaseInteractContObject>(out BaseInteractContObject cont))
+        else if (hit.TryGetComponent<BaseInteractMonitor>(out BaseInteractMonitor cont))
         {
             _centerReticleUI.GetReticleIcon(cont);
             _currentMarkedCollider = hit;
