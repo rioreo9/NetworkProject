@@ -1,15 +1,10 @@
 using UnityEngine;
 using Fusion;
-using R3;
-using UnityEngine.UI;
 using VContainer;
-using VitalRouter;
+using Core.Utils;
 
-public class ShipShieldButton : NetworkBehaviour
+public class ShipShieldButton : BaseInteractButtonObject
 {
-  
-    [SerializeField]
-    private Button _shieldButton;
 
     private ShipShieldSystem _shipShieldSystem;
 
@@ -19,30 +14,19 @@ public class ShipShieldButton : NetworkBehaviour
         _shipShieldSystem = shieldSystem;
     }
 
-    public override void Spawned()
+    public override void PushButton()
     {
-        _shieldButton?.OnClickAsObservable()
-             .Subscribe(_ => NoticePush())
-             .AddTo(this);
-    }
-
-    
-    private void NoticePush()
-    {
-        if (Object.HasStateAuthority)
-        {
-            ToggleShield();
-        }
-        else
-        {
-            RPC_RequestToggleShield();
-        }
+        NetworkAuthorityHelper.ExecuteWithAuthority(
+             this,
+             directAction: ToggleShield,
+             rpcAction: RPC_RequestToggleShield
+             );
     }
 
     /// <summary>
     /// スイッチ状態を切り替える（サーバー側のみ実行）
     /// </summary>
-    private void ToggleShield()
+    private void ToggleShield() 
     {
         _shipShieldSystem?.ToggleShield();
     }

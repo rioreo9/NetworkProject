@@ -41,6 +41,11 @@ public class ShipShieldDurability : NetworkBehaviour, IDamageNotifiable
         if (!HasStateAuthority) return;
         CurrentShieldPoints = Mathf.Min(CurrentShieldPoints + repairAmount, 100f); // Assuming 100 is the max shield points
         UpdateHp();
+
+        if (CurrentShieldPoints > 0)
+        {
+            _shipShieldSystem.RepairShield();
+        }
     }
 
     private void UpdateHp()

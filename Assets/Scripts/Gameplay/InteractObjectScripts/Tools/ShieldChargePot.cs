@@ -2,27 +2,10 @@ using Fusion;
 using System;
 using UnityEngine;
 
-public class ShieldChargePot : BasePickUpToolObject, IInteractableTool
+public class ShieldChargePot : BasePickUpToolObject
 {
     [SerializeField]
     private float _repairAmount = 20f; // シールドの修理量
-
-    public override void Spawned()
-    {
-        if (gameObject.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
-        {
-            _rigidbody = rigidbody;
-        }
-        else
-        {
-            _rigidbody = gameObject.AddComponent<Rigidbody>();
-        }
-
-        if (gameObject.TryGetComponent(out NetworkTransform targetNetworkTransform))
-        {
-            _networkTransform = targetNetworkTransform;
-        }
-    }
 
     public override bool CheckInteractableObject(RaycastHit hit)
     {

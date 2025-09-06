@@ -17,6 +17,7 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     private bool _interactPressed = false;
     private bool _isAttackPressed = false;
     private bool _isDropPressed = false; // ドロップボタンが押されたかどうか
+    private bool _isRunning = false; // 走る入力状態
 
     private PlayerNetworkInput _networkInput = new PlayerNetworkInput();
     public PlayerNetworkInput NetworkInput => _networkInput;
@@ -75,6 +76,8 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
         _networkInput.AttackPressed.Set(MyButtons.Attack, _isAttackPressed); // 攻撃ボタンが押されたか
 
         _networkInput.DropPressed.Set(MyButtons.Drop, _isDropPressed); // ドロップボタンが押されたか
+
+        _networkInput.RunPressed.Set(MyButtons.Run, _isRunning); // 走るボタンが押されたか
     }
 
     /// <summary>
@@ -94,6 +97,21 @@ public class InputManager : MonoBehaviour, GameInput.IPlayerActions
     public void OnMove(InputAction.CallbackContext context)
     {
         _currentMoveInput = context.ReadValue<Vector2>();
+    }
+
+    /// <summary>走る入力コールバック（Shift、左スティッククリック）</summary>
+    public void OnRun(InputAction.CallbackContext context)
+    {
+        if (context.started || context.performed)
+        {
+            // ボタンが押された瞬間、または押し続けている間
+            _isRunning = true;
+        }
+        else if (context.canceled)
+        {
+            // ボタンが離された瞬間
+            _isRunning = false;
+        }
     }
 
     /// <summary>カメラ回転入力コールバック（マウス、右スティック）</summary>

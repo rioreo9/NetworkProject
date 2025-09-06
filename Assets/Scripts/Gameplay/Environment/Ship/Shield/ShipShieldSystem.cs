@@ -4,7 +4,8 @@ using R3;
 
 public interface IShieldBreakable
 {
-    void BreakShield();
+    public void BreakShield();
+    public void RepairShield();
 }
 
 public enum ShieldState
@@ -42,6 +43,15 @@ public class ShipShieldSystem : NetworkBehaviour, IShieldBreakable
     public void BreakShield()
     {
         CurrentShieldState = ShieldState.Broken;
+    }
+
+    public void RepairShield()
+    {
+        if (!Object.HasStateAuthority || CurrentShieldState != ShieldState.Broken)
+        {
+            return; // サーバー権限がないか、シールドが壊れていない場合は何もしない
+        }
+        CurrentShieldState = ShieldState.Inactive; // シールドを修理して非アクティブ状態に戻す
     }
 
     private void UpdateShieldActive()

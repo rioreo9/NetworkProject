@@ -20,6 +20,9 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField, Required]
     private string _sesionName = "Test";
 
+    [SerializeField, Required]
+    private Transform _spawnPosition = default;
+
     private NetworkRunner _runner;
 
     private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
@@ -104,8 +107,8 @@ public class GameLauncher : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         // アバターの初期位置を計算する（半径5の円の内部のランダムな点）
-        Vector2 rand = UnityEngine.Random.insideUnitCircle * 5f;
-        Vector3 spawnPosition = new Vector3(rand.x, 2f, rand.y);
+        Vector2 rand = UnityEngine.Random.insideUnitCircle * 2f;
+        Vector3 spawnPosition = new Vector3(_spawnPosition.position.x + rand.x, _spawnPosition.position.y, _spawnPosition.position.z + rand.y);
 
         if (runner.GameMode == GameMode.Shared && player == runner.LocalPlayer || runner.IsServer)
         {
